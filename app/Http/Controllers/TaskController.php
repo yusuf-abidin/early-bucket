@@ -174,10 +174,10 @@ class TaskController extends Controller
                 $query->where('task_description', 'like', "%{$search}%");
             })
             ->when($request->date_from, function ($query, $date) {
-                $query->whereDate('created_at', '>=', $date);
+                $query->whereDate('tasks.created_at', '>=', $date);
             })
             ->when($request->date_to, function ($query, $date) {
-                $query->whereDate('created_at', '<=', $date);
+                $query->whereDate('tasks.created_at', '<=', $date);
             })
 
             ->when($request->filled('user_id'), function ($query) use ($request) {

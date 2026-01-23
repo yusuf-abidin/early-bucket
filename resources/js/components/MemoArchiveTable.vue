@@ -100,7 +100,7 @@ const handleResolveMemo = (memo: Memo) => {
                     "
                     class="text-center text-muted-foreground"
                 >
-                    No memos found
+                    Data memo tidak ditemukan
                 </TableCell>
             </TableRow>
             <TableRow v-for="(memo, index) in props.memos" :key="memo.id">

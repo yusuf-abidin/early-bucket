@@ -41,6 +41,17 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::post('categories/reorder', [\App\Http\Controllers\CategoryController::class, 'reorder'])->name('categories.reorder');
         Route::put('categories/{category}', [\App\Http\Controllers\CategoryController::class, 'update'])->name('categories.update');
         Route::delete('categories/{category}', [\App\Http\Controllers\CategoryController::class, 'destroy'])->name('categories.destroy');
+
+//        MANAJEMEN AREA
+        Route::get('areas', [\App\Http\Controllers\AreaController::class, 'index'])->name('areas.index');
+        Route::post('areas', [\App\Http\Controllers\AreaController::class, 'store'])->name('areas.store');
+        Route::patch('areas/{area}', [\App\Http\Controllers\AreaController::class, 'update'])->name('areas.update');
+        Route::delete('areas/{area}', [\App\Http\Controllers\AreaController::class, 'destroy'])->name('areas.destroy');
+
+//        MANAJEMEN BRANCH
+        Route::post('branches', [\App\Http\Controllers\BranchController::class, 'store'])->name('branches.store');
+        Route::patch('branches/{branch}', [\App\Http\Controllers\BranchController::class, 'update'])->name('branches.update');
+        Route::delete('branches/{branch}', [\App\Http\Controllers\BranchController::class, 'destroy'])->name('branches.destroy');
     });
 });
 

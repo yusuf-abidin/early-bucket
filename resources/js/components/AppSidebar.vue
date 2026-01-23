@@ -83,8 +83,8 @@ const adminNavItem: NavItem[] = [
                 href: admin.users.index().url,
             },
             {
-                title: 'Manajemen Area/Cabang',
-                href: '#',
+                title: 'Area/Cabang',
+                href: admin.areas.index().url,
             },
             {
                 title: 'Manajemen kategori',

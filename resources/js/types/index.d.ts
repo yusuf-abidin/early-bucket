@@ -129,4 +129,16 @@ export interface Memo {
     follow_up_note: string;
 }
 
+export interface Area {
+    id: number;
+    name: string;
+    branches: Branch[];
+}
+
+export interface Branch {
+    id: number;
+    area_id: number;
+    name: string;
+}
+
 export type BreadcrumbItemType = BreadcrumbItem;

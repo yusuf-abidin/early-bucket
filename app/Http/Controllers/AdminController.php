@@ -14,7 +14,7 @@ class AdminController extends Controller
 {
     public function users()
     {
-        $users = User::get();
+        $users = User::orderBy('name', 'asc')->get();
 
         return Inertia::render('admin/users/Index', [
             'users' => $users

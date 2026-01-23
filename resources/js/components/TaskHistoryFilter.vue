@@ -16,7 +16,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useDebounceFn } from '@vueuse/core';
 import {
     Search,
     Settings2,
@@ -70,14 +69,6 @@ const selectedUsers = ref<number[]>(props.initialFilters?.userIds || []);
 const sortBy = ref(props.initialFilters?.sortBy || 'created_at');
 const sortDir = ref<'asc' | 'desc'>(props.initialFilters?.sortDir || 'desc');
 
-const debouncedApplyFilters = useDebounceFn(() => {
-    applyFilters();
-}, 1000);
-
-watch(searchQuery, () => {
-    debouncedApplyFilters();
-});
-
 const defaultColumns = {
     task: true,
     assignedUser: true,
@@ -128,7 +119,7 @@ const applyFilters = () => {
 
 // Watch changes dan apply filters
 watch(
-    [searchQuery, dateRange, selectedUsers, sortBy, sortDir],
+    [dateRange, selectedUsers, sortBy, sortDir],
     () => {
         applyFilters();
     },
@@ -144,15 +135,25 @@ const toggleSortDir = () => {
 <template>
     <div class="flex items-center justify-between gap-4">
         <!-- Search Input -->
-        <div class="relative max-w-sm flex-1">
-            <Search
-                class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-                v-model="searchQuery"
-                placeholder="Search agenda"
-                class="pl-9"
-            />
+        <div class="relative max-w-sm flex-1 flex items-center gap-2">
+            <div class="relative flex-1">
+                <Search
+                    class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                />
+                <Input
+                    v-model="searchQuery"
+                    placeholder="Search agenda"
+                    class="pl-9"
+                    @keyup.enter="applyFilters"
+                />
+            </div>
+            <Button
+                variant="secondary"
+                size="sm"
+                @click="applyFilters"
+            >
+                Search
+            </Button>
         </div>
 
         <div class="flex items-center gap-2">

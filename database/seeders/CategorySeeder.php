@@ -38,11 +38,59 @@ class CategorySeeder extends Seeder
         foreach ($categories as $name => $colorId) {
             Category::create([
                 'name' => $name,
-                'type' => 'memo',
+                'type' => 'sifat_memo',
                 'order' => $order,
                 'color_id' => $colorId
             ]);
             $order++;
+        }
+
+        $order = 1;
+        $categories = [
+            'Tercapai' => 5,
+            'Ragu' => 3,
+            'Tidak Tercapai' => 1,
+        ];
+        foreach ($categories as $name => $colorId) {
+            Category::create([
+                'name' => $name,
+                'type' => 'komitmen_etape',
+                'order' => $order,
+                'color_id' => $colorId
+            ]);
+            $order++;
+        }
+
+        $order = 1;
+        $categories = [
+            'Membaik' => 5,
+            'Square' => 3,
+            'Memburuk' => 1,
+        ];
+
+        foreach ($categories as $name => $colorId) {
+            Category::create([
+                'name' => $name,
+                'type' => 'komitmen_EOM_(BC)',
+                'order' => $order,
+                'color_id' => $colorId
+            ]);
+        }
+
+        $order = 1;
+        $categories = [
+            'Membaik' => 5,
+            'Square' => 3,
+            'Memburuk' => 1,
+        ];
+
+        foreach ($categories as $name => $colorId) {
+            Category::create([
+                'name' => $name,
+                'type' => 'komitmen_EOM_(BM)',
+                'order' => $order,
+                'color_id' => $colorId
+            ]);
         }
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Area;
+use App\Models\Branch;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -149,5 +151,18 @@ class CabangSeeder extends Seeder
                 ]
             ],
         ];
+
+        foreach ($data as $item) {
+            $area = Area::create([
+                'name' => $item['area_name']
+            ]);
+
+            foreach ($item['branches'] as $branch) {
+                Branch::create([
+                    'area_id' => $area->id,
+                    'name' => $branch['name']
+                ]);
+            }
+        }
     }
 }

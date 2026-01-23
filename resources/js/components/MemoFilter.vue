@@ -5,7 +5,6 @@ import {
     parseDate,
 } from '@internationalized/date';
 import { inject, Ref, ref, watch } from 'vue';
-import { useDebounceFn } from '@vueuse/core';
 import { router } from '@inertiajs/vue3';
 import { ArrowUpDown, Plus, Search, Settings2 } from 'lucide-vue-next';
 import { Input } from '@/components/ui/input';
@@ -76,14 +75,6 @@ const selectedUsers = ref<number[]>(props.initialFilters?.userIds || []);
 const sortBy = ref(props.initialFilters?.sortBy || 'received_at');
 const sortDir = ref<'asc' | 'desc'>(props.initialFilters?.sortDir || 'desc');
 
-const debouncedApplyFilters = useDebounceFn(() => {
-    applyFilters();
-}, 1000);
-
-watch(searchQuery, () => {
-    debouncedApplyFilters();
-});
-
 const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
 
 const sortableColumns = [
@@ -118,7 +109,7 @@ const applyFilters = () => {
 };
 
 watch(
-    [searchQuery, dateRange, selectedUsers, sortBy, sortDir],
+    [dateRange, selectedUsers, sortBy, sortDir],
     () => {
         applyFilters();
     },
@@ -135,15 +126,26 @@ const toggleSortDir = () => {
         class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
     >
         <!-- Search Input -->
-        <div class="relative min-w-24 w-full sm:max-w-sm sm:flex-1">
-            <Search
-                class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-            />
-            <Input
-                v-model="searchQuery"
-                placeholder="Search agenda"
-                class="pl-9"
-            />
+        <div class="relative w-full min-w-24 sm:max-w-sm sm:flex-1">
+            <div class="flex items-center gap-2">
+                <!-- Search input group -->
+                <div class="relative flex-1">
+                    <Search
+                        class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <Input
+                        v-model="searchQuery"
+                        placeholder="Search memo"
+                        class="pl-9"
+                        @keyup.enter="applyFilters"
+                    />
+                </div>
+
+                <!-- Tombol -->
+                <Button variant="secondary" size="sm" @click="applyFilters">
+                    Search
+                </Button>
+            </div>
         </div>
 
         <!-- Filter Buttons Container -->

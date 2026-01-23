@@ -69,7 +69,7 @@ class Memo extends Model
         if($sortBy === 'category') {
             return $query
                 ->join('categories', 'categories.id', '=', 'memos.category_id')
-                ->where('categories.type', 'memo')
+                ->where('categories.type', 'sifat_memo')
                 ->orderBy('categories.order', $sortDir)
                 ->select('memos.*');
         }

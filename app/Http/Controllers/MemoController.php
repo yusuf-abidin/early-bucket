@@ -18,7 +18,7 @@ class MemoController extends Controller
     public function index(Request $request)
     {
         $users = User::select('id', 'name')->get();
-        $categories = Category::select(['id', 'name', 'type'])->where('categories.type', 'memo')->with('color')->get();
+        $categories = Category::select(['id', 'name', 'type'])->where('categories.type', 'sifat_memo')->with('color')->get();
         $totalArchive= Memo::archived()->count();
 
         $sortBy = $request->sort_by ?? 'received_at';
