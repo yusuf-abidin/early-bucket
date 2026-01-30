@@ -296,7 +296,7 @@ const openLink = (url: string) => {
                                 Tanggal Masuk
                                 <span class="text-destructive">*</span>
                             </Label>
-                            <Popover>
+                            <Popover v-slot="{ close }">
                                 <PopoverTrigger as-child>
                                     <Button
                                         id="received_at"
@@ -326,6 +326,10 @@ const openLink = (url: string) => {
                                         :min-value="
                                             new CalendarDate(2025, 1, 1)
                                         "
+                                        @update:model-value="(value) => {
+                                            if (value) selectedReceivedAtDate = value;
+                                            close();
+                                        }"
                                     />
                                 </PopoverContent>
                             </Popover>
@@ -342,7 +346,7 @@ const openLink = (url: string) => {
                             <Label for="due_date" class="text-sm font-medium">
                                 Deadline
                             </Label>
-                            <Popover>
+                            <Popover v-slot="{ close }">
                                 <PopoverTrigger as-child>
                                     <Button
                                         id="due_date"
@@ -372,6 +376,10 @@ const openLink = (url: string) => {
                                         :min-value="
                                             new CalendarDate(2025, 1, 1)
                                         "
+                                        @update:model-value="(value) => {
+                                            if (value) selectedDeadlineDate = value;
+                                            close();
+                                        }"
                                     />
                                 </PopoverContent>
                             </Popover>

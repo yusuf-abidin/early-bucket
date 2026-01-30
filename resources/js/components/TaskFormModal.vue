@@ -348,7 +348,7 @@ watch(
                         <!-- Deadline -->
                         <div class="grid gap-3">
                             <Label for="due_date">Deadline</Label>
-                            <Popover>
+                            <Popover v-slot="{ close }">
                                 <PopoverTrigger as-child>
                                     <Button
                                         id="due_date"
@@ -373,6 +373,7 @@ watch(
                                         layout="month-and-year"
                                         initial-focus
                                         :min-value="new CalendarDate(2025, 1, 1)"
+                                        @update:model-value="close"
                                     />
                                 </PopoverContent>
                             </Popover>

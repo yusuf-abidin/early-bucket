@@ -48,7 +48,7 @@ const handleResolveTask = () => {
                 <AlertDialogTitle> Selesaikan Tugas? </AlertDialogTitle>
                 <AlertDialogDescription>
                     Apakah Anda yakin ingin menyelesaikan agenda ini? Setelah
-                    diselesaikan, agenda akan dipindahkan ke riwayat laporan.
+                    diselesaikan, agenda akan dipindahkan ke riwayat pekerjaan.
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
