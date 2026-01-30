@@ -38,7 +38,6 @@ const dialogDeleteBranchIsOpen = ref<boolean>(false)
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <AreaTable
-                :all_areas="props.all_areas"
                 :areas="props.areas"
                 v-model:selected-area="selectedArea"
                 v-model:selected-branch="selectedBranch"
@@ -55,7 +54,7 @@ const dialogDeleteBranchIsOpen = ref<boolean>(false)
 
 
             <FormBranchModal
-                :areas="props.areas"
+                :areas="props.all_areas"
                 v-model:selected-branch="selectedBranch"
                 v-model:form-branch-is-open="formBranchIsOpen"
             />

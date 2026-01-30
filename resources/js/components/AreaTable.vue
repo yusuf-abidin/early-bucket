@@ -29,7 +29,6 @@ import admin from '@/routes/admin';
 const props = defineProps<{
     areas: Area[];
     search?: string;
-    all_areas: Area[];
 }>();
 
 const selectedArea = defineModel<Area | null>('selectedArea', {
@@ -115,10 +114,16 @@ const startEditArea = async (area: Area) => {
     editName.value = area.name; // Copy nama ke state sementara
 
     await nextTick();
-    // Cari elemen input berdasarkan ID area
-    const inputEl = areaInputRefs.value[area.id];
-    if (inputEl) {
-        inputEl.$el.querySelector('input')?.focus() || inputEl.focus();
+
+    const component = areaInputRefs.value[area.id];
+    if (component) {
+        const inputElement =
+            component.$el instanceof HTMLInputElement
+                ? component.$el
+                : component.$el?.querySelector('input');
+        if (inputElement) {
+            inputElement.focus();
+        }
     }
 };
 
@@ -145,8 +150,10 @@ const handleUpdateArea = (area: Area) => {
 </script>
 
 <template>
-    <div class="flex max-w-2xl gap-3">
-        <div class="relative w-full min-w-24 sm:max-w-sm sm:flex-1">
+    <div
+        class="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+    >
+        <div class="flex w-full items-center gap-2 sm:max-w-sm">
             <div class="relative flex-1">
                 <Search
                     class="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground"
@@ -155,7 +162,7 @@ const handleUpdateArea = (area: Area) => {
                     type="text"
                     v-model="searchQuery"
                     placeholder="Cari area atau cabang..."
-                    class="pl-9"
+                    class="w-full pl-9"
                     @keyup.enter="applyFilters"
                 />
             </div>
@@ -170,28 +177,35 @@ const handleUpdateArea = (area: Area) => {
             </Button>
         </div>
 
-        <Button
-            variant="outline"
-            @click="toggleExpandAll"
-            class="cursor-pointer"
-        >
-            {{ allExpanded ? 'Collapse All' : 'Expand All' }}
-        </Button>
+        <div class="flex flex-wrap items-center gap-2">
+            <Button
+                variant="outline"
+                @click="toggleExpandAll"
+                class="flex-1 cursor-pointer sm:flex-none"
+            >
+                {{ allExpanded ? 'Collapse All' : 'Expand All' }}
+            </Button>
 
-        <Button
-            variant="secondary"
-            @click="handleFormBranch()"
-            class="cursor-pointer gap-2"
-        >
-            <Plus class="h-4 w-4" /> Tambah Cabang
-        </Button>
+            <Button
+                variant="secondary"
+                @click="handleFormBranch()"
+                class="flex-1 cursor-pointer gap-2 sm:flex-none"
+            >
+                <Plus class="h-4 w-4" />
+                <span class="whitespace-nowrap">Tambah Cabang</span>
+            </Button>
 
-        <Button @click="handleFormArea()" class="cursor-pointer gap-2">
-            <Plus class="h-4 w-4" /> Tambah Area
-        </Button>
+            <Button
+                @click="handleFormArea()"
+                class="flex-1 cursor-pointer gap-2 sm:flex-none"
+            >
+                <Plus class="h-4 w-4" />
+                <span class="whitespace-nowrap">Tambah Area</span>
+            </Button>
+        </div>
     </div>
 
-    <div class="max-w-2xl rounded-md border">
+    <div class="overflow-x-auto rounded-md border">
         <Table>
             <TableHeader>
                 <TableRow>
@@ -259,6 +273,7 @@ const handleUpdateArea = (area: Area) => {
                                         <Pencil class="h-4 w-4 text-blue-600" />
                                     </Button>
                                     <Button
+                                        class="cursor-pointer"
                                         v-if="area.branches?.length === 0"
                                         size="icon"
                                         variant="ghost"
