@@ -20,6 +20,7 @@ import admin from '@/routes/admin';
 import tasks from '@/routes/tasks';
 import memos from '@/routes/memos';
 import { LayoutDashboard } from 'lucide-vue-next';
+import etape from '@/routes/etape';
 
 const props = withDefaults(defineProps<SidebarProps>(), {
     collapsible: 'icon',
@@ -61,7 +62,7 @@ const mainNavItems: NavItem[] = [
         items: [
             {
                 title: 'ETAPE',
-                href: '#',
+                href: etape.index().url,
             },
             {
                 title: 'EOM',

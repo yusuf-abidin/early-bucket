@@ -44,4 +44,16 @@ class Category extends Model
     {
         return $this->belongsTo(Color::class);
     }
+
+    public function performancesAsKomitmenEtape(): HasMany {
+        return $this->hasMany(PerformanceEtape::class, 'komitmen_etape_id');
+    }
+
+    public function performancesAsKomitmenEomBc(): HasMany {
+        return $this->hasMany(PerformanceEtape::class, 'komitmen_eom_bc_id');
+    }
+
+    public function performancesAsKomitmenEomBm(): HasMany {
+        return $this->hasMany(PerformanceEtape::class, 'komitmen_eom_bm_id');
+    }
 }

@@ -12,7 +12,6 @@ import type {
 import { Head } from '@inertiajs/vue3';
 import tasksRoute from '@/routes/tasks';
 
-
 const props = defineProps<{
     tasks: Task[];
     users: User[];

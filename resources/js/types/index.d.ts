@@ -141,4 +141,15 @@ export interface Branch {
     name: string;
 }
 
+export interface PerformanceEtape {
+    id: number;
+    branch?: Branch;
+    etape_no: number;
+    user?: User;
+    prognosa_akhir_bulan: string | null;
+    kendala: string | null;
+    year: number;
+    month: number;
+}
+
 export type BreadcrumbItemType = BreadcrumbItem;

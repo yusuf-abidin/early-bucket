@@ -80,6 +80,10 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('{memo}', [\App\Http\Controllers\MemoController::class, 'destroy'])->name('destroy');
         Route::get('archive', [\App\Http\Controllers\MemoController::class, 'archive'])->name('archive');
     });
+
+    Route::get('etape', [\App\Http\Controllers\PerformanceEtapeController::class, 'index'])->name('etape.index');
+    Route::post('etape', [\App\Http\Controllers\PerformanceEtapeController::class, 'store'])->name('etape.store');
+    Route::post('etape/bulk', [\App\Http\Controllers\PerformanceEtapeController::class, 'bulkStore'])->name('etape.bulk');
 });
 
 
