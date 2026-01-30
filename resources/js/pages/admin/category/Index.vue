@@ -483,8 +483,8 @@ const breadcrumbs: BreadcrumbItem[] = [
         </div>
         <DialogDeleteCategory
             v-model:open="deleteDialog.open"
-            title="Delete Category"
-            description="Are you sure you want to delete this category? This action cannot be undone."
+            title="Hapus Kategori"
+            description="Apakah anda yakin ingin menghapus kategori ini? Tindakan ini tidak dapat dibatalkan."
             @confirm="confirmDelete"
             @cancel="cancelDelete"
         />

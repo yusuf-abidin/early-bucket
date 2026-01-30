@@ -21,6 +21,11 @@ class Category extends Model
         'order' => 'integer',
     ];
 
+    public function memos(): HasMany
+    {
+        return $this->hasMany(Memo::class);
+    }
+
     public function scopeOfType($query, string $type)
     {
         return $query->where('type', $type);

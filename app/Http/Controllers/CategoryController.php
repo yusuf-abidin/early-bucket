@@ -176,10 +176,26 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         if (Category::where('type', $category->type)->count() <= 1) {
-            return back()->withErrors(['message' => 'Cannot delete last category.']);
+            return back()->withErrors(['message' => 'Tidak dapat menghapus kategori terakhir']);
         }
-        if($category->tasks->count() > 0) {
-            return back()->withErrors(['message' => 'Cannot delete category with tasks.']);
+        if($category->tasks()->exists()) {
+            return back()->withErrors(['message' => 'Tidak dapat menghapus kategori yang masih memiliki pending matter.']);
+        }
+
+        if($category->memos()->exists()) {
+            return back()->withErrors(['message' => 'Tidak dapat menghapus kategori yang masih memiliki memo.']);
+        }
+
+        if($category->performancesAsKomitmenEtape()->exists()) {
+            return back()->withErrors(['message' => 'Tidak dapat menghapus kategori yang masih memiliki performance komitmen etape.']);
+        }
+
+        if($category->performancesAsKomitmenEomBc()->exists()) {
+            return back()->withErrors(['message' => 'Tidak dapat menghapus kategori yang masih memiliki performance komitmen eom bc.']);
+        }
+
+        if ($category->performancesAsKomitmenEomBm()->exists()){
+            return back()->withErrors(['message' => 'Tidak dapat menghapus kategori yang masih memiliki performance komitmen eom bm.']);
         }
 
         DB::transaction(function () use ($category) {

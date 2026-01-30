@@ -9,6 +9,7 @@ import {
     AlertDialogCancel,
     AlertDialogAction,
 } from '@/components/ui/alert-dialog';
+import { buttonVariants } from '@/components/ui/button';
 
 defineProps<{
     open: boolean;
@@ -38,8 +39,10 @@ const emit = defineEmits<{
                 <AlertDialogCancel @click="emit('cancel')"
                     >Cancel</AlertDialogCancel
                 >
-                <AlertDialogAction @click="emit('confirm')"
-                    >Continue</AlertDialogAction
+                <AlertDialogAction
+                    :class="buttonVariants({ variant: 'destructive' })"
+                    @click="emit('confirm')"
+                    >Hapus</AlertDialogAction
                 >
             </AlertDialogFooter>
         </AlertDialogContent>
