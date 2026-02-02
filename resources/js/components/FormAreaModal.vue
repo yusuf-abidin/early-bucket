@@ -100,7 +100,9 @@ watch(
                 <form @submit.prevent="submit" class="space-y-6 px-6 pb-6">
                     <div class="space-y-2">
 
-                        <Label for="name"> Nama Area </Label>
+                        <Label for="name"> Nama Area
+                            <span class="text-destructive">*</span>
+                        </Label>
                         <Input
                             :disabled="form.processing"
                             v-model="form.name"

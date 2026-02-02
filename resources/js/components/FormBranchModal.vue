@@ -4,9 +4,11 @@ import { Area, Branch } from '@/types';
 import BranchController from '@/actions/App/Http/Controllers/BranchController';
 import { watch } from 'vue';
 import {
-    Dialog, DialogClose,
+    Dialog,
+    DialogClose,
     DialogContent,
-    DialogDescription, DialogFooter,
+    DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
@@ -110,7 +112,10 @@ watch(
                 </DialogHeader>
                 <form @submit.prevent="submit" class="space-y-6 px-6">
                     <div class="space-y-2">
-                        <Label for="name"> Nama Cabang </Label>
+                        <Label for="name">
+                            Nama Cabang
+                            <span class="text-destructive">*</span>
+                        </Label>
                         <Input
                             :disabled="form.processing"
                             v-model="form.name"
@@ -118,14 +123,23 @@ watch(
                             type="text"
                             name="name"
                         />
-                        <p v-if="form.errors.name" class="text-xs text-destructive">
+                        <p
+                            v-if="form.errors.name"
+                            class="text-xs text-destructive"
+                        >
                             {{ form.errors.name }}
                         </p>
                     </div>
 
                     <div class="space-y-2">
-                        <Label for="area_id"> Area </Label>
-                        <Select v-model="form.area_id" :disabled="form.processing">
+                        <Label for="area_id">
+                            Area
+                            <span class="text-destructive">*</span>
+                        </Label>
+                        <Select
+                            v-model="form.area_id"
+                            :disabled="form.processing"
+                        >
                             <SelectTrigger id="area">
                                 <SelectValue placeholder="Pilih Area" />
                             </SelectTrigger>

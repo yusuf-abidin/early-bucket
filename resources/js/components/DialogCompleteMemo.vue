@@ -126,7 +126,7 @@ const handleResolveMemo = () => {
             </div>
             <AlertDialogFooter>
                 <AlertDialogCancel @click="closeModal"
-                    >Cancel</AlertDialogCancel
+                    >Batal</AlertDialogCancel
                 >
                 <Button @click="handleResolveMemo">
                     <template v-if="mode === 'index'">

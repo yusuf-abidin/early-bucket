@@ -234,7 +234,11 @@ watch(
                 <div class="grid gap-4">
                     <!-- Agenda (Full Width) -->
                     <div class="grid gap-3">
-                        <Label for="task_description">Agenda</Label>
+                        <Label for="task_description"
+                            >Agenda<span class="text-destructive"
+                                >*</span
+                            ></Label
+                        >
                         <Textarea
                             :disabled="form.processing"
                             id="task_description"
@@ -265,8 +269,8 @@ watch(
                                         <TagsInput
                                             :disabled="form.processing"
                                             :model-value="
-                                            selectedUsers.map((u) => u.name)
-                                        "
+                                                selectedUsers.map((u) => u.name)
+                                            "
                                             class="w-full"
                                         >
                                             <TagsInputItem
@@ -286,11 +290,11 @@ watch(
                                             >
                                                 <TagsInputInput
                                                     :disabled="form.processing"
-                                                    placeholder="Select PIC"
+                                                    placeholder="Pilih PIC"
                                                     @keydown.enter.prevent
                                                     @keydown.down="
-                                                    popoverOpen = true
-                                                "
+                                                        popoverOpen = true
+                                                    "
                                                 />
                                             </ListboxFilter>
 
@@ -301,7 +305,9 @@ watch(
                                                     variant="ghost"
                                                     class="order-last ml-auto self-start"
                                                 >
-                                                    <ChevronDown class="size-3.5" />
+                                                    <ChevronDown
+                                                        class="size-3.5"
+                                                    />
                                                 </Button>
                                             </PopoverTrigger>
                                         </TagsInput>
@@ -321,10 +327,10 @@ watch(
                                                 class="relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground"
                                                 :value="item.id"
                                                 @select="
-                                                () => {
-                                                    searchTerm = '';
-                                                }
-                                            "
+                                                    () => {
+                                                        searchTerm = '';
+                                                    }
+                                                "
                                             >
                                                 <span>{{ item.name }}</span>
                                                 <ListboxItemIndicator
@@ -347,32 +353,40 @@ watch(
 
                         <!-- Deadline -->
                         <div class="grid gap-3">
-                            <Label for="due_date">Deadline</Label>
+                            <Label for="due_date"
+                                >Deadline
+                                <span class="text-destructive">*</span></Label
+                            >
                             <Popover v-slot="{ close }">
                                 <PopoverTrigger as-child>
                                     <Button
                                         id="due_date"
                                         variant="outline"
                                         :class="[
-                                        'w-full justify-start text-left font-normal',
-                                        !selectedDate &&
-                                            'text-muted-foreground',
-                                    ]"
+                                            'w-full justify-start text-left font-normal',
+                                            !selectedDate &&
+                                                'text-muted-foreground',
+                                        ]"
                                         :disabled="form.processing"
                                     >
                                         <CalendarIcon class="mr-2 h-4 w-4" />
                                         <span v-if="selectedDate">
-                                        {{ formatDate(form.due_date) }}
-                                    </span>
+                                            {{ formatDate(form.due_date) }}
+                                        </span>
                                         <span v-else> Pilih tanggal </span>
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent class="w-auto p-0" align="start">
+                                <PopoverContent
+                                    class="w-auto p-0"
+                                    align="start"
+                                >
                                     <Calendar
                                         v-model="selectedDate"
                                         layout="month-and-year"
                                         initial-focus
-                                        :min-value="new CalendarDate(2025, 1, 1)"
+                                        :min-value="
+                                            new CalendarDate(2025, 1, 1)
+                                        "
                                         @update:model-value="close"
                                     />
                                 </PopoverContent>
@@ -390,10 +404,10 @@ watch(
                             <Label
                                 for="category_id"
                                 :class="{
-                                'text-destructive': form.errors.category_id,
-                            }"
+                                    'text-destructive': form.errors.category_id,
+                                }"
                             >
-                                Kategori Data
+                                Kategori
                                 <span class="text-destructive">*</span>
                             </Label>
                             <Select
@@ -401,7 +415,9 @@ watch(
                                 :disabled="form.processing"
                             >
                                 <SelectTrigger id="category">
-                                    <SelectValue placeholder="Select a category" />
+                                    <SelectValue
+                                        placeholder="Pilih kategori"
+                                    />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem
