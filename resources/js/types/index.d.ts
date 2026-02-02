@@ -74,6 +74,7 @@ export interface Color {
 
 export interface Task {
     id: number;
+    type: string;
     task_description: string;
     category_id: number;
     category: Category | null;

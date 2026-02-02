@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
-import { AppWindow, Rocket, ShieldIcon } from 'lucide-vue-next';
+import { AppWindow, FolderKanban, Rocket, ShieldIcon } from 'lucide-vue-next';
 import NavUser from '@/components/NavUser.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import admin from '@/routes/admin';
@@ -50,7 +50,7 @@ const mainNavItems: NavItem[] = [
             },
             {
                 title: 'Arsip Memo',
-                href: memos.archive().url
+                href: memos.archive().url,
             },
         ],
     },
@@ -69,6 +69,18 @@ const mainNavItems: NavItem[] = [
                 href: '#',
             },
         ],
+    },
+    {
+        title: 'Project',
+        href: '#',
+        icon: FolderKanban,
+        isActive: true,
+        items: [
+            {
+                title: 'Debitur Menabung',
+                href: '#'
+            },
+        ]
     },
 ];
 

@@ -17,6 +17,7 @@ class TaskController extends Controller
     public function index(Request $request)
     {
         $queryTask = Task::with('category', 'users')
+            ->where('type', Task::TYPE_PENDING)
             ->whereNull('completed_at')
             ->orderBy('due_date');
 
@@ -83,11 +84,13 @@ class TaskController extends Controller
             'notes' => ['nullable', 'max:255']
         ]);
 
+        $validated['type'] = Task::TYPE_PENDING;
+
         $task = Task::create($validated);
         if ($request->has('users')) {
             $task->users()->sync($request->users);
         }
-        return redirect()->route('tasks.index')->with('success', 'Task successfully created.');
+        return redirect()->route('tasks.index')->with('success', 'Pending matter berhasil dibuat.');
     }
 
     /**
@@ -111,6 +114,10 @@ class TaskController extends Controller
      */
     public function update(Request $request, Task $task)
     {
+        if ($task->type !== Task::TYPE_PENDING) {
+            return back()->withErrors(['message' => 'Tidak dapat menghapus karena bukan pending matter.']);
+        }
+
         $validated = $request->validate([
             'task_description' => ['sometimes', 'required', 'max:255'],
             'category_id' => ['sometimes', 'required', 'exists:categories,id'],
@@ -131,7 +138,7 @@ class TaskController extends Controller
             $task->users()->sync($validated['users'] ?? []);
         }
 
-        return redirect()->route('tasks.index')->with('success', 'Task successfully updated.');
+        return redirect()->route('tasks.index')->with('success', 'Pending matter berhasil diupdate.');
     }
 
     /**
@@ -139,13 +146,17 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
+        if ($task->type !== Task::TYPE_PENDING) {
+            return back()->withErrors(['message' => 'Tidak dapat menghapus karena bukan pending matter.']);
+        }
+
         try {
             $task->users()->detach();
             $task->delete();
 
-            return back()->with('success', 'Pending matter successfully deleted.');
+            return back()->with('success', 'Pending matter berhasil dihapus.');
         }catch (\Exception $exception){
-            return back()->withErrors(['message' => 'Failed to delete pending matter: ' . $exception->getMessage()]);
+            return back()->withErrors(['message' => 'Gagal menghapus pending matter: ' . $exception->getMessage()]);
         }
     }
 
@@ -166,6 +177,7 @@ class TaskController extends Controller
             ->get();
 
         $tasksQuery = Task::query()
+            ->where('type', Task::TYPE_PENDING)
             ->whereNotNull('completed_at')
             ->with(['category', 'users']);
 
