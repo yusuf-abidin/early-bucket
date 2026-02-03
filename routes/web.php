@@ -81,6 +81,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('archive', [\App\Http\Controllers\MemoController::class, 'archive'])->name('archive');
     });
 
+    Route::prefix('debtor-savings')->name('debtor-savings.')->group(function () {
+        Route::get('', [\App\Http\Controllers\DebtorSavingsController::class, 'index'])->name('index');
+        Route::post('', [\App\Http\Controllers\DebtorSavingsController::class, 'store'])->name('store');
+        Route::patch('{debtorSaving}', [\App\Http\Controllers\DebtorSavingsController::class, 'update'])->name('update');
+        Route::delete('{debtorSaving}', [\App\Http\Controllers\DebtorSavingsController::class, 'destroy'])->name('destroy');
+    });
+
     Route::get('etape', [\App\Http\Controllers\PerformanceEtapeController::class, 'index'])->name('etape.index');
     Route::post('etape', [\App\Http\Controllers\PerformanceEtapeController::class, 'store'])->name('etape.store');
     Route::post('etape/bulk', [\App\Http\Controllers\PerformanceEtapeController::class, 'bulkStore'])->name('etape.bulk');

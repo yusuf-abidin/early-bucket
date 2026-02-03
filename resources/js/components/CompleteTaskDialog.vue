@@ -12,9 +12,19 @@ import {
 } from '@/components/ui/alert-dialog';
 import tasks from '@/routes/tasks';
 import { router } from '@inertiajs/vue3';
+import debtorSavings from '@/routes/debtor-savings';
 
-const isOpen = defineModel<boolean>('isOpen', { default: false });
-const taskData = defineModel<Task | null>('taskData', { default: null });
+const props = withDefaults(
+    defineProps<{
+        mode?: 'pending_matter' | 'debtor_savings';
+    }>(),
+    {
+        mode: 'pending_matter',
+    },
+);
+
+const isOpen = defineModel<boolean>('completeTaskIsOpen', { default: false });
+const taskData = defineModel<Task | null>('selectedData', { default: null });
 
 const closeModal = () => {
     isOpen.value = false;
@@ -22,7 +32,13 @@ const closeModal = () => {
 };
 
 const handleResolveTask = () => {
-    const updateRoute = tasks.update(taskData.value!.id).url;
+    let updateRoute = null;
+    if (props.mode === 'pending_matter') {
+        updateRoute = tasks.update(taskData.value!.id).url;
+    }else {
+        updateRoute = debtorSavings.update(taskData.value!.id).url
+    }
+    console.log(updateRoute);
 
     // Tentukan nilai baru: jika sudah ada, jadikan null. Jika belum, beri timestamp.
     const newStatus = taskData.value!.completed_at
@@ -47,8 +63,13 @@ const handleResolveTask = () => {
             <AlertDialogHeader>
                 <AlertDialogTitle> Selesaikan Tugas? </AlertDialogTitle>
                 <AlertDialogDescription>
-                    Apakah Anda yakin ingin menyelesaikan agenda ini? Setelah
-                    diselesaikan, agenda akan dipindahkan ke riwayat pekerjaan.
+                    <template v-if="mode === 'pending_matter'">
+                        Apakah Anda yakin ingin menyelesaikan agenda ini? Setelah
+                        diselesaikan, agenda akan dipindahkan ke riwayat pekerjaan.
+                    </template>
+                    <template v-else>
+                        Apakah anda yakin?
+                    </template>
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

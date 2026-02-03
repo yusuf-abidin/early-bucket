@@ -11,6 +11,7 @@ class Task extends Model
     const TYPE_PENDING = 'pending_matter';
     const TYPE_DEBITUR = 'debitur_menabung';
     protected $fillable = [
+        'type',
         'task_description',
         'category_id',
         'due_date',

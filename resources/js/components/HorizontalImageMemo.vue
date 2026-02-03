@@ -68,7 +68,7 @@ const getChartData = (user: UserMemoSummary) => {
 };
 
 const getTotalMemos = (user: UserMemoSummary) => {
-    return (user.pending_count + user.near_overdue_count + user.overdue_count)
+    return user.pending_count + user.near_overdue_count + user.overdue_count;
 };
 
 const chartOptions = {
@@ -187,11 +187,10 @@ const chartOptions = {
                     <div
                         class="flex h-full max-w-xs min-w-52 cursor-pointer flex-col items-center rounded-xl border border-border bg-card p-4 text-card-foreground shadow-md"
                     >
-                        <div
-                            class="mb-3 flex w-full items-center justify-center gap-3"
-                        >
+                        <!-- Area atas (samakan dengan card user) -->
+                        <div class="relative flex h-32 w-full justify-center">
                             <Avatar
-                                class="h-20 w-20 flex-shrink-0 shadow-lg ring-4 ring-background"
+                                class="absolute top-1/2 left-1/2 z-0 h-24 w-24 flex-shrink-0 -translate-x-1/2 -translate-y-1/2 transform shadow-lg ring-4 ring-background"
                             >
                                 <AvatarFallback class="bg-primary/10">
                                     <FolderClosed
@@ -201,20 +200,20 @@ const chartOptions = {
                             </Avatar>
                         </div>
 
+                        <!-- Area bawah -->
                         <div class="mt-auto w-full text-center">
                             <p
-                                class="truncate text-base font-medium text-foreground"
+                                class="truncate text-base font-bold text-foreground"
                             >
                                 Total Arsip
                             </p>
-                            <p
-                                class="truncate text-base font-medium text-primary"
-                            >
-                                {{ total_archive }}
+                            <p class="truncate text-sm text-muted-foreground">
+                                Total : {{ total_archive }}
                             </p>
                         </div>
                     </div>
                 </div>
+
                 <!-- END CARD ARCHIVE -->
             </div>
             <ScrollBar orientation="horizontal" />

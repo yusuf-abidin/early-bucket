@@ -50,13 +50,21 @@ import {
     CalendarDate,
 } from '@internationalized/date';
 import { Calendar } from '@/components/ui/calendar';
+import DebtorSavingsController from '@/actions/App/Http/Controllers/DebtorSavingsController';
 
-const isOpen = defineModel<boolean>('isOpen', { default: false });
-const taskData = defineModel<Task | null>('taskData', { default: null });
-const props = defineProps<{
-    usersData: User[];
-    categories: Category[];
-}>();
+const isOpen = defineModel<boolean>('formIsOpen', { default: false });
+const taskData = defineModel<Task | null>('selectedData', { default: null });
+
+const props = withDefaults(
+    defineProps<{
+        usersData: User[];
+        categories: Category[];
+        mode?: 'pending_matter' | 'debtor_savings';
+    }>(),
+    {
+        mode: 'pending_matter',
+    },
+);
 
 const form = useForm({
     task_description: '',
@@ -159,10 +167,20 @@ const submit = () => {
     };
 
     if (!taskData.value) {
-        const route = TaskController.store.form();
-        form.submit(route.method, route.action, options);
+        let route = null;
+        if (props.mode === 'pending_matter') {
+            route = TaskController.store.form();
+        } else {
+            route = DebtorSavingsController.store.form();
+        }
+        form.submit(route!.method, route!.action, options);
     } else {
-        const route = TaskController.update.form(taskData.value.id);
+        let route = null;
+        if (props.mode === 'pending_matter') {
+            route = TaskController.update.form(taskData.value.id);
+        } else {
+            route = DebtorSavingsController.update.form(taskData.value.id);
+        }
         form.submit(route.method, route.action, options);
     }
 };
@@ -221,13 +239,13 @@ watch(
             <form @submit.prevent="submit">
                 <DialogHeader>
                     <DialogTitle>
-                        {{ taskData !== null ? 'Edit Task' : 'Create Task' }}
+                        {{ taskData !== null ? 'Ubah Data' : 'Tambah Data' }}
                     </DialogTitle>
                     <DialogDescription>
                         {{
                             taskData !== null
-                                ? 'Edit the details of the task'
-                                : 'Fill in the details to create a new task'
+                                ? 'Edit rincian data'
+                                : 'Tambah data baru'
                         }}
                     </DialogDescription>
                 </DialogHeader>
@@ -415,9 +433,7 @@ watch(
                                 :disabled="form.processing"
                             >
                                 <SelectTrigger id="category">
-                                    <SelectValue
-                                        placeholder="Pilih kategori"
-                                    />
+                                    <SelectValue placeholder="Pilih kategori" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem

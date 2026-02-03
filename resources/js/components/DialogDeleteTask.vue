@@ -13,10 +13,22 @@ import { Task } from '@/types';
 import { router } from '@inertiajs/vue3';
 import tasks from '@/routes/tasks';
 import { buttonVariants } from '@/components/ui/button';
+import debtorSavings from '@/routes/debtor-savings';
 
-const isOpen = defineModel<boolean>('isOpen', { default: false });
+const props = withDefaults(
+    defineProps<{
+        mode?: 'pending_matter' | 'debtor_savings';
+    }>(),
+    {
+        mode: 'pending_matter',
+    },
+);
 
-const taskData = defineModel<Task | null>('taskData', { default: null });
+const isOpen = defineModel<boolean>('dialogDeleteTaskIsOpen', {
+    default: false,
+});
+
+const taskData = defineModel<Task | null>('selectedData', { default: null });
 
 const closeModal = () => {
     isOpen.value = false;
@@ -24,7 +36,13 @@ const closeModal = () => {
 };
 
 const handleDelete = () => {
-    router.delete(tasks.destroy(taskData.value!.id).url, {
+    let deleteUrl= null
+    if (props.mode === 'pending_matter') {
+        deleteUrl = tasks.destroy(taskData.value!.id).url
+    }else {
+        deleteUrl = debtorSavings.destroy(taskData.value!.id).url
+    }
+    router.delete(deleteUrl, {
         preserveScroll: true,
         onSuccess: () => {
             closeModal();
@@ -39,9 +57,14 @@ const handleDelete = () => {
             <AlertDialogHeader>
                 <AlertDialogTitle> Apakah Anda yakin? </AlertDialogTitle>
                 <AlertDialogDescription>
-                    Tindakan ini tidak dapat dibatalkan. Agenda pending matter
-                    ini akan dihapus secara permanen beserta seluruh data tugas
-                    terkait
+                    <template v-if="props.mode === 'pending_matter'">
+                        Tindakan ini tidak dapat dibatalkan. Agenda pending
+                        matter ini akan dihapus secara permanen beserta seluruh
+                        data tugas terkait
+                    </template>
+                    <template v-else>
+                        Tindakan ini tidak dapat dibatalkan. Data akan dihapus secara permanen
+                    </template>
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

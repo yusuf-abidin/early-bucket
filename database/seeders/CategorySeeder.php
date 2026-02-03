@@ -92,5 +92,21 @@ class CategorySeeder extends Seeder
                 'color_id' => $colorId
             ]);
         }
+
+        $order = 1;
+        $categories = [
+            'Biasa' => 10,
+            'Penting' => 2,
+            'Urgent' => 1,
+        ];
+        foreach ($categories as $name => $colorId) {
+            Category::create([
+                'name' => $name,
+                'type' => 'debitur_menabung',
+                'order' => $order,
+                'color_id' => $colorId
+            ]);
+            $order++;
+        }
     }
 }

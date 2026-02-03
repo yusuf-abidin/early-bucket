@@ -35,19 +35,22 @@ class TaskController extends Controller
             ->withCount([
                 // 1. Benar-benar Pending (Belum lewat deadline & bukan mendekati deadline)
                 'tasks as pending_count' => function (Builder $query) {
-                    $query->whereNull('completed_at')
+                    $query->where('type', Task::TYPE_PENDING)
+                        ->whereNull('completed_at')
                         ->whereDate('due_date', '>', today()->addDays(3));
                 },
 
                 // 2. Sudah Lewat Deadline (Overdue)
                 'tasks as overdue_count' => function (Builder $query) {
-                    $query->whereNull('completed_at')
+                    $query->where('type', Task::TYPE_PENDING)
+                        ->whereNull('completed_at')
                         ->where('due_date', '<', now());
                 },
 
                 // 3. Mendekati Deadline (H-0 sampai H+3)
                 'tasks as near_overdue_count' => function (Builder $query) {
-                    $query->whereNull('completed_at')
+                    $query->where('type', Task::TYPE_PENDING)
+                        ->whereNull('completed_at')
                         ->whereDate('due_date', '>=', today())
                         ->whereDate('due_date', '<=', today()->addDays(3));
                 }

@@ -36,13 +36,20 @@ import {
     PopoverTrigger,
     PopoverContent,
 } from '@/components/ui/popover';
-import TaskFormModal from '@/components/TaskFormModal.vue';
 import { Badge } from '@/components/ui/badge';
-import DialogDeleteTask from '@/components/DialogDeleteTask.vue';
-import CompleteTaskDialog from '@/components/CompleteTaskDialog.vue';
 
-const dialogDeleteTask = ref(false);
-const dialogResolveTask = ref(false);
+const dialogDeleteTask = defineModel<boolean>('dialogDeleteTask', {
+    default: false,
+});
+const dialogResolveTask = defineModel<boolean>('dialogResolveTask', {
+    default: false,
+});
+const selectedData = defineModel<Task | null>('selectedData', {
+    default: null,
+});
+const formIsOpen = defineModel<boolean>('formIsOpen', {
+    default: false,
+});
 
 const props = defineProps<{
     tasksData: Task[];
@@ -120,28 +127,24 @@ const sortedTasks = computed(() => {
     return tasks;
 });
 
-const isOpen = ref(false);
-const editTask = ref<null | Task>(null);
-const deleteTask = ref<null | Task>(null);
-const resolveTask = ref<null | Task>(null);
 const openCreateModal = () => {
-    editTask.value = null;
-    isOpen.value = true;
+    selectedData.value = null;
+    formIsOpen.value = true;
 };
 
 const openEditModal = (task: Task) => {
-    editTask.value = task;
-    isOpen.value = true;
+    selectedData.value = task;
+    formIsOpen.value = true;
 };
 
 const handleDelete = (task: Task) => {
     dialogDeleteTask.value = true;
-    deleteTask.value = task;
+    selectedData.value = task;
 };
 
 const handleResolveTask = (task: Task) => {
     dialogResolveTask.value = true;
-    resolveTask.value = task;
+    selectedData.value = task;
 };
 
 const resetColumns = () => {
@@ -305,7 +308,9 @@ const resetColumns = () => {
                                 />
                             </div>
                         </TableHead>
-                        <TableHead class="text-center" v-if="visibleColumns.isResolved"
+                        <TableHead
+                            class="text-center"
+                            v-if="visibleColumns.isResolved"
                             >Check</TableHead
                         >
                         <TableHead v-if="visibleColumns.category"
@@ -362,9 +367,12 @@ const resetColumns = () => {
                                 {{ task.due_date }}
                             </Badge>
                         </TableCell>
-                        <TableCell class="text-center" v-if="visibleColumns.isResolved">
+                        <TableCell
+                            class="text-center"
+                            v-if="visibleColumns.isResolved"
+                        >
                             <Checkbox
-                                class="w-5 h-5"
+                                class="h-5 w-5"
                                 :model-value="!!task.completed_at"
                                 @click="handleResolveTask(task)"
                             />
@@ -426,28 +434,10 @@ const resetColumns = () => {
 
         <!-- Results info -->
         <div class="text-sm text-muted-foreground">
-            Showing {{ sortedTasks.length }} of
-            {{ props.tasksData.length }} tasks
+            Menampilkan {{ sortedTasks.length }} dari
+            {{ props.tasksData.length }} data
         </div>
     </div>
-
-    <DialogDeleteTask
-        v-model:is-open="dialogDeleteTask"
-        v-model:task-data="deleteTask"
-    />
-
-    <CompleteTaskDialog
-        v-model:is-open="dialogResolveTask"
-        v-model:task-data="resolveTask"
-    />
-
-    <TaskFormModal
-        :task="null"
-        v-model:is-open="isOpen"
-        v-model:taskData="editTask"
-        :usersData="props.usersData"
-        :categories="props.categories"
-    />
 </template>
 
 <style scoped></style>

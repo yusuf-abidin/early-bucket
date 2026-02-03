@@ -21,6 +21,7 @@ import tasks from '@/routes/tasks';
 import memos from '@/routes/memos';
 import { LayoutDashboard } from 'lucide-vue-next';
 import etape from '@/routes/etape';
+import debtorSavings from '@/routes/debtor-savings';
 
 const props = withDefaults(defineProps<SidebarProps>(), {
     collapsible: 'icon',
@@ -78,7 +79,7 @@ const mainNavItems: NavItem[] = [
         items: [
             {
                 title: 'Debitur Menabung',
-                href: '#'
+                href: debtorSavings.index().url,
             },
         ]
     },
@@ -165,27 +166,5 @@ const adminNavItem: NavItem[] = [
         </SidebarFooter>
         <SidebarRail />
     </Sidebar>
-    <!--    <Sidebar collapsible="icon" variant="inset">-->
-    <!--        <SidebarHeader>-->
-    <!--            <SidebarMenu>-->
-    <!--                <SidebarMenuItem>-->
-    <!--                    <SidebarMenuButton size="lg" as-child>-->
-    <!--                        <Link :href="dashboard()">-->
-    <!--                            <AppLogo />-->
-    <!--                        </Link>-->
-    <!--                    </SidebarMenuButton>-->
-    <!--                </SidebarMenuItem>-->
-    <!--            </SidebarMenu>-->
-    <!--        </SidebarHeader>-->
-
-    <!--        <SidebarContent>-->
-    <!--    <NavMain :items="mainNavItems" />-->
-    <!--        </SidebarContent>-->
-
-    <!--        <SidebarFooter>-->
-    <!--            <NavFooter :items="footerNavItems" />-->
-    <!--            <NavUser />-->
-    <!--        </SidebarFooter>-->
-    <!--    </Sidebar>-->
     <slot />
 </template>
