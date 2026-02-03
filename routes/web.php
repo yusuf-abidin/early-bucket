@@ -91,6 +91,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('etape', [\App\Http\Controllers\PerformanceEtapeController::class, 'index'])->name('etape.index');
     Route::post('etape', [\App\Http\Controllers\PerformanceEtapeController::class, 'store'])->name('etape.store');
     Route::post('etape/bulk', [\App\Http\Controllers\PerformanceEtapeController::class, 'bulkStore'])->name('etape.bulk');
+    Route::get('eom', [\App\Http\Controllers\PerformanceEtapeController::class, 'endOfMonth'])->name('eom.index');
 });
 
 

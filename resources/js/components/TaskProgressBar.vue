@@ -134,7 +134,7 @@ const completedPercentage = computed(() => {
             <div class="flex items-center space-x-2">
                 <div class="h-4 w-4 rounded bg-red-500"></div>
                 <div class="flex-1">
-                    <p class="text-xs font-medium">Mendekati Deadline</p>
+                    <p class="text-xs font-medium">Melewati Deadline</p>
                     <p class="text-sm font-semibold">
                         {{ stats.overdue }}
                     </p>

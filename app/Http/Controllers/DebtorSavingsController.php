@@ -16,7 +16,6 @@ class DebtorSavingsController extends Controller
     {
         $queryDebtSavings = Task::with('category', 'users')
             ->where('type', Task::TYPE_DEBITUR)
-            ->whereNull('completed_at')
             ->orderBy('due_date');
 
         if ($request->filled('user_id')) {

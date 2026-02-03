@@ -22,6 +22,7 @@ import memos from '@/routes/memos';
 import { LayoutDashboard } from 'lucide-vue-next';
 import etape from '@/routes/etape';
 import debtorSavings from '@/routes/debtor-savings';
+import eom from '@/routes/eom';
 
 const props = withDefaults(defineProps<SidebarProps>(), {
     collapsible: 'icon',
@@ -67,7 +68,7 @@ const mainNavItems: NavItem[] = [
             },
             {
                 title: 'EOM',
-                href: '#',
+                href: eom.index().url,
             },
         ],
     },
@@ -81,7 +82,7 @@ const mainNavItems: NavItem[] = [
                 title: 'Debitur Menabung',
                 href: debtorSavings.index().url,
             },
-        ]
+        ],
     },
 ];
 

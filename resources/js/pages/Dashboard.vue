@@ -88,7 +88,7 @@ const maxActivityValue = computed(() => {
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <!-- Total Tasks -->
                 <div
-                    class="group relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-gradient-to-br from-blue-50 to-blue-100/50 p-6 transition-all hover:shadow-lg dark:border-sidebar-border dark:from-blue-950/30 dark:to-blue-900/20"
+                    class="group relative overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-blue-50 to-blue-100/50 p-6 transition-all hover:shadow-lg dark:border-gray-700 dark:from-blue-950/30 dark:to-blue-900/20"
                 >
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
@@ -132,7 +132,7 @@ const maxActivityValue = computed(() => {
 
                 <!-- Pending Tasks -->
                 <div
-                    class="group relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-gradient-to-br from-amber-50 to-amber-100/50 p-6 transition-all hover:shadow-lg dark:border-sidebar-border dark:from-amber-950/30 dark:to-amber-900/20"
+                    class="group relative overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-amber-50 to-amber-100/50 p-6 transition-all hover:shadow-lg dark:border-gray-700 dark:from-amber-950/30 dark:to-amber-900/20"
                 >
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
@@ -173,7 +173,7 @@ const maxActivityValue = computed(() => {
 
                 <!-- Completion Rate -->
                 <div
-                    class="group relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-6 transition-all hover:shadow-lg dark:border-sidebar-border dark:from-emerald-950/30 dark:to-emerald-900/20"
+                    class="group relative overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-6 transition-all hover:shadow-lg dark:border-gray-700 dark:from-emerald-950/30 dark:to-emerald-900/20"
                 >
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
@@ -219,10 +219,10 @@ const maxActivityValue = computed(() => {
             <div class="grid gap-6 lg:grid-cols-3">
                 <!-- Upcoming Tasks -->
                 <div
-                    class="rounded-xl border border-sidebar-border/70 bg-white/50 backdrop-blur-sm lg:col-span-2 dark:border-sidebar-border dark:bg-sidebar/30"
+                    class="rounded-xl border border-gray-200 bg-white/50 backdrop-blur-sm lg:col-span-2 dark:border-gray-700 dark:bg-gray-800/30"
                 >
                     <div
-                        class="border-b border-sidebar-border/70 p-6 dark:border-sidebar-border"
+                        class="border-b border-gray-200 p-6 dark:border-gray-700"
                     >
                         <div class="flex items-center gap-3">
                             <div
@@ -234,11 +234,13 @@ const maxActivityValue = computed(() => {
                             </div>
                             <div>
                                 <h2
-                                    class="text-lg font-semibold text-sidebar-foreground"
+                                    class="text-lg font-semibold text-gray-900 dark:text-gray-100"
                                 >
                                     Upcoming Tasks
                                 </h2>
-                                <p class="text-sm text-muted-foreground">
+                                <p
+                                    class="text-sm text-gray-600 dark:text-gray-400"
+                                >
                                     Tasks due in the next 7 days
                                 </p>
                             </div>
@@ -256,7 +258,7 @@ const maxActivityValue = computed(() => {
                                     class="h-6 w-6 text-green-600 dark:text-green-400"
                                 />
                             </div>
-                            <p class="text-sm text-muted-foreground">
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
                                 No upcoming tasks
                             </p>
                         </div>
@@ -264,7 +266,7 @@ const maxActivityValue = computed(() => {
                             <div
                                 v-for="task in upcomingTasks"
                                 :key="task.id"
-                                class="group flex items-start gap-4 rounded-lg border border-sidebar-border/50 bg-white p-4 transition-all hover:border-sidebar-border hover:shadow-md dark:border-sidebar-border/30 dark:bg-sidebar/50 dark:hover:border-sidebar-border/70"
+                                class="group flex items-start gap-4 rounded-lg border border-gray-200/50 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-md dark:border-gray-700/30 dark:bg-gray-800/50 dark:hover:border-gray-600"
                             >
                                 <div
                                     class="mt-0.5 flex-shrink-0 rounded-md p-2"
@@ -277,12 +279,12 @@ const maxActivityValue = computed(() => {
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <p
-                                        class="font-medium text-sidebar-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400"
+                                        class="font-medium text-gray-900 group-hover:text-blue-600 dark:text-gray-100 dark:group-hover:text-blue-400"
                                     >
                                         {{ task.task_description }}
                                     </p>
                                     <div
-                                        class="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground"
+                                        class="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-600 dark:text-gray-400"
                                     >
                                         <span
                                             class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1"
@@ -312,10 +314,10 @@ const maxActivityValue = computed(() => {
 
                 <!-- Task Categories Progress -->
                 <div
-                    class="rounded-xl border border-sidebar-border/70 bg-white/50 backdrop-blur-sm dark:border-sidebar-border dark:bg-sidebar/30"
+                    class="rounded-xl border border-gray-200 bg-white/50 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/30"
                 >
                     <div
-                        class="border-b border-sidebar-border/70 p-6 dark:border-sidebar-border"
+                        class="border-b border-gray-200 p-6 dark:border-gray-700"
                     >
                         <div class="flex items-center gap-3">
                             <div
@@ -327,11 +329,13 @@ const maxActivityValue = computed(() => {
                             </div>
                             <div>
                                 <h2
-                                    class="text-lg font-semibold text-sidebar-foreground"
+                                    class="text-lg font-semibold text-gray-900 dark:text-gray-100"
                                 >
                                     Progress by Category
                                 </h2>
-                                <p class="text-sm text-muted-foreground">
+                                <p
+                                    class="text-sm text-gray-600 dark:text-gray-400"
+                                >
                                     Task completion rates
                                 </p>
                             </div>
@@ -355,17 +359,17 @@ const maxActivityValue = computed(() => {
                                             "
                                         ></span>
                                         <span
-                                            class="text-sm font-medium text-sidebar-foreground"
+                                            class="text-sm font-medium text-gray-900 dark:text-gray-100"
                                             >{{ category.name }}</span
                                         >
                                     </div>
                                     <span
-                                        class="text-sm font-semibold text-sidebar-foreground"
+                                        class="text-sm font-semibold text-gray-900 dark:text-gray-100"
                                         >{{ category.percentage }}%</span
                                     >
                                 </div>
                                 <div
-                                    class="h-2.5 w-full overflow-hidden rounded-full bg-sidebar-border/30"
+                                    class="h-2.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700/30"
                                 >
                                     <div
                                         class="h-full rounded-full transition-all duration-500"
@@ -378,7 +382,9 @@ const maxActivityValue = computed(() => {
                                         }"
                                     ></div>
                                 </div>
-                                <p class="mt-1 text-xs text-muted-foreground">
+                                <p
+                                    class="mt-1 text-xs text-gray-600 dark:text-gray-400"
+                                >
                                     {{ category.completed }} of
                                     {{ category.total }} completed
                                 </p>
@@ -392,10 +398,10 @@ const maxActivityValue = computed(() => {
             <div class="grid gap-6 lg:grid-cols-2">
                 <!-- Recent Memos -->
                 <div
-                    class="rounded-xl border border-sidebar-border/70 bg-white/50 backdrop-blur-sm dark:border-sidebar-border dark:bg-sidebar/30"
+                    class="rounded-xl border border-gray-200 bg-white/50 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/30"
                 >
                     <div
-                        class="border-b border-sidebar-border/70 p-6 dark:border-sidebar-border"
+                        class="border-b border-gray-200 p-6 dark:border-gray-700"
                     >
                         <div class="flex items-center gap-3">
                             <div
@@ -407,11 +413,13 @@ const maxActivityValue = computed(() => {
                             </div>
                             <div>
                                 <h2
-                                    class="text-lg font-semibold text-sidebar-foreground"
+                                    class="text-lg font-semibold text-gray-900 dark:text-gray-100"
                                 >
                                     Recent Memos
                                 </h2>
-                                <p class="text-sm text-muted-foreground">
+                                <p
+                                    class="text-sm text-gray-600 dark:text-gray-400"
+                                >
                                     Latest {{ stats.totalMemos }} memos received
                                 </p>
                             </div>
@@ -422,7 +430,7 @@ const maxActivityValue = computed(() => {
                             v-if="recentMemos.length === 0"
                             class="py-12 text-center"
                         >
-                            <p class="text-sm text-muted-foreground">
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
                                 No memos yet
                             </p>
                         </div>
@@ -430,7 +438,7 @@ const maxActivityValue = computed(() => {
                             <div
                                 v-for="memo in recentMemos"
                                 :key="memo.id"
-                                class="group rounded-lg border border-sidebar-border/50 bg-white p-4 transition-all hover:border-sidebar-border hover:shadow-md dark:border-sidebar-border/30 dark:bg-sidebar/50 dark:hover:border-sidebar-border/70"
+                                class="group rounded-lg border border-gray-200/50 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-md dark:border-gray-700/30 dark:bg-gray-800/50 dark:hover:border-gray-600"
                             >
                                 <div class="flex items-start gap-3">
                                     <div
@@ -444,17 +452,17 @@ const maxActivityValue = computed(() => {
                                     </div>
                                     <div class="min-w-0 flex-1">
                                         <p
-                                            class="font-medium text-sidebar-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400"
+                                            class="font-medium text-gray-900 group-hover:text-indigo-600 dark:text-gray-100 dark:group-hover:text-indigo-400"
                                         >
                                             {{ memo.subject }}
                                         </p>
                                         <p
-                                            class="mt-1 text-sm text-muted-foreground"
+                                            class="mt-1 text-sm text-gray-600 dark:text-gray-400"
                                         >
                                             From: {{ memo.origin }}
                                         </p>
                                         <div
-                                            class="mt-2 flex items-center gap-2 text-xs text-muted-foreground"
+                                            class="mt-2 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400"
                                         >
                                             <span
                                                 class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1"
@@ -479,10 +487,10 @@ const maxActivityValue = computed(() => {
 
                 <!-- Weekly Activity Chart -->
                 <div
-                    class="rounded-xl border border-sidebar-border/70 bg-white/50 backdrop-blur-sm dark:border-sidebar-border dark:bg-sidebar/30"
+                    class="rounded-xl border border-gray-200 bg-white/50 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/30"
                 >
                     <div
-                        class="border-b border-sidebar-border/70 p-6 dark:border-sidebar-border"
+                        class="border-b border-gray-200 p-6 dark:border-gray-700"
                     >
                         <div class="flex items-center gap-3">
                             <div
@@ -494,11 +502,13 @@ const maxActivityValue = computed(() => {
                             </div>
                             <div>
                                 <h2
-                                    class="text-lg font-semibold text-sidebar-foreground"
+                                    class="text-lg font-semibold text-gray-900 dark:text-gray-100"
                                 >
                                     Weekly Activity
                                 </h2>
-                                <p class="text-sm text-muted-foreground">
+                                <p
+                                    class="text-sm text-gray-600 dark:text-gray-400"
+                                >
                                     Last 7 days performance
                                 </p>
                             </div>
@@ -511,7 +521,8 @@ const maxActivityValue = computed(() => {
                                     <div
                                         class="h-3 w-3 rounded-sm bg-blue-500"
                                     ></div>
-                                    <span class="text-muted-foreground"
+                                    <span
+                                        class="text-gray-600 dark:text-gray-400"
                                         >Tasks</span
                                     >
                                 </div>
@@ -519,7 +530,8 @@ const maxActivityValue = computed(() => {
                                     <div
                                         class="h-3 w-3 rounded-sm bg-purple-500"
                                     ></div>
-                                    <span class="text-muted-foreground"
+                                    <span
+                                        class="text-gray-600 dark:text-gray-400"
                                         >Memos</span
                                     >
                                 </div>
@@ -580,7 +592,9 @@ const maxActivityValue = computed(() => {
                                     </div>
 
                                     <!-- DATE LABEL -->
-                                    <span class="text-xs text-muted-foreground">
+                                    <span
+                                        class="text-xs text-gray-600 dark:text-gray-400"
+                                    >
                                         {{ activity.date }}
                                     </span>
                                 </div>

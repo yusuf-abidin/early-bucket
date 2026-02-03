@@ -61,7 +61,14 @@ const handleResolveTask = () => {
     <AlertDialog v-model:open="isOpen" @update:open="closeModal">
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle> Selesaikan Tugas? </AlertDialogTitle>
+                <AlertDialogTitle>
+                    <template v-if="taskData?.completed_at">
+                        Batalkan Penyelesaian Agenda
+                    </template>
+                    <template v-else>
+                        Selesaikan Agenda?
+                    </template>
+                </AlertDialogTitle>
                 <AlertDialogDescription>
                     <template v-if="mode === 'pending_matter'">
                         Apakah Anda yakin ingin menyelesaikan agenda ini? Setelah

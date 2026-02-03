@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\PerformanceEtape;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class PerformanceEtapeController extends Controller
@@ -16,6 +17,96 @@ class PerformanceEtapeController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
+    {
+        $data = $this->getPerformanceData($request);
+        return Inertia::render('performance/Etape', $data);
+    }
+
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        try {
+
+            $validated = $request->validate([
+                'branch_id' => ['required' , 'exists:branches,id'],
+                'etape_no' => ['required', Rule::in(['1', '2', '3', 'eom'])],
+                'year' => ['required', 'integer'],
+                'month' => ['required', 'integer', 'between:1,12'],
+                'user_id' => ['nullable', 'exists:users,id'],
+                'komitmen_etape_id' => ['nullable', 'exists:categories,id'],
+                'komitmen_eom_bc_id' => ['nullable', 'exists:categories,id'],
+                'komitmen_eom_bm_id' => ['nullable', 'exists:categories,id'],
+                'prognosa_akhir_bulan' => ['nullable', 'numeric'],
+                'kendala' => ['nullable', 'string'],
+            ]);
+
+            $performance = PerformanceEtape::updateOrCreate(
+                [
+                    'branch_id' => $validated['branch_id'],
+                    'etape_no' => $validated['etape_no'],
+                    'year' => $validated['year'],
+                    'month' => $validated['month'],
+                ],
+                [
+                    'user_id' => $validated['user_id'],
+                    'komitmen_etape_id' => $validated['komitmen_etape_id'],
+                    'komitmen_eom_bc_id' => $validated['komitmen_eom_bc_id'],
+                    'komitmen_eom_bm_id' => $validated['komitmen_eom_bm_id'],
+                    'prognosa_akhir_bulan' => $validated['prognosa_akhir_bulan'],
+                    'kendala' => $validated['kendala'],
+                ]
+            );
+
+            return redirect()->back()->with('success', 'Data berhasil disimpan.');
+        }catch (\Exception $exception){
+            return back()->withErrors(['message' => 'Gagal menyimpan data: ' . $exception->getMessage()]);
+        }
+    }
+
+    public function bulkStore(Request $request) {
+        $validated = $request->validate([
+            'performance' => 'required|array',
+            'performance.*.branch_id' => 'required|exists:branches,id',
+            'performance.*.etape_no' => ['required', Rule::in(['1', '2', '3', 'eom'])],
+            'performance.*.year' => 'required|integer',
+            'performance.*.month' => 'required|integer|between:1,12',
+            'performance.*.user_id' => 'nullable|exists:users,id',
+            'performance.*.komitmen_etape_id' => 'nullable|exists:categories,id',
+            'performance.*.komitmen_eom_bc_id' => 'nullable|exists:categories,id',
+            'performance.*.komitmen_eom_bm_id' => 'nullable|exists:categories,id',
+            'performance.*.prognosa_akhir_bulan' => 'nullable|numeric',
+            'performance.*.kendala' => 'nullable|string',
+        ]);
+
+        try {
+            \DB::beginTransaction();
+
+            PerformanceEtape::upsert(
+                $validated['performance'],
+                ['branch_id', 'etape_no', 'year', 'month'],
+                ['user_id', 'komitmen_etape_id', 'komitmen_eom_bc_id', 'komitmen_eom_bm_id', 'prognosa_akhir_bulan', 'kendala'],
+            );
+
+            \DB::commit();
+            return redirect()->back()->with('success', 'Data berhasil disimpan.');
+        }catch (\Exception $exception){
+            \DB::rollBack();
+
+            return back()->withErrors(['message' => 'Gagal menyimpan data: ' . $exception->getMessage()]);
+        }
+
+    }
+
+    public function endOfMonth(Request $request)
+    {
+        $data = $this->getPerformanceData($request);
+        return Inertia::render('performance/EndOfMonth', $data);
+    }
+
+    private function getPerformanceData($request)
     {
         $month = $request->input('month', now()->month);
         $year = $request->input('year', now()->year);
@@ -33,7 +124,9 @@ class PerformanceEtapeController extends Controller
                         ->where('etape_no', $etapeNo);
                 });
             }
-        }])->get();
+        }])
+            ->orderBy('name', 'asc')
+            ->get();
 
         $performanceEtapes = PerformanceEtape::with([
             'user:id,name,color_id',
@@ -47,7 +140,7 @@ class PerformanceEtapeController extends Controller
             'komitmenEomBm:id,name,color_id',
             'komitmenEomBm.color:id,name,class',
 
-            ])
+        ])
             ->where('month', $month)
             ->where('year', $year)
             ->where('etape_no', $etapeNo)
@@ -95,8 +188,8 @@ class PerformanceEtapeController extends Controller
                 'id' => $area->id,
                 'name' => $area->name,
                 'branches' => $areaBranches,
-                'total_prognosa' => $totalPrognosaArea,  // Tambahkan ini
-                'total_branches_filled' => $totalBranchesFilled,  // Tambahkan ini
+                'total_prognosa' => $totalPrognosaArea,
+                'total_branches_filled' => $totalBranchesFilled,
             ];
         })->filter(function ($area) {
             return $area['branches']->isNotEmpty();
@@ -121,8 +214,7 @@ class PerformanceEtapeController extends Controller
                 ->get(['id', 'name', 'color_id']),
         ];
 
-
-        return Inertia::render('performance/Etape', [
+        return [
             'areas' => $displayData,
             'users' => $users,
             'categories' => $categories,
@@ -140,86 +232,7 @@ class PerformanceEtapeController extends Controller
                 'total_areas' => $displayData->count(),
                 'total_branches' => $displayData->sum(fn($area) => $area['branches']->count()),
                 'total_filled' => $performanceEtapes->count(),
-            ]
-        ]);
+            ],
+        ];
     }
-
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        try {
-
-            $validated = $request->validate([
-                'branch_id' => ['required' , 'exists:branches,id'],
-                'etape_no' => ['required', 'integer', 'in:1,2,3'],
-                'year' => ['required', 'integer'],
-                'month' => ['required', 'integer', 'between:1,12'],
-                'user_id' => ['nullable', 'exists:users,id'],
-                'komitmen_etape_id' => ['nullable', 'exists:categories,id'],
-                'komitmen_eom_bc_id' => ['nullable', 'exists:categories,id'],
-                'komitmen_eom_bm_id' => ['nullable', 'exists:categories,id'],
-                'prognosa_akhir_bulan' => ['nullable', 'numeric'],
-                'kendala' => ['nullable', 'string'],
-            ]);
-
-            $performance = PerformanceEtape::updateOrCreate(
-                [
-                    'branch_id' => $validated['branch_id'],
-                    'etape_no' => $validated['etape_no'],
-                    'year' => $validated['year'],
-                    'month' => $validated['month'],
-                ],
-                [
-                    'user_id' => $validated['user_id'],
-                    'komitmen_etape_id' => $validated['komitmen_etape_id'],
-                    'komitmen_eom_bc_id' => $validated['komitmen_eom_bc_id'],
-                    'komitmen_eom_bm_id' => $validated['komitmen_eom_bm_id'],
-                    'prognosa_akhir_bulan' => $validated['prognosa_akhir_bulan'],
-                    'kendala' => $validated['kendala'],
-                ]
-            );
-
-            return redirect()->back()->with('success', 'Data berhasil disimpan.');
-        }catch (\Exception $exception){
-            return back()->withErrors(['message' => 'Gagal menyimpan data: ' . $exception->getMessage()]);
-        }
-    }
-
-    public function bulkStore(Request $request) {
-        $validated = $request->validate([
-            'performance' => 'required|array',
-            'performance.*.branch_id' => 'required|exists:branches,id',
-            'performance.*.etape_no' => 'required|integer|in:1,2,3',
-            'performance.*.year' => 'required|integer',
-            'performance.*.month' => 'required|integer|between:1,12',
-            'performance.*.user_id' => 'nullable|exists:users,id',
-            'performance.*.komitmen_etape_id' => 'nullable|exists:categories,id',
-            'performance.*.komitmen_eom_bc_id' => 'nullable|exists:categories,id',
-            'performance.*.komitmen_eom_bm_id' => 'nullable|exists:categories,id',
-            'performance.*.prognosa_akhir_bulan' => 'nullable|numeric',
-            'performance.*.kendala' => 'nullable|string',
-        ]);
-
-        try {
-            \DB::beginTransaction();
-
-            PerformanceEtape::upsert(
-                $validated['performance'],
-                ['branch_id', 'etape_no', 'year', 'month'],
-                ['user_id', 'komitmen_etape_id', 'komitmen_eom_bc_id', 'komitmen_eom_bm_id', 'prognosa_akhir_bulan', 'kendala'],
-            );
-
-            \DB::commit();
-            return redirect()->back()->with('success', 'Data berhasil disimpan.');
-        }catch (\Exception $exception){
-            \DB::rollBack();
-
-            return back()->withErrors(['message' => 'Gagal menyimpan data: ' . $exception->getMessage()]);
-        }
-
-    }
-
 }
