@@ -1,0 +1,64 @@
+/* ──────────────────────────────────────────────── */
+/* Reusable Table Resize Handle Styles */
+/* ──────────────────────────────────────────────── */
+
+.resize-handle {
+    position: absolute;
+    top: 0;
+    right: -4px;
+    bottom: 0;
+    width: 8px;
+    z-index: 2;
+    cursor: col-resize;
+    transition: all 0.12s ease;
+}
+
+/* Default: hampir tak terlihat */
+.resize-handle::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    transition: background 0.18s ease;
+}
+
+/* Saat hover th atau sedang resize */
+th:hover .resize-handle::before,
+th.resizing .resize-handle::before {
+    background: rgba(100, 116, 139, 0.4);
+    box-shadow: 0 0 4px rgba(100, 116, 139, 0.3);
+}
+
+/* Saat sedang di-drag */
+.resize-handle:active::before,
+:deep(th.resizing) .resize-handle::before {
+    background: rgb(59 130 246 / 0.5) !important;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+    width: 10px;
+    right: -5px;
+}
+
+/* Garis tengah tipis */
+.resize-handle::after {
+    content: '';
+    position: absolute;
+    top: 20%;
+    bottom: 20%;
+    left: 50%;
+    width: 1px;
+    background: rgba(148, 163, 184, 0.6);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+th:hover .resize-handle::after,
+th.resizing .resize-handle::after {
+    opacity: 1;
+}
+
+/* Cursor & disable text selection saat resize */
+.resize-handle,
+.resize-handle * {
+    touch-action: none;
+    user-select: none;
+}

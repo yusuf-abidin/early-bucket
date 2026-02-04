@@ -111,72 +111,113 @@ const chartOptions = {
                 >
                     <div
                         @click="handleFilter(user.id)"
-                        class="flex h-full max-w-xs min-w-52 cursor-pointer flex-col items-center rounded-xl border border-border bg-card p-4 text-card-foreground shadow-md"
+                        class="flex h-full max-w-xs min-w-52 cursor-pointer flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg transition-all hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
                     >
-                        <div class="relative flex h-32 w-full justify-center">
-                            <template v-if="hasMemos(user)">
-                                <Pie
-                                    :data="getChartData(user)"
-                                    :options="chartOptions"
-                                    class="relative z-10 h-32 w-32"
-                                />
-                                <!-- Avatar di tengah doughnut -->
-                                <Avatar
-                                    class="absolute top-1/2 left-1/2 z-0 h-20 w-20 flex-shrink-0 -translate-x-1/2 -translate-y-1/2 transform shadow-lg ring-4 ring-background"
-                                >
-                                    <AvatarImage
-                                        v-if="user.avatar"
-                                        :src="`/storage/${user.avatar}`"
-                                        :alt="user.name"
-                                    />
-                                    <AvatarFallback>
-                                        {{
-                                            user.name
-                                                .split(' ')
-                                                .map((n) => n[0])
-                                                .join('')
-                                                .toUpperCase()
-                                        }}
-                                    </AvatarFallback>
-                                </Avatar>
-                            </template>
-                            <template v-else>
-                                <Avatar
-                                    class="absolute top-1/2 left-1/2 z-0 h-24 w-24 flex-shrink-0 -translate-x-1/2 -translate-y-1/2 transform shadow-lg ring-4 ring-background"
-                                >
-                                    <AvatarImage
-                                        v-if="user.avatar"
-                                        :src="`/storage/${user.avatar}`"
-                                        :alt="user.name"
-                                    />
-                                    <AvatarFallback>
-                                        {{
-                                            user.name
-                                                .split(' ')
-                                                .map((n) => n[0])
-                                                .join('')
-                                                .toUpperCase()
-                                        }}
-                                    </AvatarFallback>
-                                </Avatar>
-                            </template>
+                        <!-- Header dengan warna corporate solid -->
+                        <div
+                            class="bg-gradient-to-r from-blue-600 to-blue-700 p-4 pb-12"
+                        >
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div
+                                        class="h-2 w-2 rounded-full bg-white/80"
+                                    ></div>
+                                    <div
+                                        class="h-2 w-2 rounded-full bg-white/60"
+                                    ></div>
+                                    <div
+                                        class="h-2 w-2 rounded-full bg-white/40"
+                                    ></div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mt-auto w-full text-center">
+                        <!-- Chart Container dengan Avatar -->
+                        <div class="relative -mt-14 flex justify-center px-4">
+                            <div
+                                class="relative flex h-32 w-full justify-center"
+                            >
+                                <template v-if="hasMemos(user)">
+                                    <Pie
+                                        :data="getChartData(user)"
+                                        :options="chartOptions"
+                                        class="relative z-10 h-32 w-32"
+                                    />
+                                    <Avatar
+                                        class="absolute top-1/2 left-1/2 z-0 h-20 w-20 -translate-x-1/2 -translate-y-1/2 shadow-xl ring-4 ring-white dark:ring-gray-800"
+                                    >
+                                        <AvatarImage
+                                            v-if="user.avatar"
+                                            :src="`/storage/${user.avatar}`"
+                                            :alt="user.name"
+                                        />
+                                        <AvatarFallback
+                                            class="bg-blue-100 font-bold text-blue-700"
+                                        >
+                                            {{
+                                                user.name
+                                                    .split(' ')
+                                                    .map((n) => n[0])
+                                                    .join('')
+                                                    .toUpperCase()
+                                            }}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </template>
+                                <template v-else>
+                                    <Avatar
+                                        class="absolute top-1/2 left-1/2 z-0 h-24 w-24 -translate-x-1/2 -translate-y-1/2 shadow-xl ring-4 ring-white dark:ring-gray-800"
+                                    >
+                                        <AvatarImage
+                                            v-if="user.avatar"
+                                            :src="`/storage/${user.avatar}`"
+                                            :alt="user.name"
+                                        />
+                                        <AvatarFallback
+                                            class="bg-blue-100 font-bold text-blue-700"
+                                        >
+                                            {{
+                                                user.name
+                                                    .split(' ')
+                                                    .map((n) => n[0])
+                                                    .join('')
+                                                    .toUpperCase()
+                                            }}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Info Section -->
+                        <div class="mt-auto w-full p-4 pt-2 text-center">
                             <p
-                                class="truncate text-base font-bold text-foreground"
+                                class="truncate text-base font-bold text-gray-900 dark:text-gray-100"
                             >
                                 {{ user.name }}
                             </p>
-                            <p class="truncate text-xs text-muted-foreground">
+                            <p
+                                class="truncate text-xs font-medium text-blue-600 dark:text-blue-400"
+                            >
                                 {{ user.position }}
                             </p>
-                            <p class="truncate text-sm text-muted-foreground">
-                                Total : {{ getTotalMemos(user) }}
-                            </p>
+                            <div
+                                class="mt-2 flex items-center justify-center gap-2 rounded-lg bg-blue-50 px-2 py-1 dark:bg-blue-900/20"
+                            >
+                                <span
+                                    class="text-xs text-gray-600 dark:text-gray-400"
+                                    >Total:</span
+                                >
+                                <span
+                                    class="text-sm font-bold text-blue-600 dark:text-blue-400"
+                                >
+                                    {{ getTotalMemos(user) }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
+
                 <!-- CARD ARCHIVE -->
                 <div
                     class="flex flex-col items-center transition-all hover:scale-105"
@@ -185,35 +226,69 @@ const chartOptions = {
                     "
                 >
                     <div
-                        class="flex h-full max-w-xs min-w-52 cursor-pointer flex-col items-center rounded-xl border border-border bg-card p-4 text-card-foreground shadow-md"
+                        class="flex h-full max-w-xs min-w-52 cursor-pointer flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg transition-all hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
                     >
-                        <!-- Area atas (samakan dengan card user) -->
-                        <div class="relative flex h-32 w-full justify-center">
-                            <Avatar
-                                class="absolute top-1/2 left-1/2 z-0 h-24 w-24 flex-shrink-0 -translate-x-1/2 -translate-y-1/2 transform shadow-lg ring-4 ring-background"
-                            >
-                                <AvatarFallback class="bg-primary/10">
-                                    <FolderClosed
-                                        class="h-10 w-10 text-primary"
-                                    />
-                                </AvatarFallback>
-                            </Avatar>
+                        <!-- Header dengan warna corporate solid - Archive variant -->
+                        <div
+                            class="bg-gradient-to-r from-gray-600 to-gray-700 p-4 pb-12"
+                        >
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div
+                                        class="h-2 w-2 rounded-full bg-white/80"
+                                    ></div>
+                                    <div
+                                        class="h-2 w-2 rounded-full bg-white/60"
+                                    ></div>
+                                    <div
+                                        class="h-2 w-2 rounded-full bg-white/40"
+                                    ></div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Area bawah -->
-                        <div class="mt-auto w-full text-center">
+                        <!-- Avatar Container -->
+                        <div class="relative -mt-14 flex justify-center px-4">
+                            <div
+                                class="relative flex h-32 w-full justify-center"
+                            >
+                                <Avatar
+                                    class="absolute top-1/2 left-1/2 z-0 h-24 w-24 -translate-x-1/2 -translate-y-1/2 shadow-xl ring-4 ring-white dark:ring-gray-800"
+                                >
+                                    <AvatarFallback
+                                        class="bg-gray-100 dark:bg-gray-700"
+                                    >
+                                        <FolderClosed
+                                            class="h-10 w-10 text-gray-600 dark:text-gray-400"
+                                        />
+                                    </AvatarFallback>
+                                </Avatar>
+                            </div>
+                        </div>
+
+                        <!-- Info Section -->
+                        <div class="mt-auto w-full p-4 pt-2 text-center">
                             <p
-                                class="truncate text-base font-bold text-foreground"
+                                class="truncate text-base font-bold text-gray-900 dark:text-gray-100"
                             >
                                 Total Arsip
                             </p>
-                            <p class="truncate text-sm text-muted-foreground">
-                                Total : {{ total_archive }}
-                            </p>
+                            <div
+                                class="mt-2 flex items-center justify-center gap-2 rounded-lg bg-gray-50 px-2 py-1 dark:bg-gray-700/20"
+                            >
+                                <span
+                                    class="text-xs text-gray-600 dark:text-gray-400"
+                                    >Total:</span
+                                >
+                                <span
+                                    class="text-sm font-bold text-gray-700 dark:text-gray-300"
+                                >
+                                    {{ total_archive }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
-
                 <!-- END CARD ARCHIVE -->
             </div>
             <ScrollBar orientation="horizontal" />

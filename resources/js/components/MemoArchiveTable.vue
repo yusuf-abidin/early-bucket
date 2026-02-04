@@ -19,6 +19,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useTableResize } from '@/composables/useTableResize';
+import '@/assets/styles/table-resize.css';
 
 const props = defineProps<{
     memos: Memo[];
@@ -53,6 +55,24 @@ const handleResolveMemo = (memo: Memo) => {
     dialogResolveMemo.value = true;
     selectedMemo.value = memo;
 };
+const { columnWidths, startResize } = useTableResize({
+    storageKey: 'memo-archive-table-column-widths',
+    defaultWidths: {
+        no: 20,
+        received_at: 150,
+        origin: 200,
+        reference_number: 200,
+        subject: 250,
+        category: 120,
+        document_link: 80,
+        due_date: 120,
+        completed_at: 120,
+        assignedUser: 150,
+        follow_up_note: 200,
+        actions: 70,
+    },
+    minWidth: 20,
+});
 </script>
 
 <template>
@@ -60,35 +80,160 @@ const handleResolveMemo = (memo: Memo) => {
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead class="w-[50px]">No</TableHead>
-                    <TableHead v-if="visibleColumns!.received_at"
-                        >Tanggal Masuk</TableHead
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.no + 'px',
+                            minWidth: columnWidths.no + 'px',
+                        }"
                     >
-                    <TableHead v-if="visibleColumns!.origin">Asal</TableHead>
-                    <TableHead v-if="visibleColumns!.reference_number"
-                        >Nomor</TableHead
+                        No
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'no')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.received_at + 'px',
+                            minWidth: columnWidths.received_at + 'px',
+                        }"
+                        v-if="visibleColumns!.received_at"
                     >
-                    <TableHead v-if="visibleColumns!.subject"
-                        >Perihal</TableHead
+                        Tanggal Masuk
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'received_at')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.origin + 'px',
+                            minWidth: columnWidths.origin + 'px',
+                        }"
+                        v-if="visibleColumns!.origin"
                     >
-                    <TableHead v-if="visibleColumns!.category">Sifat</TableHead>
+                        Asal
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'origin')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.reference_number + 'px',
+                            minWidth: columnWidths.reference_number + 'px',
+                        }"
+                        v-if="visibleColumns!.reference_number"
+                    >
+                        Nomor
+                        <div
+                            class="resize-handle"
+                            @mousedown="
+                                (e) => startResize(e, 'reference_number')
+                            "
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.subject + 'px',
+                            minWidth: columnWidths.subject + 'px',
+                        }"
+                        v-if="visibleColumns!.subject"
+                    >
+                        Perihal
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'subject')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.category + 'px',
+                            minWidth: columnWidths.category + 'px',
+                        }"
+                        v-if="visibleColumns!.category"
+                    >
+                        Sifat
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'category')"
+                        ></div>
+                    </TableHead>
                     <TableHead
                         v-if="visibleColumns!.document_link"
-                        class="w-[50px] text-center"
-                        >Link</TableHead
+                        class="relative text-center"
+                        :style="{
+                            width: columnWidths.document_link + 'px',
+                            minWidth: columnWidths.document_link + 'px',
+                        }"
+                        >Link
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'document_link')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.due_date + 'px',
+                            minWidth: columnWidths.due_date + 'px',
+                        }"
+                        v-if="visibleColumns!.due_date"
                     >
-                    <TableHead v-if="visibleColumns!.due_date"
-                        >Deadline</TableHead
+                        Deadline
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'due_date')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.completed_at + 'px',
+                            minWidth: columnWidths.completed_at + 'px',
+                        }"
+                        v-if="visibleColumns!.completed_at"
                     >
-                    <TableHead v-if="visibleColumns!.completed_at"
-                        >Tanggal Selesai</TableHead
+                        Tanggal Selesai
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'completed_at')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.assignedUser + 'px',
+                            minWidth: columnWidths.assignedUser + 'px',
+                        }"
+                        v-if="visibleColumns!.assignedUser"
                     >
-                    <TableHead v-if="visibleColumns!.assignedUser"
-                        >PIC</TableHead
+                        PIC
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'assignedUser')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.follow_up_note + 'px',
+                            minWidth: columnWidths.follow_up_note + 'px',
+                        }"
+                        v-if="visibleColumns!.follow_up_note"
                     >
-                    <TableHead v-if="visibleColumns!.follow_up_note"
-                        >Tindak Lanjut</TableHead
-                    >
+                        Tindak Lanjut
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'follow_up_note')"
+                        ></div>
+                    </TableHead>
                     <TableHead class="w-[50px]"></TableHead>
                 </TableRow>
             </TableHeader>

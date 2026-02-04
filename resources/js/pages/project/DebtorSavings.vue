@@ -39,7 +39,7 @@ const breadcrumbs: BreadcrumbItem[] = [
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <TaskProgressBar :task-stats="task_stats"/>
-            <HorizontalImageList :users_summary="props.users_summary" />
+            <HorizontalImageList :users_summary="props.users_summary" mode="debtor_saving"/>
             <TaskTable
                 :tasks-data="props.debtor_savings"
                 :users-data="props.users"

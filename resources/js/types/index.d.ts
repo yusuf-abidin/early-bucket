@@ -90,6 +90,7 @@ export interface UserSummary extends Pick<User, 'id' | 'name' | 'avatar' | 'posi
     pending_count: number;
     overdue_count: number;
     near_overdue_count: number;
+    completed_count?: number;
     completed_this_week_count?: number
 }
 

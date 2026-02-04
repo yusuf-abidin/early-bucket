@@ -50,6 +50,11 @@ class DebtorSavingsController extends Controller
                         ->whereNull('completed_at')
                         ->whereDate('due_date', '>=', today())
                         ->whereDate('due_date', '<=', today()->addDays(3));
+                },
+
+                'tasks as completed_count' => function (Builder $query) {
+                    $query->where('type', Task::TYPE_DEBITUR)
+                        ->whereNotNull('completed_at');
                 }
             ])
             ->get();

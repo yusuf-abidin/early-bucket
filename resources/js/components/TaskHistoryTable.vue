@@ -21,6 +21,8 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { useTableResize } from '@/composables/useTableResize';
+import '@/assets/styles/table-resize.css';
 
 const props = defineProps<{
     tasks: Task[];
@@ -34,6 +36,21 @@ const handleDelete = (task: Task) => {
     deleteTask.value = task;
 };
 
+const { columnWidths, startResize } = useTableResize({
+    storageKey: 'task-table-history-column-widths',
+    defaultWidths: {
+        no: 20,
+        task: 200,
+        assignedUser: 150,
+        createdDate: 120,
+        dueDate: 120,
+        resolvedDate: 80,
+        category: 120,
+        notes: 250,
+    },
+    minWidth: 20,
+});
+
 const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
 </script>
 
@@ -42,24 +59,117 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead class="w-[50px]">No</TableHead>
-                    <TableHead v-if="visibleColumns!.task">Agenda</TableHead>
-                    <TableHead v-if="visibleColumns!.assignedUser"
-                        >PIC</TableHead
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.no + 'px',
+                            minWidth: columnWidths.no + 'px',
+                        }"
                     >
-                    <TableHead v-if="visibleColumns!.createdDate"
-                        >Tanggal Dibuat</TableHead
+                        No
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'no')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.task + 'px',
+                            minWidth: columnWidths.task + 'px',
+                        }"
+                        v-if="visibleColumns!.task"
                     >
-                    <TableHead v-if="visibleColumns!.dueDate"
-                        >Deadline</TableHead
+                        Agenda
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'task')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.assignedUser + 'px',
+                            minWidth: columnWidths.assignedUser + 'px',
+                        }"
+                        v-if="visibleColumns!.assignedUser"
                     >
-                    <TableHead v-if="visibleColumns!.resolvedDate"
-                        >Tanggal Selesai</TableHead
+                        PIC
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'assignedUser')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.createdDate + 'px',
+                            minWidth: columnWidths.createdDate + 'px',
+                        }"
+                        v-if="visibleColumns!.createdDate"
                     >
-                    <TableHead v-if="visibleColumns!.category"
-                        >Kategori</TableHead
+                        Tanggal Dibuat
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'createdDate')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        :style="{
+                            width: columnWidths.dueDate + 'px',
+                            minWidth: columnWidths.dueDate + 'px',
+                        }"
+                        class="relative"
+                        v-if="visibleColumns!.dueDate"
                     >
-                    <TableHead v-if="visibleColumns!.notes">Notes</TableHead>
+                        Deadline
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'dueDate')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        :style="{
+                            width: columnWidths.resolvedDate + 'px',
+                            minWidth: columnWidths.resolvedDate + 'px',
+                        }"
+                        class="relative"
+                        v-if="visibleColumns!.resolvedDate"
+                    >
+                        Tanggal Selesai
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'resolvedDate')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.category + 'px',
+                            minWidth: columnWidths.category + 'px',
+                        }"
+                        v-if="visibleColumns!.category"
+                    >
+                        Kategori
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'category')"
+                        ></div>
+                    </TableHead>
+                    <TableHead
+                        class="relative"
+                        :style="{
+                            width: columnWidths.notes + 'px',
+                            minWidth: columnWidths.notes + 'px',
+                        }"
+                        v-if="visibleColumns!.notes"
+                    >
+                        Notes
+                        <div
+                            class="resize-handle"
+                            @mousedown="(e) => startResize(e, 'notes')"
+                        ></div>
+                    </TableHead>
                     <TableHead class="w-[50px]"></TableHead>
                 </TableRow>
             </TableHeader>
@@ -110,7 +220,9 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
 
                     <!-- TANGGAL DIBUAT -->
                     <TableCell v-if="visibleColumns!.createdDate">
-                        <Badge variant="secondary">{{ task.created_at }} </Badge>
+                        <Badge variant="secondary"
+                            >{{ task.created_at }}
+                        </Badge>
                     </TableCell>
 
                     <!-- DEADLINE -->

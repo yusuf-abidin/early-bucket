@@ -6,12 +6,13 @@ import { router } from '@inertiajs/vue3';
 import tasks from '@/routes/tasks';
 import { Pie } from 'vue-chartjs';
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from 'chart.js';
+import debtorSavings from '@/routes/debtor-savings';
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
 const props = defineProps<{
     users_summary: UserSummary[];
-    mode?: 'pending' | 'history';
+    mode?: 'pending' | 'history' | 'debtor_saving';
 }>();
 
 const mode = props.mode ?? 'pending';
@@ -21,7 +22,8 @@ const hasTasks = (user: UserSummary) => {
     return (
         user.pending_count > 0 ||
         user.near_overdue_count > 0 ||
-        user.overdue_count > 0
+        user.overdue_count > 0 ||
+        (user.completed_count ?? 0) > 0
     );
 };
 
@@ -31,22 +33,36 @@ const hasHistory = (user: UserSummary) => {
 };
 
 const getChartData = (user: UserSummary) => {
-    if (mode === 'pending') {
+    if (mode === 'pending' || mode === 'debtor_saving') {
         const total =
-            user.pending_count + user.near_overdue_count + user.overdue_count;
+            user.pending_count +
+            user.near_overdue_count +
+            user.overdue_count +
+            (user.completed_count ?? 0);
         return {
-            labels: ['Pending', 'Mendekati Deadline', 'Melewati Deadline'],
+            labels: [
+                'Pending',
+                'Mendekati Deadline',
+                'Melewati Deadline',
+                'Selesai',
+            ],
             datasets: [
                 {
                     data: [
                         user.pending_count,
                         user.near_overdue_count,
                         user.overdue_count,
+                        user.completed_count,
                     ],
                     backgroundColor:
                         total > 0
-                            ? ['#9CA3AF', '#FBBF24', '#EF4444']
-                            : ['transparent', 'transparent', 'transparent'],
+                            ? ['#9CA3AF', '#FBBF24', '#EF4444', '#2B7FFF']
+                            : [
+                                  'transparent',
+                                  'transparent',
+                                  'transparent',
+                                  'transparent',
+                              ],
                     hoverOffset: 2,
                     borderWidth: 0,
                 },
@@ -68,9 +84,12 @@ const getChartData = (user: UserSummary) => {
 };
 
 const getTotalTasks = (user: UserSummary) => {
-    if (mode === 'pending') {
+    if (mode === 'pending' || mode === 'debtor_saving') {
         return (
-            user.pending_count + user.near_overdue_count + user.overdue_count
+            user.pending_count +
+            user.near_overdue_count +
+            user.overdue_count +
+            (user.completed_count ?? 0)
         );
     } else if (mode === 'history') {
         return user.completed_this_week_count ?? 0;
@@ -113,9 +132,16 @@ const handleFilter = (userId: number) => {
     );
     const query = currentUserId == userId.toString() ? {} : { user_id: userId };
 
-    const url = mode === 'pending' ? tasks.index().url : tasks.history().url;
+    let url = null;
+    if (mode === 'pending') {
+        url = tasks.index().url;
+    } else if (mode === 'history') {
+        url = tasks.history().url;
+    } else if (mode === 'debtor_saving') {
+        url = debtorSavings.index().url;
+    }
 
-    router.get(url, query, {
+    router.get(url!, query, {
         preserveState: true,
         replace: true,
     });
@@ -133,79 +159,116 @@ const handleFilter = (userId: number) => {
                 >
                     <div
                         @click="handleFilter(user.id)"
-                        class="flex h-full max-w-xs min-w-52 cursor-pointer flex-col items-center rounded-xl border border-border bg-card p-2 text-card-foreground shadow-md"
+                        class="flex h-full max-w-xs min-w-52 cursor-pointer flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg transition-all hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
                     >
-                        <!-- Chart Container dengan Avatar di Tengah -->
+                        <!-- Header dengan warna corporate solid -->
                         <div
-                            class="relative flex h-32 w-full justify-center"
+                            class="bg-gradient-to-r from-blue-600 to-blue-700 p-4 pb-12"
                         >
-                            <template
-                                v-if="
-                                    (mode === 'pending' && hasTasks(user)) ||
-                                    (mode === 'history' && hasHistory(user))
-                                "
-                            >
-                                <Pie
-                                    :data="getChartData(user)"
-                                    :options="chartOptions"
-                                    class="relative z-10 h-32 w-32"
-                                />
-                                <!-- Avatar di tengah doughnut -->
-                                <Avatar
-                                    class="absolute top-1/2 left-1/2 z-0 h-20 w-20 flex-shrink-0 -translate-x-1/2 -translate-y-1/2 transform shadow-lg ring-4 ring-background"
-                                >
-                                    <AvatarImage
-                                        v-if="user.avatar"
-                                        :src="`/storage/${user.avatar}`"
-                                        :alt="user.name"
-                                    />
-                                    <AvatarFallback>
-                                        {{
-                                            user.name
-                                                .split(' ')
-                                                .map((n) => n[0])
-                                                .join('')
-                                                .toUpperCase()
-                                        }}
-                                    </AvatarFallback>
-                                </Avatar>
-                            </template>
-                            <template v-else>
-                                <Avatar
-                                    class="absolute top-1/2 left-1/2 z-0 h-24 w-24 flex-shrink-0 -translate-x-1/2 -translate-y-1/2 transform shadow-lg ring-4 ring-background"
-                                >
-                                    <AvatarImage
-                                        v-if="user.avatar"
-                                        :src="`/storage/${user.avatar}`"
-                                        :alt="user.name"
-                                    />
-                                    <AvatarFallback>
-                                        {{
-                                            user.name
-                                                .split(' ')
-                                                .map((n) => n[0])
-                                                .join('')
-                                                .toUpperCase()
-                                        }}
-                                    </AvatarFallback>
-                                </Avatar>
-                            </template>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div
+                                        class="h-2 w-2 rounded-full bg-white/80"
+                                    ></div>
+                                    <div
+                                        class="h-2 w-2 rounded-full bg-white/60"
+                                    ></div>
+                                    <div
+                                        class="h-2 w-2 rounded-full bg-white/40"
+                                    ></div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mt-auto w-full text-center">
+                        <!-- Chart Container dengan Avatar -->
+                        <div class="relative -mt-14 flex justify-center px-4">
+                            <div
+                                class="relative flex h-32 w-full justify-center"
+                            >
+                                <template
+                                    v-if="
+                                        ((mode === 'pending' ||
+                                            mode === 'debtor_saving') &&
+                                            hasTasks(user)) ||
+                                        (mode === 'history' && hasHistory(user))
+                                    "
+                                >
+                                    <Pie
+                                        :data="getChartData(user)"
+                                        :options="chartOptions"
+                                        class="relative z-10 h-32 w-32"
+                                    />
+                                    <Avatar
+                                        class="absolute top-1/2 left-1/2 z-0 h-20 w-20 -translate-x-1/2 -translate-y-1/2 shadow-xl ring-4 ring-white dark:ring-gray-800"
+                                    >
+                                        <AvatarImage
+                                            v-if="user.avatar"
+                                            :src="`/storage/${user.avatar}`"
+                                            :alt="user.name"
+                                        />
+                                        <AvatarFallback
+                                            class="bg-blue-100 font-bold text-blue-700"
+                                        >
+                                            {{
+                                                user.name
+                                                    .split(' ')
+                                                    .map((n) => n[0])
+                                                    .join('')
+                                                    .toUpperCase()
+                                            }}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </template>
+                                <template v-else>
+                                    <Avatar
+                                        class="absolute top-1/2 left-1/2 z-0 h-24 w-24 -translate-x-1/2 -translate-y-1/2 shadow-xl ring-4 ring-white dark:ring-gray-800"
+                                    >
+                                        <AvatarImage
+                                            v-if="user.avatar"
+                                            :src="`/storage/${user.avatar}`"
+                                            :alt="user.name"
+                                        />
+                                        <AvatarFallback
+                                            class="bg-blue-100 font-bold text-blue-700"
+                                        >
+                                            {{
+                                                user.name
+                                                    .split(' ')
+                                                    .map((n) => n[0])
+                                                    .join('')
+                                                    .toUpperCase()
+                                            }}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Info Section -->
+                        <div class="mt-auto w-full p-4 pt-2 text-center">
                             <p
-                                class="truncate text-base font-bold text-foreground"
+                                class="truncate text-base font-bold text-gray-900 dark:text-gray-100"
                             >
                                 {{ user.name }}
                             </p>
-                            <p class="truncate text-xs text-muted-foreground">
+                            <p
+                                class="truncate text-xs font-medium text-blue-600 dark:text-blue-400"
+                            >
                                 {{ user.position }}
                             </p>
-                            <p
-                                class="truncate text-sm text-muted-foreground"
+                            <div
+                                class="mt-2 flex items-center justify-center gap-2 rounded-lg bg-blue-50 px-2 py-1 dark:bg-blue-900/20"
                             >
-                                Total : {{ getTotalTasks(user) }}
-                            </p>
+                                <span
+                                    class="text-xs text-gray-600 dark:text-gray-400"
+                                    >Total:</span
+                                >
+                                <span
+                                    class="text-sm font-bold text-blue-600 dark:text-blue-400"
+                                >
+                                    {{ getTotalTasks(user) }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>

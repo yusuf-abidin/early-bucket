@@ -37,6 +37,8 @@ import {
     PopoverContent,
 } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
+import { useTableResize } from '@/composables/useTableResize';
+import '@/assets/styles/table-resize.css';
 
 const dialogDeleteTask = defineModel<boolean>('dialogDeleteTask', {
     default: false,
@@ -150,6 +152,20 @@ const handleResolveTask = (task: Task) => {
 const resetColumns = () => {
     visibleColumns.value = { ...defaultColumns };
 };
+
+const { columnWidths, startResize } = useTableResize({
+    storageKey: 'task-table-column-widths',
+    defaultWidths: {
+        no: 20,
+        task: 200,
+        assignedUser: 150,
+        dueDate: 120,
+        isResolved: 80,
+        category: 120,
+        notes: 250,
+    },
+    minWidth: 20,
+});
 </script>
 
 <template>
@@ -280,19 +296,61 @@ const resetColumns = () => {
         </div>
 
         <!-- Table -->
-        <div class="rounded-lg border">
+        <div class="overflow-hidden rounded-lg border">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead class="w-[50px]">No</TableHead>
-                        <TableHead v-if="visibleColumns.task">Agenda</TableHead>
-                        <TableHead v-if="visibleColumns.assignedUser"
-                            >PIC</TableHead
+                        <TableHead
+                            class="relative"
+                            :style="{
+                                width: columnWidths.no + 'px',
+                                minWidth: columnWidths.no + 'px',
+                            }"
                         >
+                            No
+                            <div
+                                class="resize-handle"
+                                @mousedown="(e) => startResize(e, 'no')"
+                            ></div>
+                        </TableHead>
+                        <TableHead
+                            class="relative"
+                            :style="{
+                                width: columnWidths.task + 'px',
+                                minWidth: columnWidths.task + 'px',
+                            }"
+                            v-if="visibleColumns.task"
+                        >
+                            Agenda
+                            <div
+                                class="resize-handle"
+                                @mousedown="(e) => startResize(e, 'task')"
+                            ></div
+                        ></TableHead>
+                        <TableHead
+                            class="relative"
+                            :style="{
+                                width: columnWidths.assignedUser + 'px',
+                                minWidth: columnWidths.assignedUser + 'px',
+                            }"
+                            v-if="visibleColumns.assignedUser"
+                        >
+                            PIC
+                            <div
+                                class="resize-handle"
+                                @mousedown="
+                                    (e) => startResize(e, 'assignedUser')
+                                "
+                            ></div>
+                        </TableHead>
                         <TableHead
                             v-if="visibleColumns.dueDate"
-                            class="cursor-pointer"
+                            class="relative cursor-pointer"
                             @click="toggleSort"
+                            :style="{
+                                width: columnWidths.dueDate + 'px',
+                                minWidth: columnWidths.dueDate + 'px',
+                            }"
                         >
                             <div class="flex items-center gap-1">
                                 Deadline
@@ -307,16 +365,53 @@ const resetColumns = () => {
                                     class="h-4 w-4"
                                 />
                             </div>
+                            <div
+                                class="resize-handle"
+                                @mousedown="(e) => startResize(e, 'dueDate')"
+                            ></div>
                         </TableHead>
                         <TableHead
-                            class="text-center"
+                            :style="{
+                                width: columnWidths.isResolved + 'px',
+                                minWidth: columnWidths.isResolved + 'px',
+                            }"
+                            class="relative text-center"
                             v-if="visibleColumns.isResolved"
-                            >Check</TableHead
                         >
-                        <TableHead v-if="visibleColumns.category"
-                            >Kategori</TableHead
+                            Check
+                            <div
+                                class="resize-handle"
+                                @mousedown="(e) => startResize(e, 'isResolved')"
+                            ></div>
+                        </TableHead>
+                        <TableHead
+                            class="relative"
+                            :style="{
+                                width: columnWidths.category + 'px',
+                                minWidth: columnWidths.category + 'px',
+                            }"
+                            v-if="visibleColumns.category"
                         >
-                        <TableHead v-if="visibleColumns.notes">Notes</TableHead>
+                            Kategori
+                            <div
+                                class="resize-handle"
+                                @mousedown="(e) => startResize(e, 'category')"
+                            ></div>
+                        </TableHead>
+                        <TableHead
+                            class="relative"
+                            :style="{
+                                width: columnWidths.notes + 'px',
+                                minWidth: columnWidths.notes + 'px',
+                            }"
+                            v-if="visibleColumns.notes"
+                        >
+                            Notes
+                            <div
+                                class="resize-handle"
+                                @mousedown="(e) => startResize(e, 'notes')"
+                            ></div>
+                        </TableHead>
                         <TableHead class="w-[50px]"></TableHead>
                     </TableRow>
                 </TableHeader>
@@ -348,7 +443,9 @@ const resetColumns = () => {
                         >
                             {{ task.task_description }}
                         </TableCell>
-                        <TableCell v-if="visibleColumns.assignedUser">
+                        <TableCell
+                            class="resizable-cell wrap"
+                            v-if="visibleColumns.assignedUser">
                             <div class="flex flex-col flex-wrap gap-1">
                                 <Badge
                                     v-for="user in task.users"
