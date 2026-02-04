@@ -1,52 +1,52 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { dashboard } from '@/routes';
-import { type BreadcrumbItem, Memo, Task } from '@/types';
-import { Head } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { ref, computed, onMounted } from 'vue';
+import { Doughnut } from 'vue-chartjs';
 import {
-    CheckCircle2,
-    Clock,
-    AlertCircle,
-    FileText,
-    TrendingUp,
-    Calendar,
-    Mail,
-    BarChart3,
-} from 'lucide-vue-next';
+    Chart as ChartJS,
+    ArcElement,
+    Tooltip,
+    Legend,
+    type ChartOptions,
+} from 'chart.js';
+import { dashboard } from '@/routes';
+import { MapPin, Building, Pencil } from 'lucide-vue-next';
+import admin from '@/routes/admin';
+import memos from '@/routes/memos';
+import tasks from '@/routes/tasks';
+import debtorSavings from '@/routes/debtor-savings';
 
-interface Stats {
-    totalTasks: number;
-    completedTasks: number;
-    pendingTasks: number;
-    overdueTasks: number;
-    totalMemos: number;
-    completionRate: number;
-}
+ChartJS.register(ArcElement, Tooltip, Legend);
 
-interface CategoryStat {
-    name: string;
-    total: number;
-    completed: number;
-    percentage: number;
-    color?: {
-        class: string;
+interface Props {
+    overview: {
+        totalAreas: number;
+        totalBranches: number;
+    };
+    pendingMemo: {
+        total: number;
+        pending: number;
+        approaching_deadline: number;
+        overdue: number;
+    };
+    pendingMatter: {
+        total: number;
+        pending: number;
+        approaching_deadline: number;
+        overdue: number;
+    };
+    debiturMenabung: {
+        total: number;
+        pending: number;
+        approaching_deadline: number;
+        overdue: number;
+        completed: number;
     };
 }
 
-interface WeeklyActivity {
-    date: string;
-    tasks_completed: number;
-    memos_completed: number;
-}
-
-const props = defineProps<{
-    stats: Stats;
-    upcomingTasks: Task[];
-    recentMemos: Memo[];
-    tasksByCategory: CategoryStat[];
-    weeklyActivity: WeeklyActivity[];
-}>();
+const props = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -55,548 +55,504 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
+// Chart configurations
+const createChartOptions = (hasData: boolean): ChartOptions<'doughnut'> => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            display: hasData,
+            position: 'bottom',
+            labels: {
+                padding: 16,
+                usePointStyle: true,
+                pointStyle: 'circle',
+            },
+        },
+        tooltip: {
+            enabled: hasData,
+            padding: 12,
+            cornerRadius: 8,
+            callbacks: {
+                label: function (context) {
+                    const label = context.label || '';
+                    const value = context.parsed || 0;
+                    const total = context.dataset.data.reduce(
+                        (a: number, b: number) => a + b,
+                        0,
+                    );
+                    const percentage =
+                        total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                    return `${label}: ${value} (${percentage}%)`;
+                },
+            },
+        },
+    },
+    cutout: '65%',
+    events: hasData
+        ? ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove']
+        : [],
+});
+
+const pendingMemoChartOptions = computed(() =>
+    createChartOptions(hasPendingMemoData.value),
+);
+const pendingMatterChartOptions = computed(() =>
+    createChartOptions(hasPendingMatterData.value),
+);
+const debiturMenabungChartOptions = computed(() =>
+    createChartOptions(hasDebiturMenabungData.value),
+);
+
+const hasPendingMemoData = computed(
+    () =>
+        props.pendingMemo.pending > 0 ||
+        props.pendingMemo.approaching_deadline > 0 ||
+        props.pendingMemo.overdue > 0,
+);
+
+const hasPendingMatterData = computed(
+    () =>
+        props.pendingMatter.pending > 0 ||
+        props.pendingMatter.approaching_deadline > 0 ||
+        props.pendingMatter.overdue > 0,
+);
+
+const hasDebiturMenabungData = computed(
+    () =>
+        props.debiturMenabung.pending > 0 ||
+        props.debiturMenabung.approaching_deadline > 0 ||
+        props.debiturMenabung.overdue > 0 ||
+        props.debiturMenabung.completed > 0,
+);
+
+// Pending Memo Chart Data
+const pendingMemoChartData = computed(() => ({
+    labels: hasPendingMemoData.value
+        ? ['Pending', 'Mendekati Deadline', 'Melewati Deadline']
+        : ['Tidak Ada Data'],
+    datasets: [
+        {
+            data: hasPendingMemoData.value
+                ? [
+                      props.pendingMemo.pending,
+                      props.pendingMemo.approaching_deadline,
+                      props.pendingMemo.overdue,
+                  ]
+                : [1],
+            borderColor: hasPendingMemoData.value ? 'transparent' : '#E2E8F0',
+            backgroundColor: hasPendingMemoData.value
+                ? ['#9CA3AF', '#FBBF24', '#EF4444']
+                : ['transparent'],
+            borderWidth: hasPendingMemoData.value ? 0 : 3,
+            hoverOffset: hasPendingMemoData.value ? 8 : 0,
+        },
+    ],
+}));
+
+// Pending Matter Chart Data
+const pendingMatterChartData = computed(() => ({
+    labels: hasPendingMatterData.value
+        ? ['Pending', 'Mendekati Deadline', 'Melewati Deadline']
+        : ['Tidak Ada Data'],
+    datasets: [
+        {
+            data: hasPendingMatterData.value
+                ? [
+                      props.pendingMatter.pending,
+                      props.pendingMatter.approaching_deadline,
+                      props.pendingMatter.overdue,
+                  ]
+                : [1],
+            borderColor: hasPendingMatterData.value ? 'transparent' : '#E2E8F0',
+            backgroundColor: hasPendingMatterData.value
+                ? ['#9CA3AF', '#FBBF24', '#EF4444']
+                : ['transparent'],
+            borderWidth: hasPendingMatterData.value ? 0 : 3,
+            hoverOffset: hasPendingMatterData.value ? 8 : 0,
+        },
+    ],
+}));
+
+// Debitur Menabung Chart Data
+const debiturMenabungChartData = computed(() => ({
+    labels: hasDebiturMenabungData.value
+        ? ['Pending', 'Mendekati Deadline', 'Melewati Deadline', 'Selesai']
+        : ['Tidak Ada Data'],
+    datasets: [
+        {
+            data: hasDebiturMenabungData.value
+                ? [
+                      props.debiturMenabung.pending,
+                      props.debiturMenabung.approaching_deadline,
+                      props.debiturMenabung.overdue,
+                      props.debiturMenabung.completed,
+                  ]
+                : [1],
+            borderColor: hasDebiturMenabungData.value
+                ? 'transparent'
+                : '#E2E8F0',
+            backgroundColor: hasDebiturMenabungData.value
+                ? ['#9CA3AF', '#FBBF24', '#EF4444', '#2B7FFF']
+                : ['transparent'],
+            borderWidth: hasDebiturMenabungData.value ? 0 : 3,
+            hoverOffset: hasDebiturMenabungData.value ? 8 : 0,
+        },
+    ],
+}));
+
+const animate = ref(false);
+
+onMounted(() => {
+    setTimeout(() => {
+        animate.value = true;
+    }, 100);
+});
+
+const photoSrc = ref(
+    '/storage/early-bucket-hero.png?t=' + new Date().getTime(),
+);
+
+const fileInput = ref<HTMLInputElement | null>(null);
+const openFileInput = () => {
+    fileInput.value?.click();
+};
+
+const uploadPhoto = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const file = target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    router.post(admin.dashboard.changeHero().url, formData, {
+        forceFormData: true,
+        onSuccess: () => {
+            photoSrc.value =
+                '/storage/early-bucket-hero.png?t=' + new Date().getTime();
+            target.value = '';
+        },
     });
 };
-
-const isOverdue = (dueDate: string) => {
-    return new Date(dueDate) < new Date();
-};
-
-const maxActivityValue = computed(() => {
-    const maxTasks = Math.max(
-        ...props.weeklyActivity.map((a) => a.tasks_completed),
-    );
-    const maxMemos = Math.max(
-        ...props.weeklyActivity.map((a) => a.memos_completed),
-    );
-    return Math.max(maxTasks, maxMemos, 1);
-});
 </script>
 
 <template>
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-4">
-            <!-- Stats Cards -->
-            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <!-- Total Tasks -->
+        <div class="flex h-full flex-1 flex-col">
+            <!-- Hero Section -->
+            <div
+                class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900"
+            >
+                <!-- Background overlay -->
                 <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-blue-50 to-blue-100/50 p-6 transition-all hover:shadow-lg dark:border-gray-700 dark:from-blue-950/30 dark:to-blue-900/20"
-                >
-                    <div class="flex items-start justify-between">
-                        <div class="flex-1">
-                            <p
-                                class="text-sm font-medium text-blue-700 dark:text-blue-300"
-                            >
-                                Total Tasks
-                                <span class="text-xs">(Last 30 days)</span>
-                            </p>
-                            <h3
-                                class="mt-2 text-3xl font-bold text-blue-900 dark:text-blue-100"
-                            >
-                                {{ stats.totalTasks }}
-                            </h3>
-                            <div class="mt-3 flex items-center gap-2">
-                                <div
-                                    class="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400"
-                                >
-                                    <CheckCircle2 class="h-3.5 w-3.5" />
-                                    <span
-                                        >{{
-                                            stats.completedTasks
-                                        }}
-                                        Completed</span
-                                    >
-                                </div>
-                            </div>
-                        </div>
-                        <div
-                            class="rounded-lg bg-blue-600/10 p-3 dark:bg-blue-400/10"
-                        >
-                            <BarChart3
-                                class="h-6 w-6 text-blue-600 dark:text-blue-400"
-                            />
-                        </div>
-                    </div>
-                    <div
-                        class="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-blue-600/5 dark:bg-blue-400/5"
-                    ></div>
-                </div>
+                    class="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-blue-900/80 to-slate-900/90"
+                ></div>
 
-                <!-- Pending Tasks -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-amber-50 to-amber-100/50 p-6 transition-all hover:shadow-lg dark:border-gray-700 dark:from-amber-950/30 dark:to-amber-900/20"
-                >
-                    <div class="flex items-start justify-between">
-                        <div class="flex-1">
-                            <p
-                                class="text-sm font-medium text-amber-700 dark:text-amber-300"
-                            >
-                                Pending Tasks
-                                <span class="text-xs">(Last 30 days)</span>
-                            </p>
-                            <h3
-                                class="mt-2 text-3xl font-bold text-amber-900 dark:text-amber-100"
-                            >
-                                {{ stats.pendingTasks }}
-                            </h3>
-                            <div class="mt-3 flex items-center gap-2">
-                                <div
-                                    class="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400"
-                                >
-                                    <AlertCircle class="h-3.5 w-3.5" />
-                                    <span
-                                        >{{ stats.overdueTasks }} Overdue</span
-                                    >
-                                </div>
-                            </div>
-                        </div>
+                <div class="relative px-6 py-4 md:py-4 lg:py-4">
+                    <div class="mx-auto max-w-7xl">
+                        <!-- Responsive layout: mobile = stack vertikal, desktop = side-by-side -->
                         <div
-                            class="rounded-lg bg-amber-600/10 p-3 dark:bg-amber-400/10"
+                            class="grid grid-cols-1 items-center gap-6 md:grid-cols-2 lg:gap-16"
                         >
-                            <Clock
-                                class="h-6 w-6 text-amber-600 dark:text-amber-400"
-                            />
-                        </div>
-                    </div>
-                    <div
-                        class="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-amber-600/5 dark:bg-amber-400/5"
-                    ></div>
-                </div>
-
-                <!-- Completion Rate -->
-                <div
-                    class="group relative overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-6 transition-all hover:shadow-lg dark:border-gray-700 dark:from-emerald-950/30 dark:to-emerald-900/20"
-                >
-                    <div class="flex items-start justify-between">
-                        <div class="flex-1">
-                            <p
-                                class="text-sm font-medium text-emerald-700 dark:text-emerald-300"
-                            >
-                                Completion Rate
-                                <span class="text-xs">(Last 30 days)</span>
-                            </p>
-                            <h3
-                                class="mt-2 text-3xl font-bold text-emerald-900 dark:text-emerald-100"
-                            >
-                                {{ stats.completionRate }}%
-                            </h3>
-                            <div class="mt-3">
-                                <div
-                                    class="h-2 w-full overflow-hidden rounded-full bg-emerald-200 dark:bg-emerald-900/30"
-                                >
-                                    <div
-                                        class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-500"
-                                        :style="{
-                                            width: `${stats.completionRate}%`,
-                                        }"
-                                    ></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div
-                            class="rounded-lg bg-emerald-600/10 p-3 dark:bg-emerald-400/10"
-                        >
-                            <TrendingUp
-                                class="h-6 w-6 text-emerald-600 dark:text-emerald-400"
-                            />
-                        </div>
-                    </div>
-                    <div
-                        class="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-emerald-600/5 dark:bg-emerald-400/5"
-                    ></div>
-                </div>
-            </div>
-
-            <!-- Main Content Grid -->
-            <div class="grid gap-6 lg:grid-cols-3">
-                <!-- Upcoming Tasks -->
-                <div
-                    class="rounded-xl border border-gray-200 bg-white/50 backdrop-blur-sm lg:col-span-2 dark:border-gray-700 dark:bg-gray-800/30"
-                >
-                    <div
-                        class="border-b border-gray-200 p-6 dark:border-gray-700"
-                    >
-                        <div class="flex items-center gap-3">
+                            <!-- Kolom kiri: Teks -->
                             <div
-                                class="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30"
+                                class="order-1 transition-all duration-700 ease-out"
+                                :class="
+                                    animate
+                                        ? 'translate-y-0 opacity-100'
+                                        : 'translate-y-8 opacity-0'
+                                "
                             >
-                                <Calendar
-                                    class="h-5 w-5 text-blue-600 dark:text-blue-400"
-                                />
-                            </div>
-                            <div>
-                                <h2
-                                    class="text-lg font-semibold text-gray-900 dark:text-gray-100"
+                                <h1
+                                    class="mb-3 text-3xl font-bold tracking-tight text-white md:text-4xl lg:text-5xl"
                                 >
-                                    Upcoming Tasks
-                                </h2>
+                                    Early Bucket
+                                </h1>
                                 <p
-                                    class="text-sm text-gray-600 dark:text-gray-400"
+                                    class="text-base font-medium text-blue-200 md:text-lg lg:text-xl"
                                 >
-                                    Tasks due in the next 7 days
+                                    Consumer Collection, Recovery, & Asset Sales
+                                    Division 1
                                 </p>
                             </div>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div
-                            v-if="upcomingTasks.length === 0"
-                            class="py-12 text-center"
-                        >
+
+                            <!-- Kolom kanan: Foto dengan edit -->
                             <div
-                                class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30"
-                            >
-                                <CheckCircle2
-                                    class="h-6 w-6 text-green-600 dark:text-green-400"
-                                />
-                            </div>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">
-                                No upcoming tasks
-                            </p>
-                        </div>
-                        <div v-else class="space-y-3">
-                            <div
-                                v-for="task in upcomingTasks"
-                                :key="task.id"
-                                class="group flex items-start gap-4 rounded-lg border border-gray-200/50 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-md dark:border-gray-700/30 dark:bg-gray-800/50 dark:hover:border-gray-600"
+                                class="order-2 transition-all delay-150 duration-700 ease-out md:order-2"
+                                :class="
+                                    animate
+                                        ? 'translate-y-0 opacity-100'
+                                        : 'translate-y-8 opacity-0'
+                                "
                             >
                                 <div
-                                    class="mt-0.5 flex-shrink-0 rounded-md p-2"
-                                    :class="
-                                        task.category!.color?.class ||
-                                        'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                                    class="group relative mx-auto overflow-hidden rounded-2xl shadow-2xl ring-4 ring-white/20"
+                                >
+                                    <!-- Foto -->
+                                    <img
+                                        :src="photoSrc"
+                                        alt="Tim Early Bucket"
+                                        class="mx-auto max-h-[250px] w-full object-cover object-center transition-transform duration-500"
+                                    />
+
+                                    <!-- Overlay gelap -->
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"
+                                    ></div>
+
+                                    <!-- Caption -->
+                                    <div
+                                        class="absolute right-0 bottom-0 left-0 p-6 text-center"
+                                    >
+                                        <p
+                                            class="text-sm font-medium text-white/90 md:text-base"
+                                        >
+                                            Tim Early Bucket
+                                        </p>
+                                    </div>
+
+                                    <!-- Tombol Edit (Pencil)  -->
+                                    <div
+                                        v-if="
+                                            $page.props.auth?.user?.role ===
+                                            'admin'
+                                        "
+                                        class="absolute top-4 right-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                                    >
+                                        <button
+                                            @click.prevent="openFileInput"
+                                            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition hover:bg-white/30"
+                                            title="Ganti Foto"
+                                        >
+                                            <!-- Pencil Icon (Heroicons) -->
+                                            <Pencil class="h-5 w-5" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Hidden File Input -->
+                                <input
+                                    v-if="
+                                        $page.props.auth?.user?.role === 'admin'
                                     "
-                                >
-                                    <FileText class="h-4 w-4" />
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <p
-                                        class="font-medium text-gray-900 group-hover:text-blue-600 dark:text-gray-100 dark:group-hover:text-blue-400"
-                                    >
-                                        {{ task.task_description }}
-                                    </p>
-                                    <div
-                                        class="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-600 dark:text-gray-400"
-                                    >
-                                        <span
-                                            class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1"
-                                            :class="
-                                                task.category!.color?.class ||
-                                                'bg-gray-100 text-gray-600 dark:bg-gray-800'
-                                            "
-                                        >
-                                            {{ task.category!.name }}
-                                        </span>
-                                        <span
-                                            class="flex items-center gap-1"
-                                            :class="{
-                                                'text-red-600 dark:text-red-400':
-                                                    isOverdue(task.due_date!),
-                                            }"
-                                        >
-                                            <Clock class="h-3.5 w-3.5" />
-                                            {{ formatDate(task.due_date!) }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Task Categories Progress -->
-                <div
-                    class="rounded-xl border border-gray-200 bg-white/50 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/30"
-                >
-                    <div
-                        class="border-b border-gray-200 p-6 dark:border-gray-700"
-                    >
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/30"
-                            >
-                                <BarChart3
-                                    class="h-5 w-5 text-purple-600 dark:text-purple-400"
+                                    type="file"
+                                    ref="fileInput"
+                                    accept="image/*"
+                                    @change="uploadPhoto"
+                                    class="hidden"
                                 />
-                            </div>
-                            <div>
-                                <h2
-                                    class="text-lg font-semibold text-gray-900 dark:text-gray-100"
-                                >
-                                    Progress by Category
-                                </h2>
-                                <p
-                                    class="text-sm text-gray-600 dark:text-gray-400"
-                                >
-                                    Task completion rates
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div class="space-y-4">
-                            <div
-                                v-for="category in tasksByCategory"
-                                :key="category.name"
-                            >
-                                <div
-                                    class="mb-2 flex items-center justify-between"
-                                >
-                                    <div class="flex items-center gap-2">
-                                        <span
-                                            class="inline-block h-3 w-3 rounded-full"
-                                            :class="
-                                                category.color?.class ||
-                                                'bg-gray-400'
-                                            "
-                                        ></span>
-                                        <span
-                                            class="text-sm font-medium text-gray-900 dark:text-gray-100"
-                                            >{{ category.name }}</span
-                                        >
-                                    </div>
-                                    <span
-                                        class="text-sm font-semibold text-gray-900 dark:text-gray-100"
-                                        >{{ category.percentage }}%</span
-                                    >
-                                </div>
-                                <div
-                                    class="h-2.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700/30"
-                                >
-                                    <div
-                                        class="h-full rounded-full transition-all duration-500"
-                                        :class="
-                                            category.color?.class ||
-                                            'bg-gray-400'
-                                        "
-                                        :style="{
-                                            width: `${category.percentage}%`,
-                                        }"
-                                    ></div>
-                                </div>
-                                <p
-                                    class="mt-1 text-xs text-gray-600 dark:text-gray-400"
-                                >
-                                    {{ category.completed }} of
-                                    {{ category.total }} completed
-                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Bottom Section -->
-            <div class="grid gap-6 lg:grid-cols-2">
-                <!-- Recent Memos -->
-                <div
-                    class="rounded-xl border border-gray-200 bg-white/50 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/30"
-                >
+            <!-- Main Content -->
+            <div class="flex-1 px-6 py-6 md:p-8">
+                <div class="mx-auto max-w-7xl space-y-6 md:space-y-8">
+                    <!-- Overview Cards -->
                     <div
-                        class="border-b border-gray-200 p-6 dark:border-gray-700"
+                        class="grid grid-cols-1 gap-5 transition-all delay-100 duration-700 ease-out md:grid-cols-2"
+                        :class="
+                            animate
+                                ? 'translate-y-0 opacity-100'
+                                : 'translate-y-8 opacity-0'
+                        "
                     >
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="rounded-lg bg-indigo-100 p-2 dark:bg-indigo-900/30"
-                            >
-                                <Mail
-                                    class="h-5 w-5 text-indigo-600 dark:text-indigo-400"
-                                />
-                            </div>
-                            <div>
-                                <h2
-                                    class="text-lg font-semibold text-gray-900 dark:text-gray-100"
-                                >
-                                    Recent Memos
-                                </h2>
-                                <p
-                                    class="text-sm text-gray-600 dark:text-gray-400"
-                                >
-                                    Latest {{ stats.totalMemos }} memos received
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-6">
+                        <!-- Total Area Card -->
                         <div
-                            v-if="recentMemos.length === 0"
-                            class="py-12 text-center"
+                            class="group overflow-hidden rounded-xl border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-lg"
                         >
-                            <p class="text-sm text-gray-600 dark:text-gray-400">
-                                No memos yet
-                            </p>
-                        </div>
-                        <div v-else class="space-y-3">
-                            <div
-                                v-for="memo in recentMemos"
-                                :key="memo.id"
-                                class="group rounded-lg border border-gray-200/50 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-md dark:border-gray-700/30 dark:bg-gray-800/50 dark:hover:border-gray-600"
-                            >
-                                <div class="flex items-start gap-3">
-                                    <div
-                                        class="mt-0.5 flex-shrink-0 rounded-md p-2"
-                                        :class="
-                                            memo.category.color?.class ||
-                                            'bg-gray-100 text-gray-600 dark:bg-gray-800'
-                                        "
-                                    >
-                                        <Mail class="h-4 w-4" />
+                            <div class="p-6">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <p
+                                            class="mb-1 text-xs font-semibold tracking-wider uppercase md:text-sm"
+                                        >
+                                            Total Area
+                                        </p>
+                                        <p
+                                            class="text-4xl font-bold tracking-tight text-blue-600 md:text-4xl"
+                                        >
+                                            {{ overview.totalAreas }}
+                                        </p>
                                     </div>
-                                    <div class="min-w-0 flex-1">
-                                        <p
-                                            class="font-medium text-gray-900 group-hover:text-indigo-600 dark:text-gray-100 dark:group-hover:text-indigo-400"
-                                        >
-                                            {{ memo.subject }}
-                                        </p>
-                                        <p
-                                            class="mt-1 text-sm text-gray-600 dark:text-gray-400"
-                                        >
-                                            From: {{ memo.origin }}
-                                        </p>
-                                        <div
-                                            class="mt-2 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400"
-                                        >
-                                            <span
-                                                class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1"
-                                                :class="
-                                                    memo.category.color
-                                                        ?.class ||
-                                                    'bg-gray-100 text-gray-600 dark:bg-gray-800'
-                                                "
-                                            >
-                                                {{ memo.category.name }}
-                                            </span>
-                                            <span>{{
-                                                formatDate(memo.received_at!)
-                                            }}</span>
-                                        </div>
+                                    <div
+                                        class="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-50 transition-transform duration-300 group-hover:scale-105 dark:bg-blue-900/20"
+                                    >
+                                        <MapPin class="h-7 w-7 text-blue-600" />
                                     </div>
                                 </div>
                             </div>
+                            <div
+                                class="h-1 bg-gradient-to-r from-blue-600 to-blue-400"
+                            ></div>
+                        </div>
+
+                        <!-- Total Cabang Card -->
+                        <div
+                            class="group overflow-hidden rounded-xl border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-lg"
+                        >
+                            <div class="p-6">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <p
+                                            class="mb-1 text-xs font-semibold tracking-wider uppercase md:text-sm"
+                                        >
+                                            Total Cabang
+                                        </p>
+                                        <p
+                                            class="text-4xl font-bold tracking-tight text-blue-600 md:text-4xl"
+                                        >
+                                            {{ overview.totalBranches }}
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-50 transition-transform duration-300 group-hover:scale-105 dark:bg-blue-900/20"
+                                    >
+                                        <Building
+                                            class="h-7 w-7 text-blue-600"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="h-1 bg-gradient-to-r from-blue-600 to-blue-400"
+                            ></div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Weekly Activity Chart -->
-                <div
-                    class="rounded-xl border border-gray-200 bg-white/50 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/30"
-                >
+                    <!-- Charts Section -->
                     <div
-                        class="border-b border-gray-200 p-6 dark:border-gray-700"
+                        class="grid grid-cols-1 gap-5 transition-all delay-200 duration-700 ease-out md:gap-6 lg:grid-cols-3"
+                        :class="
+                            animate
+                                ? 'translate-y-0 opacity-100'
+                                : 'translate-y-8 opacity-0'
+                        "
                     >
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="rounded-lg bg-teal-100 p-2 dark:bg-teal-900/30"
-                            >
-                                <TrendingUp
-                                    class="h-5 w-5 text-teal-600 dark:text-teal-400"
-                                />
-                            </div>
-                            <div>
-                                <h2
-                                    class="text-lg font-semibold text-gray-900 dark:text-gray-100"
+                        <!-- Pending Memo Chart -->
+                        <div
+                            class="overflow-hidden rounded-xl border border-slate-200 shadow-sm"
+                        >
+                            <div class="border-b border-slate-100 px-5 py-4">
+                                <div
+                                    class="mb-1 flex items-center justify-between"
                                 >
-                                    Weekly Activity
-                                </h2>
-                                <p
-                                    class="text-sm text-gray-600 dark:text-gray-400"
-                                >
-                                    Last 7 days performance
+                                    <h3 class="text-base font-bold md:text-lg">
+                                        <Link :href="memos.index().url">
+                                            Pending Memo
+                                        </Link>
+                                    </h3>
+                                    <span
+                                        class="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 md:text-sm"
+                                    >
+                                        {{ pendingMemo.total }}
+                                    </span>
+                                </div>
+                                <p class="text-xs md:text-sm">
+                                    Status memo yang belum selesai
                                 </p>
                             </div>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div class="space-y-4">
-                            <div class="flex items-center gap-4 text-xs">
-                                <div class="flex items-center gap-2">
+                            <div class="p-5 md:p-6">
+                                <div class="relative h-52 md:h-56">
+                                    <Doughnut
+                                        :data="pendingMemoChartData"
+                                        :options="pendingMemoChartOptions"
+                                    />
                                     <div
-                                        class="h-3 w-3 rounded-sm bg-blue-500"
-                                    ></div>
-                                    <span
-                                        class="text-gray-600 dark:text-gray-400"
-                                        >Tasks</span
+                                        v-if="!hasPendingMemoData"
+                                        class="absolute inset-0 flex items-center justify-center"
                                     >
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <div
-                                        class="h-3 w-3 rounded-sm bg-purple-500"
-                                    ></div>
-                                    <span
-                                        class="text-gray-600 dark:text-gray-400"
-                                        >Memos</span
-                                    >
+                                        <p class="text-sm font-medium">
+                                            Tidak ada data
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                            <div
-                                class="flex h-48 items-end justify-between gap-2"
-                            >
+                        </div>
+
+                        <!-- Pending Matter Chart -->
+                        <div
+                            class="overflow-hidden rounded-xl border border-slate-200 shadow-sm"
+                        >
+                            <div class="border-b border-slate-100 px-5 py-4">
                                 <div
-                                    v-for="(activity, index) in weeklyActivity"
-                                    :key="index"
-                                    class="flex flex-1 flex-col items-center gap-2"
+                                    class="mb-1 flex items-center justify-between"
                                 >
-                                    <!-- BAR GROUP -->
-                                    <div class="flex w-full items-end gap-1">
-                                        <!-- TASK BAR -->
-                                        <div
-                                            class="group relative flex-1 rounded-t bg-blue-500 transition-all hover:bg-blue-600"
-                                            :style="{
-                                                height: `${(activity.tasks_completed / maxActivityValue) * 160}px`,
-                                                minHeight:
-                                                    activity.tasks_completed > 0
-                                                        ? '8px'
-                                                        : '0',
-                                            }"
-                                        >
-                                            <!-- Tooltip -->
-                                            <div
-                                                v-if="
-                                                    activity.tasks_completed > 0
-                                                "
-                                                class="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 rounded bg-blue-600 px-2 py-0.5 text-xs text-white opacity-0 transition group-hover:opacity-100"
-                                            >
-                                                {{ activity.tasks_completed }}
-                                            </div>
-                                        </div>
-
-                                        <!-- MEMO BAR -->
-                                        <div
-                                            class="group relative flex-1 rounded-t bg-purple-500 transition-all hover:bg-purple-600"
-                                            :style="{
-                                                height: `${(activity.memos_completed / maxActivityValue) * 160}px`,
-                                                minHeight:
-                                                    activity.memos_completed > 0
-                                                        ? '8px'
-                                                        : '0',
-                                            }"
-                                        >
-                                            <!-- Tooltip -->
-                                            <div
-                                                v-if="
-                                                    activity.memos_completed > 0
-                                                "
-                                                class="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 rounded bg-purple-600 px-2 py-0.5 text-xs text-white opacity-0 transition group-hover:opacity-100"
-                                            >
-                                                {{ activity.memos_completed }}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- DATE LABEL -->
+                                    <h3 class="text-base font-bold md:text-lg">
+                                        <Link :href="tasks.index().url">
+                                            Pending Matter
+                                        </Link>
+                                    </h3>
                                     <span
-                                        class="text-xs text-gray-600 dark:text-gray-400"
+                                        class="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 md:text-sm"
                                     >
-                                        {{ activity.date }}
+                                        {{ pendingMatter.total }}
                                     </span>
+                                </div>
+                                <p class="text-xs md:text-sm">
+                                    Pending matter yang belum selesai
+                                </p>
+                            </div>
+                            <div class="p-5 md:p-6">
+                                <div class="relative h-52 md:h-56">
+                                    <Doughnut
+                                        :data="pendingMatterChartData"
+                                        :options="pendingMatterChartOptions"
+                                    />
+                                    <div
+                                        v-if="!hasPendingMatterData"
+                                        class="absolute inset-0 flex items-center justify-center"
+                                    >
+                                        <p class="text-sm font-medium">
+                                            Tidak ada data
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Debitur Menabung Chart -->
+                        <div
+                            class="overflow-hidden rounded-xl border border-slate-200 shadow-sm"
+                        >
+                            <div class="border-b border-slate-100 px-5 py-4">
+                                <div
+                                    class="mb-1 flex items-center justify-between"
+                                >
+                                    <h3 class="text-base font-bold md:text-lg">
+                                        <Link :href="debtorSavings.index().url">
+                                            Debitur Menabung
+                                        </Link>
+                                    </h3>
+                                    <span
+                                        class="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 md:text-sm"
+                                    >
+                                        {{ debiturMenabung.total }}
+                                    </span>
+                                </div>
+                                <p class="text-xs md:text-sm">
+                                    Status debitur menabung
+                                </p>
+                            </div>
+                            <div class="p-5 md:p-6">
+                                <div class="relative h-52 md:h-56">
+                                    <Doughnut
+                                        :data="debiturMenabungChartData"
+                                        :options="debiturMenabungChartOptions"
+                                    />
+                                    <div
+                                        v-if="!hasDebiturMenabungData"
+                                        class="absolute inset-0 flex items-center justify-center"
+                                    >
+                                        <p class="text-sm font-medium">
+                                            Tidak ada data
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -606,3 +562,5 @@ const maxActivityValue = computed(() => {
         </div>
     </AppLayout>
 </template>
+
+<style scoped></style>

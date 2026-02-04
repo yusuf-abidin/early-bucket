@@ -2,135 +2,127 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Area;
+use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Memo;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
     public function index() {
-        $user = auth()->user();
-        $userId = $user->id;
 
-        // Task Statistics
-        $taskStats = Task::whereHas('users', function($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })
-            ->where('created_at', '>=', now()->subDays(30))
-            ->toBase() // Menggunakan query builder murni (lebih cepat untuk agregat)
-            ->selectRaw('count(*) as total')
-            ->selectRaw('count(case when completed_at is not null then 1 end) as completed')
-            ->selectRaw('count(case when completed_at is null and due_date < ? then 1 end) as overdue', [now()])
+        $totalAreas = Area::count();
+        $totalBranches = Branch::count();
+
+        // Pending Memo Statistics (Total)
+        $now = now();
+        $memoStats = Memo::selectRaw('
+            count(*) as total,
+            count(case when completed_at is null and due_date >= ? and due_date <= ? then 1 end) as approaching_deadline,
+            count(case when completed_at is null and due_date < ? then 1 end) as overdue,
+            count(case when completed_at is null and due_date > ? then 1 end) as pending
+        ', [
+            $now,
+            $now->copy()->addDays(3),
+            $now,
+            $now->copy()->addDays(3)
+        ])
+            ->whereNull('completed_at')
             ->first();
 
-        $totalTasks = $taskStats->total;
-        $completedTasks = $taskStats->completed;
-        $pendingTasks = $totalTasks - $completedTasks;
-        $overdueTasks = $taskStats->overdue;
+        $pendingMemoData = [
+            'total' => $memoStats->total ?? 0,
+            'pending' => $memoStats->pending ?? 0,
+            'approaching_deadline' => $memoStats->approaching_deadline ?? 0,
+            'overdue' => $memoStats->overdue ?? 0,
+        ];
 
-
-        // Upcoming Tasks (next 7 days)
-        $upcomingTasks = Task::whereHas('users', function($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })
+        // Pending Matter Statistics (Total)
+        $pendingMatterStats = Task::selectRaw('
+            count(*) as total,
+            count(case when completed_at is null and due_date >= ? and due_date <= ? then 1 end) as approaching_deadline,
+            count(case when completed_at is null and due_date < ? then 1 end) as overdue,
+            count(case when completed_at is null and due_date > ? then 1 end) as pending
+        ', [
+            $now,
+            $now->copy()->addDays(3),
+            $now,
+            $now->copy()->addDays(3)
+        ])
             ->whereNull('completed_at')
-            ->whereBetween('due_date', [now(), now()->addDays(7)])
-            ->with(['category.color'])
-            ->orderBy('due_date', 'asc')
-            ->limit(5)
-            ->get();
+            ->where('type', Task::TYPE_PENDING)
+            ->first();
 
-        // Memo Statistics
-        $totalMemos = Memo::whereHas('users', function($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })->where('received_at', '>=', now()->subDays(30))->count();
+        $pendingMatterData = [
+            'total' => $pendingMatterStats->total ?? 0,
+            'pending' => $pendingMatterStats->pending ?? 0,
+            'approaching_deadline' => $pendingMatterStats->approaching_deadline ?? 0,
+            'overdue' => $pendingMatterStats->overdue ?? 0,
+        ];
 
-        // Recent Memos
-        $recentMemos = Memo::whereHas('users', function($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })
-            ->with(['category.color'])
-            ->orderBy('received_at', 'desc')
-            ->limit(5)
-            ->get();
+        // Debitur Menabung Statistics (Total)
+        $debiturStats = Task::selectRaw('
+            count(*) as total,
+            count(case when completed_at is not null then 1 end) as completed,
+            count(case when completed_at is null and due_date >= ? and due_date <= ? then 1 end) as approaching_deadline,
+            count(case when completed_at is null and due_date < ? then 1 end) as overdue,
+            count(case when completed_at is null and due_date > ? then 1 end) as pending
+        ', [
+            $now,
+            $now->copy()->addDays(3),
+            $now,
+            $now->copy()->addDays(3)
+        ])
+            ->where('type', Task::TYPE_DEBITUR)
+            ->first();
 
-        // Task Completion Rate by Category
-        $tasksByCategory = Category::where('type', 'pending_matter')
-            ->withCount([
-                'tasks as total_tasks' => function($query) use ($userId) {
-                    $query->whereHas('users', fn($q) => $q->where('user_id', $userId))
-                    ->where('created_at', '>=', now()->subDays(30));
-                },
-                'tasks as completed_tasks' => function($query) use ($userId) {
-                    $query->whereHas('users', fn($q) => $q->where('user_id', $userId))
-                        ->whereNotNull('completed_at')
-                        ->where('completed_at', '>=', now()->subDays(30));
-                }
-            ])
-            ->with('color')
-            ->get()
-            ->map(function($category) {
-                return [
-                    'name'       => $category->name,
-                    'total'      => $category->total_tasks,
-                    'completed'  => $category->completed_tasks,
-                    'percentage' => $category->total_tasks > 0
-                        ? round(($category->completed_tasks / $category->total_tasks) * 100)
-                        : 0,
-                    'color'      => $category->color
-                ];
-            });
-
-        // Weekly Activity (last 7 days)
-        $startDate = now()->subDays(6)->startOfDay();
-        $endDate   = now()->endOfDay();
-
-        $dailyTaskCounts = Task::whereHas('users', function($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })
-            ->whereBetween('completed_at', [$startDate, $endDate])
-            ->selectRaw('DATE(completed_at) as date, count(*) as count')
-            ->groupBy('date')
-            ->pluck('count', 'date');
-
-        $dailyMemoCounts = Memo::whereHas('users', function($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })
-            ->whereNotNull('completed_at')
-            ->whereBetween('completed_at', [$startDate, $endDate])
-            ->selectRaw('DATE(completed_at) as date, count(*) as count')
-            ->groupBy('date')
-            ->pluck('count', 'date');
-
-        $weeklyActivity = collect(range(6, 0))->map(function($daysAgo) use ($dailyTaskCounts, $dailyMemoCounts) {
-            $dateKey = now()->subDays($daysAgo)->format('Y-m-d'); // Format key agar cocok dengan database
-
-            return [
-                'date'            => now()->subDays($daysAgo)->format('M d'),
-                // Ambil dari collection yang sudah di-fetch, default 0 jika tidak ada
-                'tasks_completed' => $dailyTaskCounts->get($dateKey, 0),
-                'memos_completed'  => $dailyMemoCounts->get($dateKey, 0),
-            ];
-        });
-//        dd($weeklyActivity);
+        $debiturMenabungData = [
+            'total' => $debiturStats->total ?? 0,
+            'pending' => $debiturStats->pending ?? 0,
+            'approaching_deadline' => $debiturStats->approaching_deadline ?? 0,
+            'overdue' => $debiturStats->overdue ?? 0,
+            'completed' => $debiturStats->completed ?? 0,
+        ];
 
         return Inertia::render('Dashboard', [
-            'stats' => [
-                'totalTasks' => $totalTasks,
-                'completedTasks' => $completedTasks,
-                'pendingTasks' => $pendingTasks,
-                'overdueTasks' => $overdueTasks,
-                'totalMemos' => $totalMemos,
-                'completionRate' => $totalTasks > 0
-                    ? round(($completedTasks / $totalTasks) * 100)
-                    : 0,
+            // General Overview Statistics
+            'overview' => [
+                'totalAreas' => $totalAreas,
+                'totalBranches' => $totalBranches,
             ],
-            'upcomingTasks' => $upcomingTasks,
-            'recentMemos' => $recentMemos,
-            'tasksByCategory' => $tasksByCategory,
-            'weeklyActivity' => $weeklyActivity,
+
+            // Pie Chart Data
+            'pendingMemo' => $pendingMemoData,
+            'pendingMatter' => $pendingMatterData,
+            'debiturMenabung' => $debiturMenabungData,
         ]);
+    }
+
+    public function changeHero(Request $request)
+    {
+        if (auth()->user()->role !== 'admin') {
+            return back()->withErrors(['message' => 'Anda tidak memiliki akses untuk mengubah hero.']);
+        }
+
+        try {
+            $request->validate([
+            'image' => ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:1024']
+        ]);
+
+            Storage::disk('public')->putFileAs(
+                '',
+                $request->file('image'),
+                'early-bucket-hero.png'
+            );
+
+        return redirect()->route('dashboard')->with('success', 'Gambar berhasil diperbarui.');
+        }catch (\Exception $exception){
+            return back()->withErrors(['message' => 'Gagal mengubah hero: ' . $exception->getMessage()]);
+        }
+
     }
 }

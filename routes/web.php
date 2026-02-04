@@ -26,6 +26,9 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
 
+//        DASHBOARD
+        Route::post('change-hero', [\App\Http\Controllers\DashboardController::class, 'changeHero'])->name('dashboard.change-hero');
+
 //        MANAJEMEN USER
         Route::get('users', [\App\Http\Controllers\AdminController::class, 'users'])->name('users.index');
         Route::get('users/create', [\App\Http\Controllers\AdminController::class, 'create'])->name('users.create');

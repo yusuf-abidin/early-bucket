@@ -137,23 +137,27 @@ onUnmounted(() => {
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead class="w-[200px] min-w-[200px]">
+                    <TableHead class="w-[200px] min-w-[200px] font-bold">
                         Area / Cabang
                     </TableHead>
-                    <TableHead class="w-[180px] min-w-[180px]">PIC</TableHead>
-                    <TableHead class="w-[160px] min-w-[160px]">
+                    <TableHead class="w-[180px] min-w-[180px] font-bold"
+                        >PIC</TableHead
+                    >
+                    <TableHead class="w-[160px] min-w-[160px] font-bold">
                         Komitmen Etape
                     </TableHead>
-                    <TableHead class="w-[160px] min-w-[160px]">
+                    <TableHead class="w-[160px] min-w-[160px] font-bold">
                         Komitmen EOM (BC)
                     </TableHead>
-                    <TableHead class="w-[160px] min-w-[160px]">
+                    <TableHead class="w-[160px] min-w-[160px] font-bold">
                         Komitmen EOM (BM)
                     </TableHead>
-                    <TableHead class="w-[180px] min-w-[180px]">
+                    <TableHead class="w-[180px] min-w-[180px] font-bold">
                         Prognosa Akhir Bulan
                     </TableHead>
-                    <TableHead class="min-w-[250px]">Kendala</TableHead>
+                    <TableHead class="min-w-[250px] font-bold"
+                        >Kendala</TableHead
+                    >
                 </TableRow>
             </TableHeader>
             <TableBody>

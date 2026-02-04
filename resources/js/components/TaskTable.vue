@@ -301,7 +301,7 @@ const { columnWidths, startResize } = useTableResize({
                 <TableHeader>
                     <TableRow>
                         <TableHead
-                            class="relative"
+                            class="relative font-bold"
                             :style="{
                                 width: columnWidths.no + 'px',
                                 minWidth: columnWidths.no + 'px',
@@ -314,7 +314,7 @@ const { columnWidths, startResize } = useTableResize({
                             ></div>
                         </TableHead>
                         <TableHead
-                            class="relative"
+                            class="relative font-bold"
                             :style="{
                                 width: columnWidths.task + 'px',
                                 minWidth: columnWidths.task + 'px',
@@ -328,7 +328,7 @@ const { columnWidths, startResize } = useTableResize({
                             ></div
                         ></TableHead>
                         <TableHead
-                            class="relative"
+                            class="relative font-bold"
                             :style="{
                                 width: columnWidths.assignedUser + 'px',
                                 minWidth: columnWidths.assignedUser + 'px',
@@ -345,7 +345,7 @@ const { columnWidths, startResize } = useTableResize({
                         </TableHead>
                         <TableHead
                             v-if="visibleColumns.dueDate"
-                            class="relative cursor-pointer"
+                            class="relative cursor-pointer font-bold"
                             @click="toggleSort"
                             :style="{
                                 width: columnWidths.dueDate + 'px',
@@ -375,7 +375,7 @@ const { columnWidths, startResize } = useTableResize({
                                 width: columnWidths.isResolved + 'px',
                                 minWidth: columnWidths.isResolved + 'px',
                             }"
-                            class="relative text-center"
+                            class="relative text-center font-bold"
                             v-if="visibleColumns.isResolved"
                         >
                             Check
@@ -385,7 +385,7 @@ const { columnWidths, startResize } = useTableResize({
                             ></div>
                         </TableHead>
                         <TableHead
-                            class="relative"
+                            class="relative font-bold"
                             :style="{
                                 width: columnWidths.category + 'px',
                                 minWidth: columnWidths.category + 'px',
@@ -399,7 +399,7 @@ const { columnWidths, startResize } = useTableResize({
                             ></div>
                         </TableHead>
                         <TableHead
-                            class="relative"
+                            class="relative font-bold"
                             :style="{
                                 width: columnWidths.notes + 'px',
                                 minWidth: columnWidths.notes + 'px',
@@ -445,7 +445,8 @@ const { columnWidths, startResize } = useTableResize({
                         </TableCell>
                         <TableCell
                             class="resizable-cell wrap"
-                            v-if="visibleColumns.assignedUser">
+                            v-if="visibleColumns.assignedUser"
+                        >
                             <div class="flex flex-col flex-wrap gap-1">
                                 <Badge
                                     v-for="user in task.users"

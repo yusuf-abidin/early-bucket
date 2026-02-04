@@ -60,7 +60,7 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
             <TableHeader>
                 <TableRow>
                     <TableHead
-                        class="relative"
+                        class="relative font-bold"
                         :style="{
                             width: columnWidths.no + 'px',
                             minWidth: columnWidths.no + 'px',
@@ -73,7 +73,7 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
                         ></div>
                     </TableHead>
                     <TableHead
-                        class="relative"
+                        class="relative font-bold"
                         :style="{
                             width: columnWidths.task + 'px',
                             minWidth: columnWidths.task + 'px',
@@ -87,7 +87,7 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
                         ></div>
                     </TableHead>
                     <TableHead
-                        class="relative"
+                        class="relative font-bold"
                         :style="{
                             width: columnWidths.assignedUser + 'px',
                             minWidth: columnWidths.assignedUser + 'px',
@@ -101,7 +101,7 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
                         ></div>
                     </TableHead>
                     <TableHead
-                        class="relative"
+                        class="relative font-bold"
                         :style="{
                             width: columnWidths.createdDate + 'px',
                             minWidth: columnWidths.createdDate + 'px',
@@ -119,7 +119,7 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
                             width: columnWidths.dueDate + 'px',
                             minWidth: columnWidths.dueDate + 'px',
                         }"
-                        class="relative"
+                        class="relative font-bold"
                         v-if="visibleColumns!.dueDate"
                     >
                         Deadline
@@ -133,7 +133,7 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
                             width: columnWidths.resolvedDate + 'px',
                             minWidth: columnWidths.resolvedDate + 'px',
                         }"
-                        class="relative"
+                        class="relative font-bold"
                         v-if="visibleColumns!.resolvedDate"
                     >
                         Tanggal Selesai
@@ -143,7 +143,7 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
                         ></div>
                     </TableHead>
                     <TableHead
-                        class="relative"
+                        class="relative font-bold"
                         :style="{
                             width: columnWidths.category + 'px',
                             minWidth: columnWidths.category + 'px',
@@ -157,7 +157,7 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
                         ></div>
                     </TableHead>
                     <TableHead
-                        class="relative"
+                        class="relative font-bold"
                         :style="{
                             width: columnWidths.notes + 'px',
                             minWidth: columnWidths.notes + 'px',

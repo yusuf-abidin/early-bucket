@@ -121,7 +121,7 @@ const completedPercentage = computed(() => {
                 <template v-else>
                     <div class="flex w-full items-center justify-center">
                         <span class="text-xs font-medium"
-                            >No tasks available</span
+                            >Tidak ada data debitur menabung</span
                         >
                     </div>
                 </template>

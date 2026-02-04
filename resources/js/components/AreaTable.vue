@@ -210,11 +210,13 @@ const handleUpdateArea = (area: Area) => {
             <TableHeader>
                 <TableRow>
                     <TableHead class="w-[50px]"></TableHead>
-                    <TableHead>Nama Area/Cabang</TableHead>
-                    <TableHead class="w-[150px] text-center"
+                    <TableHead class="font-bold">Nama Area/Cabang</TableHead>
+                    <TableHead class="w-[150px] text-center font-bold"
                         >Total Cabang</TableHead
                     >
-                    <TableHead class="w-[150px] text-right">Aksi</TableHead>
+                    <TableHead class="w-[150px] text-right font-bold"
+                        >Aksi</TableHead
+                    >
                 </TableRow>
             </TableHeader>
             <TableBody>

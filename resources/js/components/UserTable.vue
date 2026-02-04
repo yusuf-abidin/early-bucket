@@ -194,9 +194,15 @@ const handleCreateUser = () => {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead v-if="visibleColumns.name">Name</TableHead>
-                        <TableHead v-if="visibleColumns.email">Email</TableHead>
-                        <TableHead v-if="visibleColumns.role">Role</TableHead>
+                        <TableHead class="font-bold" v-if="visibleColumns.name"
+                            >Name</TableHead
+                        >
+                        <TableHead class="font-bold" v-if="visibleColumns.email"
+                            >Email</TableHead
+                        >
+                        <TableHead class="font-bold" v-if="visibleColumns.role"
+                            >Role</TableHead
+                        >
                         <TableHead class="w-[50px]"></TableHead>
                     </TableRow>
                 </TableHeader>
@@ -225,7 +231,11 @@ const handleCreateUser = () => {
                         <TableCell v-if="visibleColumns.role">
                             <Badge
                                 variant="secondary"
-                                :class="user.role === 'admin' ? 'bg-blue-500 text-white dark:bg-blue-600' : ''"
+                                :class="
+                                    user.role === 'admin'
+                                        ? 'bg-blue-500 text-white dark:bg-blue-600'
+                                        : ''
+                                "
                             >
                                 {{ user.role }}
                             </Badge>
