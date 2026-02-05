@@ -25,7 +25,7 @@ defineProps<Props>();
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
-        title: 'Profile settings',
+        title: 'Pengaturan profil',
         href: edit().url,
     },
 ];
@@ -113,7 +113,6 @@ const submitAvatar = () => {
 };
 
 const removeAvatar = () => {
-
     const route = ProfileController.deleteAvatar.form();
     avatarForm.submit(route.method, route.action, {
         preserveScroll: true,
@@ -135,14 +134,14 @@ const cancelAvatarUpload = () => {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbItems">
-        <Head title="Profile settings" />
+        <Head title="Pengaturan profil" />
 
         <SettingsLayout>
             <!-- Avatar Upload Section -->
             <div class="flex flex-col space-y-6">
                 <HeadingSmall
-                    title="Profile picture"
-                    description="Upload or remove your profile picture"
+                    title="Foto Profil"
+                    description="Ganti atau hapus foto profil"
                 />
 
                 <div
@@ -171,7 +170,7 @@ const cancelAvatarUpload = () => {
                                     as="span"
                                     :disabled="avatarForm.processing"
                                 >
-                                    Choose Image
+                                    Pilih Gambar
                                 </Button>
                             </Label>
                             <Input
@@ -184,7 +183,7 @@ const cancelAvatarUpload = () => {
                                 class="hidden"
                             />
                             <p class="text-xs text-muted-foreground">
-                                PNG, JPG up to 1MB
+                                PNG, JPG maksimal 1MB
                             </p>
                             <InputError :message="avatarForm.errors.avatar" />
                         </div>
@@ -212,8 +211,8 @@ const cancelAvatarUpload = () => {
                             >
                                 {{
                                     avatarForm.processing
-                                        ? 'Removing...'
-                                        : 'Remove'
+                                        ? 'Menghapus...'
+                                        : 'Hapus'
                                 }}
                             </Button>
 
@@ -248,20 +247,20 @@ const cancelAvatarUpload = () => {
             <!-- Profile Information Section -->
             <div class="flex flex-col space-y-6">
                 <HeadingSmall
-                    title="Profile information"
-                    description="Update your name and email address"
+                    title="Informasi Profil"
+                    description="Ubah nama dan alamat email"
                 />
 
                 <form @submit.prevent="submitProfile" class="space-y-6">
                     <div class="grid gap-2">
-                        <Label for="name">Name</Label>
+                        <Label for="name">Nama</Label>
                         <Input
                             id="name"
                             v-model="profileForm.name"
                             class="mt-1 block w-full"
                             required
                             autocomplete="name"
-                            placeholder="Full name"
+                            placeholder="Nama lengkap"
                             :disabled="profileForm.processing"
                         />
                         <InputError
@@ -271,7 +270,7 @@ const cancelAvatarUpload = () => {
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="email">Email address</Label>
+                        <Label for="email">Alamat email</Label>
                         <Input
                             id="email"
                             v-model="profileForm.email"
@@ -279,7 +278,7 @@ const cancelAvatarUpload = () => {
                             class="mt-1 block w-full"
                             required
                             autocomplete="username"
-                            placeholder="Email address"
+                            placeholder="Alamat email"
                             :disabled="profileForm.processing"
                         />
                         <InputError
@@ -315,7 +314,7 @@ const cancelAvatarUpload = () => {
                             :disabled="profileForm.processing"
                             data-test="update-profile-button"
                         >
-                            Save
+                            Simpan
                         </Button>
 
                         <Transition
@@ -328,14 +327,12 @@ const cancelAvatarUpload = () => {
                                 v-show="profileForm.recentlySuccessful"
                                 class="text-sm text-neutral-600"
                             >
-                                Saved.
+                                Tersimpan.
                             </p>
                         </Transition>
                     </div>
                 </form>
             </div>
-
-            <DeleteUser />
         </SettingsLayout>
     </AppLayout>
 </template>

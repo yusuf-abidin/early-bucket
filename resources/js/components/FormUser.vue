@@ -136,28 +136,26 @@ const handleCancel = () => {
 };
 
 const cardTitle = computed(() =>
-    isEditMode.value ? 'Edit User Account' : 'Create User Account',
+    isEditMode.value ? 'Edit Akun Pengguna' : 'Buat Akun Pengguna',
 );
 
 const cardDescription = computed(() =>
     isEditMode.value
-        ? 'Update user information. Leave password and avatar blank if you don\'t want to change them.'
-        : 'Add a new user to the system. All fields are required except avatar and color.',
+        ? 'Perbarui informasi pengguna. Biarkan kolom password dan foto profil kosong jika Anda tidak ingin mengubahnya.'
+        : 'Tambahkan pengguna baru ke sistem. Semua kolom wajib diisi kecuali foto profil.',
 );
 
 const submitButtonText = computed(() =>
     form.processing
         ? isEditMode.value
             ? 'Updating...'
-            : 'Creating...'
+            : 'Membuat...'
         : isEditMode.value
-            ? 'Update User'
-            : 'Create User',
+          ? 'Update User'
+          : 'Buat User',
 );
 
-const cancelButtonText = computed(() =>
-    isEditMode.value ? 'Cancel' : 'Reset',
-);
+const cancelButtonText = computed(() => (isEditMode.value ? 'Batal' : 'Reset'));
 </script>
 
 <template>
@@ -169,8 +167,8 @@ const cancelButtonText = computed(() =>
             <form @submit.prevent="submit" enctype="multipart/form-data">
                 <CardHeader class="space-y-1">
                     <CardTitle class="text-2xl font-bold">{{
-                            cardTitle
-                        }}</CardTitle>
+                        cardTitle
+                    }}</CardTitle>
                     <CardDescription>
                         {{ cardDescription }}
                     </CardDescription>
@@ -198,8 +196,8 @@ const cancelButtonText = computed(() =>
                                 >
                                     {{
                                         isEditMode
-                                            ? 'Upload New Avatar (optional)'
-                                            : 'Upload Avatar (optional)'
+                                            ? 'Unggah Foto Profil Baru (opsional)'
+                                            : 'Unggah Foto Profil (opsional)'
                                     }}
                                 </span>
                             </Label>
@@ -211,7 +209,7 @@ const cancelButtonText = computed(() =>
                                 class="hidden"
                             />
                             <p class="text-xs text-muted-foreground">
-                                PNG, JPG up to 1MB recommended
+                                PNG, JPG maksimal 1MB
                             </p>
                         </div>
                         <p
@@ -228,13 +226,13 @@ const cancelButtonText = computed(() =>
                             for="name"
                             :class="{ 'text-destructive': form.errors.name }"
                         >
-                            Name <span class="text-destructive">*</span>
+                            Nama <span class="text-destructive">*</span>
                         </Label>
                         <Input
                             id="name"
                             v-model="form.name"
                             type="text"
-                            placeholder="Enter full name"
+                            placeholder="Masukkan nama lengkap"
                             :disabled="form.processing"
                         />
                         <p
@@ -253,13 +251,13 @@ const cancelButtonText = computed(() =>
                                 'text-destructive': form.errors.position,
                             }"
                         >
-                            Position <span class="text-destructive">*</span>
+                            Jabatan <span class="text-destructive">*</span>
                         </Label>
                         <Input
                             id="position"
                             v-model="form.position"
                             type="text"
-                            placeholder="Enter position name"
+                            placeholder="Masukkan nama jabatan"
                             :disabled="form.processing"
                         />
                         <p
@@ -301,13 +299,11 @@ const cancelButtonText = computed(() =>
                                 'text-destructive': form.errors.password,
                             }"
                         >
-                            {{ isEditMode ? 'New Password' : 'Password' }}
+                            {{ isEditMode ? 'Password Baru' : 'Password' }}
                             <span v-if="!isEditMode" class="text-destructive"
-                            >*</span
+                                >*</span
                             >
-                            <span v-else class="text-gray-500"
-                            >(optional)</span
-                            >
+                            <span v-else class="text-gray-500">(opsional)</span>
                         </Label>
                         <Input
                             id="password"
@@ -315,8 +311,8 @@ const cancelButtonText = computed(() =>
                             type="password"
                             :placeholder="
                                 isEditMode
-                                    ? 'Leave blank to keep current password'
-                                    : 'Enter secure password'
+                                    ? 'Biarkan kosong untuk mempertahankan password saat ini.'
+                                    : 'Masukkan password yang aman'
                             "
                             :disabled="form.processing"
                         />
@@ -339,11 +335,11 @@ const cancelButtonText = computed(() =>
                         >
                             {{
                                 isEditMode
-                                    ? 'Confirm New Password'
-                                    : 'Confirm Password'
+                                    ? 'Konfirmasi Password Baru'
+                                    : 'Konfirmasi Password'
                             }}
                             <span v-if="!isEditMode" class="text-destructive"
-                            >*</span
+                                >*</span
                             >
                         </Label>
                         <Input
@@ -352,8 +348,8 @@ const cancelButtonText = computed(() =>
                             type="password"
                             :placeholder="
                                 isEditMode
-                                    ? 'Confirm new password'
-                                    : 'Confirm password'
+                                    ? 'Konfirmasi Password Baru'
+                                    : 'Konfirmasi Password'
                             "
                             :disabled="form.processing"
                         />
@@ -375,7 +371,7 @@ const cancelButtonText = computed(() =>
                         </Label>
                         <Select v-model="form.role" :disabled="form.processing">
                             <SelectTrigger id="role">
-                                <SelectValue placeholder="Select a role" />
+                                <SelectValue placeholder="Pilih role" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="user">User</SelectItem>
@@ -393,8 +389,8 @@ const cancelButtonText = computed(() =>
                     <!-- Color Selector -->
                     <div class="space-y-1.5">
                         <Label for="color">
-                            Color
-                            <span class="text-gray-500">(optional)</span>
+                            Warna
+                            <span class="text-gray-500">(opsional)</span>
                         </Label>
                         <div class="relative">
                             <button
@@ -418,7 +414,7 @@ const cancelButtonText = computed(() =>
                                         {{
                                             selectedColor
                                                 ? selectedColor.name
-                                                : 'Select a color'
+                                                : 'Pilih warna'
                                         }}
                                     </span>
                                 </span>
@@ -428,14 +424,14 @@ const cancelButtonText = computed(() =>
                             <!-- Color Dropdown -->
                             <div
                                 v-if="openColorDropdown"
-                                class="absolute left-0 right-0 z-50 mt-2 rounded-md border border-gray-200 bg-white shadow-lg"
+                                class="absolute right-0 left-0 z-50 mt-2 rounded-md border border-gray-200 bg-white shadow-lg"
                                 @click.stop
                             >
                                 <div class="p-2">
                                     <div
                                         class="mb-2 px-2 text-xs font-medium text-gray-500"
                                     >
-                                        Select Color
+                                        Pilih warna
                                     </div>
                                     <div class="max-h-60 overflow-y-auto">
                                         <button
@@ -462,9 +458,10 @@ const cancelButtonText = computed(() =>
                                                     class="h-2 w-2 rounded-full bg-current"
                                                 ></div>
                                             </div>
-                                            <span class="capitalize text-gray-700">{{
-                                                    color.name
-                                                }}</span>
+                                            <span
+                                                class="text-gray-700 capitalize"
+                                                >{{ color.name }}</span
+                                            >
                                         </button>
 
                                         <!-- Clear Selection Option -->

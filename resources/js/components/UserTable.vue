@@ -50,6 +50,7 @@ const searchQuery = ref('');
 const defaultColumns = {
     name: true,
     email: true,
+    position: true,
     role: true,
 };
 
@@ -139,7 +140,7 @@ const handleCreateUser = () => {
                                             for="col-name"
                                             class="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                         >
-                                            Name
+                                            Nama
                                         </label>
                                     </div>
                                     <div class="flex items-center space-x-2">
@@ -152,6 +153,18 @@ const handleCreateUser = () => {
                                             class="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                         >
                                             Email
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <Checkbox
+                                            id="col-position"
+                                            v-model="visibleColumns.position"
+                                        />
+                                        <label
+                                            for="col-position"
+                                            class="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        >
+                                            Jabatan
                                         </label>
                                     </div>
                                     <div class="flex items-center space-x-2">
@@ -184,7 +197,7 @@ const handleCreateUser = () => {
 
                 <Button @click="handleCreateUser" size="sm">
                     <Plus class="mr-2 h-4 w-4" />
-                    Create User
+                    Buat User
                 </Button>
             </div>
         </div>
@@ -195,11 +208,16 @@ const handleCreateUser = () => {
                 <TableHeader>
                     <TableRow>
                         <TableHead class="font-bold" v-if="visibleColumns.name"
-                            >Name</TableHead
+                            >Nama</TableHead
                         >
                         <TableHead class="font-bold" v-if="visibleColumns.email"
                             >Email</TableHead
                         >
+                        <TableHead
+                            class="font-bold"
+                            v-if="visibleColumns.position"
+                            >Jabatan
+                        </TableHead>
                         <TableHead class="font-bold" v-if="visibleColumns.role"
                             >Role</TableHead
                         >
@@ -227,6 +245,9 @@ const handleCreateUser = () => {
                         </TableCell>
                         <TableCell v-if="visibleColumns.email">
                             {{ user.email }}
+                        </TableCell>
+                        <TableCell v-if="visibleColumns.position">
+                            {{ user.position }}
                         </TableCell>
                         <TableCell v-if="visibleColumns.role">
                             <Badge
@@ -278,7 +299,7 @@ const handleCreateUser = () => {
 
         <!-- Results info -->
         <div class="text-sm text-muted-foreground">
-            Showing {{ filteredUsers.length }} of {{ users.length }} users
+            Menampilkan {{ filteredUsers.length }} dari {{ users.length }} pengguna
         </div>
     </div>
 

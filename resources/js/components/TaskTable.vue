@@ -178,7 +178,7 @@ const { columnWidths, startResize } = useTableResize({
                 />
                 <Input
                     v-model="searchQuery"
-                    placeholder="Search agenda"
+                    placeholder="Cari agenda"
                     class="pl-9"
                 />
             </div>

@@ -142,7 +142,7 @@ const toggleSortDir = () => {
                 />
                 <Input
                     v-model="searchQuery"
-                    placeholder="Search agenda"
+                    placeholder="Cari agenda"
                     class="pl-9"
                     @keyup.enter="applyFilters"
                 />

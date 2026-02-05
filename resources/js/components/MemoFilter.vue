@@ -135,7 +135,7 @@ const toggleSortDir = () => {
                     />
                     <Input
                         v-model="searchQuery"
-                        placeholder="Search memo"
+                        placeholder="Cari memo"
                         class="pl-9"
                         @keyup.enter="applyFilters"
                     />

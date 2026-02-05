@@ -11,7 +11,7 @@ import { Link } from '@inertiajs/vue3';
 
 const sidebarNavItems: NavItem[] = [
     {
-        title: 'Profile',
+        title: 'Profil',
         href: editProfile(),
     },
     {
@@ -19,7 +19,7 @@ const sidebarNavItems: NavItem[] = [
         href: editPassword(),
     },
     {
-        title: 'Appearance',
+        title: 'Tampilan',
         href: editAppearance(),
     },
 ];
@@ -30,8 +30,8 @@ const currentPath = typeof window !== undefined ? window.location.pathname : '';
 <template>
     <div class="px-4 py-6">
         <Heading
-            title="Settings"
-            description="Manage your profile and account settings"
+            title="Pengaturan"
+            description="Kelola profil dan pengaturan akun"
         />
 
         <div class="flex flex-col lg:flex-row lg:space-x-12">

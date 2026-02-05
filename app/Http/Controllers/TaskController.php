@@ -180,7 +180,7 @@ class TaskController extends Controller
             ->get();
 
         $tasksQuery = Task::query()
-            ->where('type', Task::TYPE_PENDING)
+            ->where('tasks.type', Task::TYPE_PENDING)
             ->whereNotNull('completed_at')
             ->with(['category', 'users']);
 

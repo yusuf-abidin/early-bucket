@@ -268,14 +268,14 @@ const saveChanges = (type: string) => {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Categories',
+        title: 'Kategori',
         href: admin.categories.index().url,
     },
 ];
 </script>
 
 <template>
-    <Head title="Category Management" />
+    <Head title="Manajemen Kategori" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
@@ -437,7 +437,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         >
                             <Input
                                 v-model="newCategoryName[type]"
-                                placeholder="Enter new sub-category"
+                                placeholder="Masukkan kategori baru"
                                 @keyup.enter="addSubCategory(String(type))"
                                 class="flex-1"
                             />
@@ -446,7 +446,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 size="sm"
                                 @click="cancelAdding(String(type))"
                             >
-                                Cancel
+                                Batal
                             </Button>
                         </div>
                     </CardContent>
@@ -458,7 +458,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             class="w-full"
                             :disabled="processing[type]"
                         >
-                            Add Category
+                            Tambah Kategori
                         </Button>
                         <Button
                             v-if="addingCategory[type]"
@@ -466,7 +466,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             variant="outline"
                             class="w-full"
                         >
-                            Save New
+                            Simpan Baru
                         </Button>
                         <Button
                             @click="saveChanges(String(type))"
@@ -474,7 +474,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             :disabled="processing[type]"
                         >
                             {{
-                                processing[type] ? 'Saving...' : 'Save Changes'
+                                processing[type] ? 'Menyimpan...' : 'Simpan Perubahan'
                             }}
                         </Button>
                     </CardFooter>
