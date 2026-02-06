@@ -15,7 +15,7 @@ class DebtorSavingsController extends Controller
     public function index(Request $request)
     {
         $queryDebtSavings = Task::with('category', 'users')
-            ->where('type', Task::TYPE_DEBITUR)
+            ->where('tasks.type', Task::TYPE_DEBITUR)
             ->orderBy('due_date');
 
         if ($request->filled('user_id')) {
@@ -59,31 +59,25 @@ class DebtorSavingsController extends Controller
             ])
             ->get();
 
-        $thirtyDaysAgo = now()->subDays(30);
-
         $taskStats = [
             'pending' => Task::where('type', Task::TYPE_DEBITUR)
                 ->whereNull('completed_at')
                 ->whereDate('due_date', '>', today()->addDays(3))
-                ->where('created_at', '>=', $thirtyDaysAgo)
                 ->count(),
 
             'near_deadline' => Task::where('type', Task::TYPE_DEBITUR)
                 ->whereNull('completed_at')
                 ->whereDate('due_date', '>=', today())
                 ->whereDate('due_date', '<=', today()->addDays(3))
-                ->where('created_at', '>=', $thirtyDaysAgo)
                 ->count(),
 
             'overdue' => Task::where('type', Task::TYPE_DEBITUR)
                 ->whereNull('completed_at')
                 ->where('due_date', '<', now())
-                ->where('created_at', '>=', $thirtyDaysAgo)
                 ->count(),
 
             'completed' => Task::where('type', Task::TYPE_DEBITUR)
                 ->whereNotNull('completed_at')
-                ->where('created_at', '>=', $thirtyDaysAgo)
                 ->count(),
         ];
 

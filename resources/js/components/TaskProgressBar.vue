@@ -43,11 +43,8 @@ const completedPercentage = computed(() => {
         <!-- Header -->
         <div class="mb-1">
             <h3 class="text-lg font-semibold">
-                Progress 30 Hari Terakhir
-            </h3>
-            <p class="text-sm">
                 Total Agenda: {{ stats.total }}
-            </p>
+            </h3>
         </div>
 
         <!-- Progress Bar -->
