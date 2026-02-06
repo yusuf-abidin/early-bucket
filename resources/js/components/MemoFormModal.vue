@@ -169,9 +169,6 @@ const submit = () => {
             form.received_at = originalReceivedAtDate;
             form.due_date = originalDueDate;
         },
-        onFinish: () => {
-            if (selectedMemo.value) closeModal();
-        },
     };
 
     if (!selectedMemo.value) {
@@ -396,7 +393,6 @@ const openLink = (url: string) => {
                     <div class="space-y-2">
                         <Label for="origin" class="text-sm font-medium">
                             Asal
-                            <span class="text-destructive">*</span>
                         </Label>
                         <Textarea
                             :disabled="form.processing"
@@ -422,7 +418,6 @@ const openLink = (url: string) => {
                             class="text-sm font-medium"
                         >
                             Nomor Surat
-                            <span class="text-destructive">*</span>
                         </Label>
                         <Textarea
                             :disabled="form.processing"
@@ -445,7 +440,6 @@ const openLink = (url: string) => {
                     <div class="space-y-2">
                         <Label for="subject" class="text-sm font-medium">
                             Perihal
-                            <span class="text-destructive">*</span>
                         </Label>
                         <Textarea
                             :disabled="form.processing"

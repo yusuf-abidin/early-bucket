@@ -114,6 +114,7 @@ const applyFilters = () => {
     router.get(window.location.pathname, query, {
         preserveState: true,
         replace: true,
+        preserveScroll: true,
     });
 };
 

@@ -122,8 +122,8 @@ class TaskController extends Controller
         }
 
         $validated = $request->validate([
-            'task_description' => ['required_without:completed_at', 'max:255'],
-            'category_id' => ['required_without:completed_at', 'exists:categories,id'],
+            'task_description' => ['sometimes', 'required', 'max:255'],
+            'category_id' => ['sometimes', 'required', 'exists:categories,id'],
             'users' => ['nullable', 'array'],
             'users.*' => ['exists:users,id'],
             'due_date' => ['sometimes', 'required'],
