@@ -160,10 +160,7 @@ const submit = () => {
             // supaya komponen kalender tidak error saat render ulang
             form.due_date = originalDate;
         },
-        onFinish: () => {
-            // Opsional untuk Update
-            if (taskData.value) closeModal();
-        },
+        preserveScroll: true,
     };
 
     if (!taskData.value) {
@@ -483,7 +480,7 @@ watch(
                         </Button>
                     </DialogClose>
                     <Button type="submit" :disabled="form.processing">
-                        {{ form.processing ? 'Processing...' : 'Simpan' }}
+                        {{ form.processing ? 'Menyimpan...' : 'Simpan' }}
                     </Button>
                 </DialogFooter>
             </form>
