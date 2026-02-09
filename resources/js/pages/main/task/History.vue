@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { type BreadcrumbItem, LaravelPaginator, Task, UserSummary } from '@/types';
+import {
+    type BreadcrumbItem,
+    LaravelPaginator,
+    Task,
+    UserSummary,
+} from '@/types';
 import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import taskRoute from '@/routes/tasks';
@@ -8,6 +13,7 @@ import TaskHistoryFilter from '@/components/TaskHistoryFilter.vue';
 import TaskHistoryTable from '@/components/TaskHistoryTable.vue';
 import { provide, ref, watch } from 'vue';
 import TaskHistoryPagination from '@/components/TaskHistoryPagination.vue';
+import DialogDeleteTask from '@/components/DialogDeleteTask.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -52,6 +58,9 @@ watch(
 );
 
 provide('visibleColumns', visibleColumns);
+
+const dialogDeleteTaskIsOpen = ref<boolean>(false);
+const selectedTask = ref<Task | null>(null);
 </script>
 
 <template>
@@ -66,14 +75,22 @@ provide('visibleColumns', visibleColumns);
                 :mode="'history'"
             />
             <TaskHistoryFilter :users="props.users" />
-            <TaskHistoryTable :tasks="props.tasks_history.data" />
+            <TaskHistoryTable
+                :tasks="props.tasks_history.data"
+                v-model:dialog-delete-task-is-open="dialogDeleteTaskIsOpen"
+                v-model:selected-data="selectedTask"
+            />
             <TaskHistoryPagination
                 :links="props.tasks_history.links"
                 :current_page="props.tasks_history.current_page"
                 :last_page="props.tasks_history.last_page"
             />
 
-
+            <DialogDeleteTask
+                :mode="'pending_matter'"
+                v-model:dialog-delete-task-is-open="dialogDeleteTaskIsOpen"
+                v-model:selected-data="selectedTask"
+            />
         </div>
     </AppLayout>
 </template>

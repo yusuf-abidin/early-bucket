@@ -8,9 +8,8 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { inject, ref, Ref } from 'vue';
+import { inject, Ref } from 'vue';
 import { Badge } from '@/components/ui/badge';
-import DialogDeleteTask from '@/components/DialogDeleteTask.vue';
 import { EllipsisVertical, Trash2 } from 'lucide-vue-next';
 import {
     DropdownMenu,
@@ -28,12 +27,12 @@ const props = defineProps<{
     tasks: Task[];
 }>();
 
-const dialogDeleteTask = ref(false);
-const deleteTask = ref<null | Task>(null);
+const dialogDeleteTask = defineModel<boolean>('dialogDeleteTaskIsOpen', { default: false });
+const selectedTask = defineModel<Task | null>('selectedData', { default: null });
 
 const handleDelete = (task: Task) => {
     dialogDeleteTask.value = true;
-    deleteTask.value = task;
+    selectedTask.value = task;
 };
 
 const { columnWidths, startResize } = useTableResize({
@@ -289,11 +288,6 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
     <div class="text-sm text-muted-foreground">
         Menampilkan {{ props.tasks.length }} data
     </div>
-
-    <DialogDeleteTask
-        v-model:is-open="dialogDeleteTask"
-        v-model:task-data="deleteTask"
-    />
 </template>
 
 <style scoped></style>
