@@ -66,11 +66,11 @@ class CategoryController extends Controller
             }
 
             DB::commit();
-            return redirect(route('admin.categories.index'))->with('success', 'Categories updated successfully.');
+            return redirect(route('admin.categories.index'))->with('success', 'Kategori berhasil diperbarui');
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return back()->with('error', 'Failed to update categories: ' . $e->getMessage());
+            return back()->with('error', 'Gagal memperbarui kategori: ' . $e->getMessage());
         }
     }
 
@@ -103,7 +103,7 @@ class CategoryController extends Controller
             'color_id' => $request->color_id,
         ]);
 
-        return back()->with('success', 'Category created successfully');
+        return back()->with('success', 'Kategori berhasil dibuat.');
     }
 
     /**
@@ -167,7 +167,7 @@ class CategoryController extends Controller
             $category->update($data);
         }
 
-        return back()->with('success', 'Category updated successfully');
+        return back()->with('success', 'Kategori berhasil diperbarui');
     }
 
     /**
@@ -211,7 +211,7 @@ class CategoryController extends Controller
                 ->decrement('order');
         });
 
-        return back()->with('success', 'Category deleted successfully');
+        return back()->with('success', 'Kategori berhasil dihapus');
     }
 
     public function reorder(Request $request)
@@ -231,6 +231,6 @@ class CategoryController extends Controller
             }
         });
 
-        return back()->with('success', 'Categories reordered successfully');
+        return back()->with('success', 'Urutan kategori berhasil diperbarui');
     }
 }

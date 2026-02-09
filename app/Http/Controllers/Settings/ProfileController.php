@@ -63,7 +63,7 @@ class ProfileController extends Controller
         $user->avatar = $path;
         $user->save();
 
-        return redirect()->route('profile.edit')->with('success', 'Profile picture updated successfully.');
+        return redirect()->route('profile.edit')->with('success', 'Foto profil berhasil diperbarui');
     }
 
     /**
@@ -82,7 +82,7 @@ class ProfileController extends Controller
             $user->save();
         }
 
-        return Redirect::route('profile.edit')->with('success', 'Profile picture removed successfully.');
+        return Redirect::route('profile.edit')->with('success', 'Foto profil berhasil dihapus');
     }
 
 

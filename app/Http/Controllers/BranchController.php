@@ -34,7 +34,7 @@ class BranchController extends Controller
         ]);
 
         Branch::create($validated);
-        return back()->with('success', 'Cabang berhasil ditambahkan.');
+        return back()->with('success', 'Cabang berhasil dibuat.');
     }
 
     /**

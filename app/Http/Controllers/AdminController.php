@@ -56,7 +56,7 @@ class AdminController extends Controller
         }
 
         User::create($userData);
-        return to_route('admin.users.index')->with('success', 'User successfully created.');
+        return to_route('admin.users.index')->with('success', 'Pengguna berhasil dibuat');
     }
 
     public function edit(User $user)
@@ -102,7 +102,7 @@ class AdminController extends Controller
 
         $user->save();
 
-        return redirect()->route('admin.users.index')->with('success', 'User successfully updated.');
+        return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil diperbarui');
     }
 
 

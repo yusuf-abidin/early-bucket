@@ -56,7 +56,7 @@ class AreaController extends Controller
             'name' => 'required|string|max:255',
         ]);
         Area::create($request->only('name'));
-        return back()->with('success', 'Area berhasil ditambahkan.');
+        return back()->with('success', 'Area berhasil dibuat.');
     }
 
     /**

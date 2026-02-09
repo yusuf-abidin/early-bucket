@@ -88,7 +88,7 @@ class MemoController extends Controller
         if ($request->has('users')) {
             $memo->users()->sync($request->users);
         }
-        return redirect()->route('memos.index')->with('success', 'Memo successfully created.');
+        return redirect()->route('memos.index')->with('success', 'Memo berhasil dibuat');
     }
 
     /**
@@ -137,7 +137,7 @@ class MemoController extends Controller
             $memo->users()->sync($validated['users'] ?? []);
         }
 
-        return back()->with('success', 'Memo successfully updated.');
+        return back()->with('success', 'Memo berhasil diperbarui');
     }
 
     /**
@@ -148,9 +148,9 @@ class MemoController extends Controller
         try {
             $memo->users()->detach();
             $memo->delete();
-            return back()->with('success', 'Memo successfully deleted.');
+            return back()->with('success', 'Memo berhasil dihapus.');
         }catch (\Exception $exception){
-            return back()->withErrors(['message' => 'Failed to delete memo: ' . $exception->getMessage()]);
+            return back()->withErrors(['message' => 'gagal menghapus memo: ' . $exception->getMessage()]);
         }
     }
 
