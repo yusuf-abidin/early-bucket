@@ -189,14 +189,14 @@ const { columnWidths, startResize } = useTableResize({
                     <PopoverTrigger as-child>
                         <Button variant="outline" size="sm">
                             <Settings2 class="mr-2 h-4 w-4" />
-                            Columns
+                            Kolom
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent class="w-56" align="end">
                         <div class="space-y-4">
                             <div>
                                 <h4 class="mb-3 text-sm font-medium">
-                                    Toggle Columns
+                                    Tampilkan kolom
                                 </h4>
                                 <div class="space-y-2">
                                     <div class="flex items-center space-x-2">
@@ -258,7 +258,7 @@ const { columnWidths, startResize } = useTableResize({
                                             for="col-category"
                                             class="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                         >
-                                            Category
+                                            Kategori
                                         </label>
                                     </div>
                                     <div class="flex items-center space-x-2">
@@ -282,7 +282,7 @@ const { columnWidths, startResize } = useTableResize({
                                     class="w-full"
                                     @click="resetColumns"
                                 >
-                                    Reset to Default
+                                    Atur ulang
                                 </Button>
                             </div>
                         </div>
@@ -447,7 +447,7 @@ const { columnWidths, startResize } = useTableResize({
                             class="resizable-cell wrap"
                             v-if="visibleColumns.assignedUser"
                         >
-                            <div class="flex flex-col flex-wrap gap-1">
+                            <div class="flex flex-row flex-wrap gap-1">
                                 <Badge
                                     v-for="user in task.users"
                                     :key="user.id"
@@ -506,7 +506,7 @@ const { columnWidths, startResize } = useTableResize({
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuLabel
-                                        >Actions</DropdownMenuLabel
+                                        >Aksi</DropdownMenuLabel
                                     >
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
@@ -520,7 +520,7 @@ const { columnWidths, startResize } = useTableResize({
                                         class="text-destructive focus:text-destructive"
                                     >
                                         <Trash2 class="mr-2 h-4 w-4" />
-                                        Delete
+                                        Hapus
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>

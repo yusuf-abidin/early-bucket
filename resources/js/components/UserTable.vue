@@ -110,7 +110,7 @@ const handleCreateUser = () => {
                 />
                 <Input
                     v-model="searchQuery"
-                    placeholder="Search users"
+                    placeholder="Cari pengguna"
                     class="pl-9"
                 />
             </div>
@@ -121,14 +121,14 @@ const handleCreateUser = () => {
                     <PopoverTrigger as-child>
                         <Button variant="outline" size="sm">
                             <Settings2 class="mr-2 h-4 w-4" />
-                            Columns
+                            Kolom
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent class="w-56" align="end">
                         <div class="space-y-4">
                             <div>
                                 <h4 class="mb-3 text-sm font-medium">
-                                    Toggle Columns
+                                    Tampilkan kolom
                                 </h4>
                                 <div class="space-y-2">
                                     <div class="flex items-center space-x-2">
@@ -188,7 +188,7 @@ const handleCreateUser = () => {
                                     class="w-full"
                                     @click="resetColumns"
                                 >
-                                    Reset to Default
+                                    Atur ulang
                                 </Button>
                             </div>
                         </div>
@@ -197,7 +197,7 @@ const handleCreateUser = () => {
 
                 <Button @click="handleCreateUser" size="sm">
                     <Plus class="mr-2 h-4 w-4" />
-                    Buat User
+                    Tambah Pengguna
                 </Button>
             </div>
         </div>
@@ -275,7 +275,7 @@ const handleCreateUser = () => {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuLabel
-                                        >Actions</DropdownMenuLabel
+                                        >Aksi</DropdownMenuLabel
                                     >
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem @click="handleEdit(user)">
@@ -287,7 +287,7 @@ const handleCreateUser = () => {
                                         class="text-destructive focus:text-destructive"
                                     >
                                         <Trash2 class="mr-2 h-4 w-4" />
-                                        Delete
+                                        Hapus
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>

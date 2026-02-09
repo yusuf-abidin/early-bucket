@@ -204,7 +204,7 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
 
                     <!-- PIC -->
                     <TableCell v-if="visibleColumns!.assignedUser">
-                        <div class="flex flex-col flex-wrap gap-1">
+                        <div class="flex flex-row flex-wrap gap-1">
                             <Badge
                                 v-for="user in task.users"
                                 :key="user.id"
@@ -268,14 +268,14 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     @click="handleDelete(task)"
                                     class="text-destructive focus:text-destructive"
                                 >
                                     <Trash2 class="mr-2 h-4 w-4" />
-                                    Delete
+                                    Hapus
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

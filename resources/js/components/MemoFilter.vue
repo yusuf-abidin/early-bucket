@@ -144,7 +144,7 @@ const toggleSortDir = () => {
 
                 <!-- Tombol -->
                 <Button variant="secondary" size="sm" @click="applyFilters">
-                    Search
+                    Cari
                 </Button>
             </div>
         </div>
@@ -211,7 +211,7 @@ const toggleSortDir = () => {
             <!-- User Filter (Multiple Select) -->
             <Select v-model="selectedUsers" multiple>
                 <SelectTrigger class="w-full sm:w-[180px]">
-                    <SelectValue placeholder="Filter user" />
+                    <SelectValue placeholder="Filter pengguna" />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem
@@ -280,14 +280,14 @@ const toggleSortDir = () => {
                         class="w-full sm:w-auto"
                     >
                         <Settings2 class="mr-2 h-4 w-4" />
-                        Columns
+                        Kolom
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent class="w-56" align="end">
                     <div class="space-y-4">
                         <div>
                             <h4 class="mb-3 text-sm font-medium">
-                                Toggle Columns
+                                Tampilkan kolom
                             </h4>
                             <div class="space-y-2">
                                 <div class="flex items-center space-x-2">
@@ -401,7 +401,7 @@ const toggleSortDir = () => {
                                         for="col-check"
                                         class="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                     >
-                                        Check
+                                        Done
                                     </label>
                                 </div>
                                 <div class="flex items-center space-x-2">
@@ -425,7 +425,7 @@ const toggleSortDir = () => {
                                 class="w-full"
                                 @click="resetColumns"
                             >
-                                Reset to Default
+                                Atur ulang
                             </Button>
                         </div>
                     </div>

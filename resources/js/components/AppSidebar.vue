@@ -94,7 +94,7 @@ const adminNavItem: NavItem[] = [
         isActive: true,
         items: [
             {
-                title: 'User',
+                title: 'Pengguna',
                 href: admin.users.index().url,
             },
             {

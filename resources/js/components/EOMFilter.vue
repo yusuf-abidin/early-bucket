@@ -160,7 +160,7 @@ onMounted(() => {
 
             <Select v-model="selectedUsers" multiple>
                 <SelectTrigger class="w-full sm:w-[180px]">
-                    <SelectValue placeholder="Filter user" />
+                    <SelectValue placeholder="Filter pengguna" />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem

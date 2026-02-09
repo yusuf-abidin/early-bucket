@@ -113,6 +113,14 @@ class PerformanceEtapeController extends Controller
         $etapeNo = $request->input('etape_no', 1);
         $userIds = $request->input('user_ids', []);
 
+        $previousMonth = $month - 1;
+        $previousYear = $year;
+
+        if ($previousMonth < 1) {
+            $previousMonth = 12;
+            $previousYear = $year - 1;
+        }
+
         $areas = Area::with(['branches' => function ($query) use ($userIds, $month, $year, $etapeNo) {
             $query->orderBy('name', 'asc');
 
@@ -150,19 +158,45 @@ class PerformanceEtapeController extends Controller
             ->get()
             ->keyBy('branch_id');
 
+        $branchesWithoutData = $areas->flatMap(function ($area) {
+            return $area->branches->pluck('id');
+        })->diff($performanceEtapes->keys());
+        $previousMonthPics = collect();
 
-        $displayData = $areas->map(function ($area) use ($performanceEtapes, $month, $year, $etapeNo) {
-            $areaBranches = $area->branches->map(function ($branch) use ($performanceEtapes, $month, $year, $etapeNo) {
+        // Hanya query jika ada branch yang belum memiliki data
+        if ($branchesWithoutData->isNotEmpty()) {
+            $previousMonthPics = PerformanceEtape::select('branch_id', 'user_id')
+                ->with('user:id,name,color_id', 'user.color:id,name,class')
+                ->where('month', $previousMonth)
+                ->where('year', $previousYear)
+                ->where('etape_no', $etapeNo)
+                ->whereIn('branch_id', $branchesWithoutData)
+                ->get()
+                ->keyBy('branch_id');
+        }
+
+
+        $displayData = $areas->map(function ($area) use ($performanceEtapes, $previousMonthPics, $month, $year, $etapeNo) {
+            $areaBranches = $area->branches->map(function ($branch) use ($performanceEtapes, $previousMonthPics, $month, $year, $etapeNo) {
                 $performance = $performanceEtapes->get($branch->id);
+                $isNew = !$performance;
+
+                $previousMonthPic = null;
+                if ($isNew) {
+                    $previousMonthPic = $previousMonthPics->get($branch->id);
+                }
+
+                $displayUserId = $performance?->user_id ?? $previousMonthPic?->user_id;
+                $displayUser = $performance?->user ?? $previousMonthPic?->user;
 
                 return [
                     'branch_id' => $branch->id,
                     'branch_name' => $branch->name,
                     'area_id' => $branch->area_id,
                     'performance_id' => $performance?->id,
-                    'user_id' => $performance?->user_id,
-                    'user_name' => $performance?->user?->name,
-                    'user' => $performance?->user,
+                    'user_id' => $displayUserId,
+                    'user_name' => $displayUser?->name,
+                    'user' => $displayUser,
                     'komitmen_etape_id' => $performance?->komitmen_etape_id,
                     'komitmen_etape' => $performance?->komitmenEtape,
                     'komitmen_eom_bc_id' => $performance?->komitmen_eom_bc_id,

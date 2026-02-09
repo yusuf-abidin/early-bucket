@@ -346,7 +346,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                             <div
                                                 class="mb-2 px-2 text-xs font-medium text-gray-500"
                                             >
-                                                Select Color
+                                                Pilih warna
                                             </div>
                                             <div
                                                 class="max-h-60 overflow-y-auto"

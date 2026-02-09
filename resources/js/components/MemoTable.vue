@@ -376,7 +376,7 @@ const { columnWidths, startResize } = useTableResize({
                             minWidth: columnWidths.assignedUser + 'px',
                         }"
                     >
-                        <div class="flex flex-col flex-wrap gap-1">
+                        <div class="flex flex-row flex-wrap gap-1">
                             <Badge
                                 v-for="user in memo.users"
                                 :key="user.id"
@@ -433,7 +433,7 @@ const { columnWidths, startResize } = useTableResize({
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem @click="openEditModal(memo)">
                                     <Pencil class="mr-2 h-4 w-4" />
@@ -444,7 +444,7 @@ const { columnWidths, startResize } = useTableResize({
                                     class="text-destructive focus:text-destructive"
                                 >
                                     <Trash2 class="mr-2 h-4 w-4" />
-                                    Delete
+                                    Hapus
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

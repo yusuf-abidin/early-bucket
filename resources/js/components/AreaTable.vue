@@ -173,7 +173,7 @@ const handleUpdateArea = (area: Area) => {
                 @click="applyFilters"
                 class="cursor-pointer"
             >
-                Search
+                Cari
             </Button>
         </div>
 
