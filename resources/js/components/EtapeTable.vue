@@ -481,7 +481,7 @@ onUnmounted(() => {
                             >
                                 <div
                                     v-if="branch.kendala"
-                                    class="line-clamp-2 text-sm"
+                                    class="text-sm wrap-break-word whitespace-pre-line"
                                     :title="branch.kendala"
                                 >
                                     {{ branch.kendala }}
