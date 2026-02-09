@@ -34,6 +34,7 @@ const props = defineProps<{
         >
             <EOMFilter
                 :users="props.users"
+                :initial-filters="filters"
             />
 
 

@@ -147,6 +147,10 @@ onMounted(() => {
         applyFilters();
     }
 });
+
+const getMonthLabel = (val: number) => {
+    return months.find(m => m.value === Number(val))?.label || '-';
+}
 </script>
 
 <template>
@@ -214,6 +218,10 @@ onMounted(() => {
                 </SelectContent>
             </Select>
         </div>
+        <h1 class="text-lg font-medium tracking-tight">
+            Etape {{ initialFilters?.etapeNo }} • {{ getMonthLabel(initialFilters?.month ?? 1) }}
+            {{ initialFilters?.year }}
+        </h1>
     </div>
 </template>
 

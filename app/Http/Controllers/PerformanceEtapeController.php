@@ -259,8 +259,8 @@ class PerformanceEtapeController extends Controller
             'filters' => [
                 'month' => $month,
                 'year' => $year,
-                'etape_no' => $etapeNo,
-                'user_ids' => $userIds,
+                'etapeNo' => $etapeNo,
+                'userIds' => $userIds,
             ],
             'metadata' => [
                 'total_areas' => $displayData->count(),

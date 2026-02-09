@@ -33,7 +33,10 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
-            <EtapeFilter :users="props.users" />
+            <EtapeFilter
+                :users="props.users"
+                :initial-filters="filters"
+            />
 
             <EtapeTable
                 :performance_etapes="areas"
