@@ -161,8 +161,8 @@ const handleUpdateArea = (area: Area) => {
                 <Input
                     type="text"
                     v-model="searchQuery"
-                    placeholder="Cari area atau cabang..."
-                    class="w-full pl-9"
+                    placeholder="Cari area atau cabang"
+                    class="w-full min-w-[150px] pl-9"
                     @keyup.enter="applyFilters"
                 />
             </div>

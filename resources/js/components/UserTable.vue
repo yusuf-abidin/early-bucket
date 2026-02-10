@@ -94,8 +94,6 @@ const resetColumns = () => {
 };
 
 const handleCreateUser = () => {
-    // Implement create user logic
-    console.log('Create new user');
     router.visit(admin.users.create().url);
 };
 </script>
@@ -111,7 +109,7 @@ const handleCreateUser = () => {
                 <Input
                     v-model="searchQuery"
                     placeholder="Cari pengguna"
-                    class="pl-9"
+                    class="min-w-[150px] pl-9"
                 />
             </div>
 
@@ -274,9 +272,7 @@ const handleCreateUser = () => {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel
-                                        >Aksi</DropdownMenuLabel
-                                    >
+                                    <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem @click="handleEdit(user)">
                                         <Pencil class="mr-2 h-4 w-4" />
@@ -299,7 +295,8 @@ const handleCreateUser = () => {
 
         <!-- Results info -->
         <div class="text-sm text-muted-foreground">
-            Menampilkan {{ filteredUsers.length }} dari {{ users.length }} pengguna
+            Menampilkan {{ filteredUsers.length }} dari
+            {{ users.length }} pengguna
         </div>
     </div>
 

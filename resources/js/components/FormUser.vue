@@ -112,6 +112,7 @@ const submit = () => {
                 form.reset('password', 'password_confirmation', 'avatar');
                 avatarPreview.value = existingAvatarUrl.value;
             },
+            preserveScroll: true,
         });
     } else {
         const route = AdminController.store.form();
@@ -121,6 +122,7 @@ const submit = () => {
                 form.avatar = null;
                 avatarPreview.value = null;
             },
+            preserveScroll: true,
         });
     }
 };

@@ -399,6 +399,7 @@ const { columnWidths, startResize } = useTableResize({
                         }"
                     >
                         <Checkbox
+                            class="h-5 w-5 border-blue-400"
                             :model-value="!!memo.completed_at"
                             @click="handleResolveMemo(memo)"
                         />

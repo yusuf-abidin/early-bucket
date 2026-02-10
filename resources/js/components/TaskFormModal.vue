@@ -270,7 +270,7 @@ watch(
                     </div>
 
                     <!-- Two Column Layout for PIC, Deadline, and Category -->
-                    <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="grid gap-4 sm:grid-cols-2 items-start">
                         <!-- PIC -->
                         <div class="grid gap-3">
                             <Label for="users">PIC</Label>

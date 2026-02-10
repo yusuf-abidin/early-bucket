@@ -134,9 +134,11 @@ const toggleSortDir = () => {
 </script>
 
 <template>
-    <div class="flex items-center justify-between gap-4">
+    <div
+        class="flex w-full max-w-full flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between"
+    >
         <!-- Search Input -->
-        <div class="relative max-w-sm flex-1 flex items-center gap-2">
+        <div class="relative flex max-w-sm min-w-0 flex-1 items-center gap-2">
             <div class="relative flex-1">
                 <Search
                     class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -144,15 +146,11 @@ const toggleSortDir = () => {
                 <Input
                     v-model="searchQuery"
                     placeholder="Cari agenda"
-                    class="pl-9"
+                    class="min-w-[150px] pl-9"
                     @keyup.enter="applyFilters"
                 />
             </div>
-            <Button
-                variant="secondary"
-                size="sm"
-                @click="applyFilters"
-            >
+            <Button variant="secondary" size="sm" @click="applyFilters">
                 Cari
             </Button>
         </div>

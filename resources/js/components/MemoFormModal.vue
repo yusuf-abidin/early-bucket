@@ -281,9 +281,9 @@ const openLink = (url: string) => {
                     }}
                 </DialogDescription>
             </DialogHeader>
-                <form @submit.prevent="submit" class="space-y-6 px-6 pb-6">
+                <form @submit.prevent="submit" class="space-y-4 px-6 pb-6">
                     <!-- Grid 2 kolom untuk desktop -->
-                    <div class="grid gap-6 md:grid-cols-2">
+                    <div class="grid gap-6 md:grid-cols-2 items-start">
                         <!-- TANGGAL MASUK -->
                         <div class="space-y-2">
                             <Label

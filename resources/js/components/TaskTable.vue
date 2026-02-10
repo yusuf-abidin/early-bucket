@@ -179,7 +179,7 @@ const { columnWidths, startResize } = useTableResize({
                 <Input
                     v-model="searchQuery"
                     placeholder="Cari agenda"
-                    class="pl-9"
+                    class="pl-9 min-w-[150px]"
                 />
             </div>
 
@@ -470,7 +470,7 @@ const { columnWidths, startResize } = useTableResize({
                             v-if="visibleColumns.isResolved"
                         >
                             <Checkbox
-                                class="h-5 w-5"
+                                class="h-5 w-5 border-blue-400"
                                 :model-value="!!task.completed_at"
                                 @click="handleResolveTask(task)"
                             />

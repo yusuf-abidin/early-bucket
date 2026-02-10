@@ -143,13 +143,13 @@ onUnmounted(() => {
                     <TableHead class="w-[180px] min-w-[180px] font-bold"
                         >PIC</TableHead
                     >
-                    <TableHead class="w-[160px] min-w-[160px] font-bold">
+                    <TableHead class="w-40 min-w-40 font-bold">
                         Komitmen Etape
                     </TableHead>
-                    <TableHead class="w-[160px] min-w-[160px] font-bold">
+                    <TableHead class="w-40 min-w-40 font-bold">
                         Komitmen EOM (BC)
                     </TableHead>
-                    <TableHead class="w-[160px] min-w-[160px] font-bold">
+                    <TableHead class="w-40 min-w-40 font-bold">
                         Komitmen EOM (BM)
                     </TableHead>
                     <TableHead class="w-[180px] min-w-[180px] font-bold">
@@ -533,14 +533,6 @@ onUnmounted(() => {
 /* Ensure consistent cell heights */
 td {
     vertical-align: middle;
-}
-
-/* Line clamp untuk text truncation */
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
 }
 
 /* Keyboard shortcuts styling */

@@ -124,7 +124,7 @@ const toggleSortDir = () => {
 
 <template>
     <div
-        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        class="flex w-full max-w-full flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between"
     >
         <!-- Search Input -->
         <div class="relative w-full min-w-24 sm:max-w-sm sm:flex-1">
@@ -137,7 +137,7 @@ const toggleSortDir = () => {
                     <Input
                         v-model="searchQuery"
                         placeholder="Cari memo"
-                        class="pl-9"
+                        class="min-w-[150px] pl-9"
                         @keyup.enter="applyFilters"
                     />
                 </div>
