@@ -18,28 +18,27 @@ export function toUrl(href: NonNullable<InertiaLinkProps['href']>) {
     return typeof href === 'string' ? href : href?.url;
 }
 
-export const getBadgeColor = (name: string) => {
-    const colors = [
-        'bg-blue-100 text-blue-700 border-blue-200',
-        'bg-emerald-100 text-emerald-700 border-emerald-200',
-        'bg-violet-100 text-violet-700 border-violet-200',
-        'bg-amber-100 text-amber-700 border-amber-200',
-        'bg-rose-100 text-rose-700 border-rose-200',
-        'bg-cyan-100 text-cyan-700 border-cyan-200',
-        'bg-orange-100 text-orange-700 border-orange-200',
-        'bg-indigo-100 text-indigo-700 border-indigo-200',
-    ];
+const badgeColor = {
+    Merah: 'bg-red-500/80 text-red-900 inset-ring inset-ring-red-400/20 dark:text-gray-900',
+    Oranye: 'bg-orange-400/80 text-orange-900 inset-ring inset-ring-orange-400/20 dark:text-gray-900',
+    Kuning: 'bg-yellow-400/80 text-yellow-900 inset-ring inset-ring-yellow-400/30 dark:text-gray-900',
+    'Hijau Muda':
+        'bg-lime-400/80 text-lime-900 inset-ring inset-ring-lime-400/30 dark:text-gray-900',
+    Hijau: 'bg-green-400/80 text-green-800 inset-ring inset-ring-green-500/20 dark:text-gray-900',
+    'Biru Langit':
+        'bg-cyan-400/80 text-cyan-900 inset-ring inset-ring-cyan-400/20 dark:text-gray-900',
+    Biru: 'bg-blue-400/80 text-blue-900 inset-ring inset-ring-blue-400/30 dark:text-gray-900',
+    'Merah Muda':
+        'bg-pink-400/80 text-pink-900 inset-ring inset-ring-pink-400/20 dark:text-gray-900',
+    Ungu: 'bg-purple-400/80 text-purple-900 inset-ring inset-ring-purple-400/30 dark:text-gray-900',
+    'Abu-Abu': 'bg-gray-300/80 text-gray-900 inset-ring inset-ring-gray-500/10',
+} as const;
 
-    let hash = 0;
-
-    for (let i = 0; i < name.length; i++) {
-        // Setiap karakter diberi bobot berdasarkan posisinya
-        hash += name.charCodeAt(i) * (i + 1) * 37;
-    }
-
-    const index = Math.abs(hash) % colors.length;
-    return colors[index];
+export const getBadgeColor = (name: string): string => {
+    const color = badgeColor[name as keyof typeof badgeColor];
+    return color ?? badgeColor['Abu-Abu'];
 };
+
 
 export const df = new DateFormatter('id-ID', {
     dateStyle: 'medium',

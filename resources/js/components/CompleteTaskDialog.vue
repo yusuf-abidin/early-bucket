@@ -38,7 +38,6 @@ const handleResolveTask = () => {
     }else {
         updateRoute = debtorSavings.update(taskData.value!.id).url
     }
-    console.log(updateRoute);
 
     // Tentukan nilai baru: jika sudah ada, jadikan null. Jika belum, beri timestamp.
     const newStatus = taskData.value!.completed_at

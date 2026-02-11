@@ -23,6 +23,7 @@ import {
 import { Trash2, ChevronDown } from 'lucide-vue-next';
 import admin from '@/routes/admin';
 import DialogDeleteCategory from '@/components/DialogDeleteCategory.vue';
+import { getBadgeColor } from '@/lib/utils';
 
 interface SubCategory {
     id?: number;
@@ -316,10 +317,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                             )
                                         "
                                         class="flex h-10 w-10 items-center justify-center rounded-md border border-input bg-background transition-colors hover:bg-accent"
-                                        :class="
-                                            subCategory.color
-                                                ? subCategory.color.class
-                                                : 'bg-gray-100'
+                                        :class="getBadgeColor(subCategory.color?.name ?? 'Abu-Abu')
                                         "
                                         type="button"
                                     >
@@ -371,7 +369,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                                 >
                                                     <div
                                                         class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded"
-                                                        :class="color.class"
+                                                        :class="getBadgeColor(color.name)"
                                                     >
                                                         <div
                                                             v-if="

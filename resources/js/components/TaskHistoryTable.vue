@@ -22,6 +22,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useTableResize } from '@/composables/useTableResize';
 import '@/assets/styles/table-resize.css';
+import { getBadgeColor } from '@/lib/utils';
 
 const props = defineProps<{
     tasks: Task[];
@@ -208,8 +209,7 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
                                 v-for="user in task.users"
                                 :key="user.id"
                                 :class="
-                                    user.color?.class ??
-                                    'bg-gray-50 text-gray-600 inset-ring inset-ring-gray-500/10'
+                                    getBadgeColor(user.color?.name ?? 'Abu-Abu')
                                 "
                             >
                                 {{ user.name }}
@@ -238,8 +238,7 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
                     <TableCell v-if="visibleColumns!.category">
                         <Badge
                             :class="
-                                task.category?.color?.class ??
-                                'bg-gray-50 text-gray-600 inset-ring inset-ring-gray-500/10'
+                                getBadgeColor(task.category?.color?.name ?? 'Abu-Abu')
                             "
                         >
                             {{ task.category?.name }}

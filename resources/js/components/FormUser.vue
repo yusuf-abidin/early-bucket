@@ -150,7 +150,7 @@ const cardDescription = computed(() =>
 const submitButtonText = computed(() =>
     form.processing
         ? isEditMode.value
-            ? 'Updating...'
+            ? 'Memperbarui...'
             : 'Membuat...'
         : isEditMode.value
           ? 'Update User'
@@ -162,7 +162,7 @@ const cancelButtonText = computed(() => (isEditMode.value ? 'Batal' : 'Reset'));
 
 <template>
     <div
-        class="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8 dark:bg-black"
+        class="flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8 dark:bg-black"
         @click="closeDropdown"
     >
         <Card class="w-full max-w-lg shadow-lg">

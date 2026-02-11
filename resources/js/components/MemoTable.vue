@@ -23,6 +23,7 @@ import { EllipsisVertical, Pencil, Trash2, Eye } from 'lucide-vue-next';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useTableResize } from '@/composables/useTableResize';
 import '@/assets/styles/table-resize.css';
+import { getBadgeColor } from '@/lib/utils';
 
 defineProps<{
     memos: Memo[];
@@ -339,8 +340,7 @@ const { columnWidths, startResize } = useTableResize({
                     >
                         <Badge
                             :class="
-                                memo.category?.color?.class ??
-                                'bg-gray-50 text-gray-600 inset-ring inset-ring-gray-500/10'
+                                getBadgeColor(memo.category?.color?.name ?? 'Abu-Abu')
                             "
                         >
                             {{ memo.category?.name }}
@@ -380,10 +380,7 @@ const { columnWidths, startResize } = useTableResize({
                             <Badge
                                 v-for="user in memo.users"
                                 :key="user.id"
-                                :class="
-                                    user.color?.class ??
-                                    'bg-gray-50 text-gray-600 inset-ring inset-ring-gray-500/10'
-                                "
+                                :class="getBadgeColor(user.color?.name ?? 'Abu-Abu')"
                             >
                                 {{ user.name }}
                             </Badge>

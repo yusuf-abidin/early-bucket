@@ -31,6 +31,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Check, X } from 'lucide-vue-next';
+import { getBadgeColor } from '@/lib/utils';
 
 const props = defineProps<{
     performance_etapes?: any;
@@ -270,8 +271,9 @@ onUnmounted(() => {
                             <div v-else class="cursor-pointer">
                                 <Badge
                                     v-if="branch.user"
-                                    :class="branch.user.color?.class"
-                                    class="font-normal"
+                                    :class="
+                                        getBadgeColor(branch.user.color?.name)
+                                    "
                                 >
                                     {{ branch.user_name }}
                                 </Badge>
@@ -312,8 +314,11 @@ onUnmounted(() => {
                             <div v-else class="cursor-pointer">
                                 <Badge
                                     v-if="branch.komitmen_etape"
-                                    :class="branch.komitmen_etape.color?.class"
-                                    class="font-normal"
+                                    :class="
+                                        getBadgeColor(
+                                            branch.komitmen_etape.color?.name,
+                                        )
+                                    "
                                 >
                                     {{ branch.komitmen_etape.name }}
                                 </Badge>
@@ -354,8 +359,11 @@ onUnmounted(() => {
                             <div v-else class="cursor-pointer">
                                 <Badge
                                     v-if="branch.komitmen_eom_bc"
-                                    :class="branch.komitmen_eom_bc.color?.class"
-                                    class="font-normal"
+                                    :class="
+                                        getBadgeColor(
+                                            branch.komitmen_eom_bc.color?.name,
+                                        )
+                                    "
                                 >
                                     {{ branch.komitmen_eom_bc.name }}
                                 </Badge>
@@ -396,8 +404,7 @@ onUnmounted(() => {
                             <div v-else class="cursor-pointer">
                                 <Badge
                                     v-if="branch.komitmen_eom_bm"
-                                    :class="branch.komitmen_eom_bm.color?.class"
-                                    class="font-normal"
+                                    :class="getBadgeColor(branch.komitmen_eom_bm.color?.name)"
                                 >
                                     {{ branch.komitmen_eom_bm.name }}
                                 </Badge>

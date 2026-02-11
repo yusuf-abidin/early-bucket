@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTableResize } from '@/composables/useTableResize';
 import '@/assets/styles/table-resize.css';
+import { getBadgeColor } from '@/lib/utils';
 
 const props = defineProps<{
     memos: Memo[];
@@ -289,8 +290,7 @@ const { columnWidths, startResize } = useTableResize({
                 <TableCell v-if="visibleColumns!.category">
                     <Badge
                         :class="
-                            memo.category?.color?.class ??
-                            'bg-gray-50 text-gray-600 inset-ring inset-ring-gray-500/10'
+                            getBadgeColor(memo.category?.color?.name ?? 'Abu-Abu')
                         "
                     >
                         {{ memo.category.name }}
@@ -340,8 +340,7 @@ const { columnWidths, startResize } = useTableResize({
                             v-for="user in memo.users"
                             :key="user.id"
                             :class="
-                                user.color?.class ??
-                                'bg-gray-50 text-gray-600 inset-ring inset-ring-gray-500/10'
+                                getBadgeColor(user.color?.name ?? 'Abu-Abu')
                             "
                         >
                             {{ user.name }}

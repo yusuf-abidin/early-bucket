@@ -15,7 +15,7 @@ const props = defineProps<{
     users: User[];
     categories: Category[];
     users_summary: UserSummary[];
-    task_stats: Object;
+    task_stats: object;
 }>();
 
 const dialogDeleteTaskIsOpen = ref<boolean>(false);
