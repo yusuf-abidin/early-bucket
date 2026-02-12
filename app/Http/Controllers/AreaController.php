@@ -40,39 +40,19 @@ class AreaController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
+        ], [
+            'name.required' => 'Nama area harus diisi',
+            'name.string' => 'Nama area harus berupa teks',
+            'name.max' => 'Maksimal 255 karakter',
         ]);
         Area::create($request->only('name'));
         return back()->with('success', 'Area berhasil dibuat.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Area $area)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Area $area)
-    {
-        //
     }
 
     /**
@@ -82,6 +62,10 @@ class AreaController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+        ], [
+            'name.required' => 'Nama area harus diisi',
+            'name.string' => 'Nama area harus berupa teks',
+            'name.max' => 'Maksimal 255 karakter',
         ]);
 
         $area->update($request->only('name'));
