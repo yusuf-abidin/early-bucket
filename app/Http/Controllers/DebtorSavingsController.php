@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Category;
 use App\Models\Task;
 use App\Models\User;
@@ -107,21 +108,13 @@ class DebtorSavingsController extends Controller
         return redirect()->route('debtor-savings.index')->with('success', 'Debitur menabung berhasil disimpan');
     }
 
-    public function update(Request $request, Task $debtorSaving)
+    public function update(UpdateTaskRequest $request, Task $debtorSaving)
     {
         if ($debtorSaving->type !== Task::TYPE_DEBITUR) {
             return back()->withErrors(['message' => 'Tidak dapat mengubah karena bukan debitur menabung.']);
         }
 
-        $validated = $request->validate([
-            'task_description' => ['sometimes', 'required', 'max:255'],
-            'category_id' => ['sometimes', 'required', 'exists:categories,id'],
-            'users' => ['nullable', 'array'],
-            'users.*' => ['exists:users,id'],
-            'due_date' => ['sometimes', 'required'],
-            'notes' => ['nullable', 'max:255'],
-            'completed_at' => ['sometimes','nullable']
-        ]);
+        $validated = $request->validated();
 
         if($request->has('completed_at')) {
             $validated['completed_at'] = $request->completed_at ? now() : null;
