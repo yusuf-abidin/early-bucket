@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMemoRequest;
 use App\Models\Category;
 use App\Models\Memo;
 use App\Models\User;
@@ -59,52 +60,17 @@ class MemoController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreMemoRequest $request)
     {
-        $validated = $request->validate([
-            'received_at' => ['required', 'date', 'date_format:Y-m-d H:i:s'],
-            'users' => ['nullable', 'array'],
-            'users.*' => ['exists:users,id'],
-            'document_link' => ['nullable', 'url', 'max:2048'],
-            'category_id' => ['required', 'integer', 'exists:categories,id'],
-            'due_date' => ['nullable', 'date', 'date_format:Y-m-d H:i:s'],
-            'origin' => ['max:255'],
-            'reference_number' => ['max:255'],
-            'subject' => ['max:255'],
-            'follow_up_note' => ['nullable', 'string', 'max:255']
-        ]);
+        $validated = $request->validated();
 
         $memo = Memo::create($validated);
         if ($request->has('users')) {
             $memo->users()->sync($request->users);
         }
         return redirect()->route('memos.index')->with('success', 'Memo berhasil dibuat');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Memo $memo)
-    {
-
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Memo $memo)
-    {
-        //
     }
 
     /**
