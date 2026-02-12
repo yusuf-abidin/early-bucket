@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMemoRequest;
+use App\Http\Requests\UpdateMemoRequest;
 use App\Models\Category;
 use App\Models\Memo;
 use App\Models\User;
@@ -76,29 +77,16 @@ class MemoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Memo $memo)
+    public function update(UpdateMemoRequest $request, Memo $memo)
     {
-        $validated = $request->validate([
-            'received_at' => ['sometimes', 'required', 'date', 'date_format:Y-m-d H:i:s'],
-            'origin' => ['sometimes', 'max:255', 'string', 'nullable'],
-            'reference_number' => ['max:255', 'string', 'nullable'],
-            'users' => ['nullable', 'array'],
-            'users.*' => ['integer', 'exists:users,id'],
-            'due_date' => ['nullable', 'date', 'date_format:Y-m-d H:i:s'],
-            'document_link' => ['nullable', 'url', 'max:2048'],
-            'subject' => ['max:255', 'string', 'nullable'],
-            'category_id' => ['sometimes', 'required', 'integer', 'exists:categories,id'],
-            'follow_up_note' => ['max:255', 'string', 'nullable'],
-            'completed_at' => ['nullable', 'date', 'date_format:Y-m-d H:i:s']
-        ]);
+        $validated = $request->validated();
 
         if($request->has('completed_at')) {
             $validated['completed_at'] = $request->completed_at ? now() : null;
         }
 
         $memo->update(Arr::except($validated, ['users']));
-
-
+        
         if($request->has('users')) {
             $memo->users()->sync($validated['users'] ?? []);
         }
