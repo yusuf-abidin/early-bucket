@@ -321,7 +321,7 @@ const { columnWidths, startResize } = useTableResize({
 
                 <!-- DEADLINE -->
                 <TableCell v-if="visibleColumns!.due_date">
-                    <Badge variant="secondary">
+                    <Badge v-if="memo.due_date" variant="secondary">
                         {{ memo.due_date }}
                     </Badge>
                 </TableCell>

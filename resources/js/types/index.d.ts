@@ -61,6 +61,7 @@ export interface Category {
     name: string;
     type: string;
     order: number;
+    color_id?: number;
     color?: Color;
     created_at: string;
     updated_at: string;

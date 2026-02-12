@@ -328,7 +328,7 @@ const { columnWidths, startResize } = useTableResize({
                             minWidth: columnWidths.due_date + 'px',
                         }"
                     >
-                        <Badge variant="outline">{{ memo.due_date }}</Badge>
+                        <Badge v-if="memo.due_date" variant="outline">{{ memo.due_date }}</Badge>
                     </TableCell>
 
                     <TableCell
