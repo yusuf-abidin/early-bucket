@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AdminStoreUserRequest;
+use App\Http\Requests\AdminUpdateUserRequest;
 use App\Models\Color;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class AdminController extends Controller
@@ -62,17 +61,9 @@ class AdminController extends Controller
         ]);
     }
 
-    public function update(Request $request, User $user)
+    public function update(AdminUpdateUserRequest $request, User $user)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'position' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'string', 'in:admin,user'],
-            'color_id' => ['nullable', 'exists:colors,id'],
-            'avatar' => ['nullable', 'image', 'max:1024', 'mimes:jpg,jpeg,png'],
-        ]);
+        $validated = $request->validated();
 
         $user->name = $validated['name'];
         $user->position = $validated['position'];
