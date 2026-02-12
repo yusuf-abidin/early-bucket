@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTaskRequest;
 use App\Models\Category;
 use App\Models\Task;
 use App\Models\User;
@@ -66,50 +67,19 @@ class TaskController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request)
     {
-        $validated = $request->validate([
-            'task_description' => ['required', 'max:255'],
-            'users' => ['nullable', 'array'],
-            'users.*' => ['exists:users,id'],
-            'category_id' => ['required'],
-            'due_date' => ['required'],
-            'notes' => ['nullable', 'max:255']
+        $validated = array_merge($request->validated(), [
+            'type' => Task::TYPE_PENDING
         ]);
-
-        $validated['type'] = Task::TYPE_PENDING;
 
         $task = Task::create($validated);
         if ($request->has('users')) {
             $task->users()->sync($request->users);
         }
         return redirect()->route('tasks.index')->with('success', 'Pending matter berhasil dibuat.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Task $task)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Task $task)
-    {
-
     }
 
     /**

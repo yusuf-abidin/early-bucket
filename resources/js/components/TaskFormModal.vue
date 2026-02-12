@@ -418,9 +418,6 @@ watch(
                         <div class="grid gap-3 sm:col-span-2">
                             <Label
                                 for="category_id"
-                                :class="{
-                                    'text-destructive': form.errors.category_id,
-                                }"
                             >
                                 Kategori
                                 <span class="text-destructive">*</span>
