@@ -304,7 +304,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             >
                                 <Input
                                     v-model="subCategory.name"
-                                    placeholder="Sub-category name"
+                                    placeholder="Nama sub-kategori"
                                     class="flex-1"
                                 />
 

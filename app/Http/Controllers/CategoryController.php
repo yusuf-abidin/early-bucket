@@ -34,15 +34,19 @@ class CategoryController extends Controller
 
     public function bulkUpdate(Request $request)
     {
-        $validated = $request->validate([
-            'categories' => 'required|array',
-            'categories.*.id' => 'nullable|exists:categories,id',
-            'categories.*.name' => 'required|string|max:255',
-            'categories.*.type' => 'required|string|max:255',
-            'categories.*.order' => 'required|integer|min:1',
-            'categories.*.color_id' => 'nullable|exists:colors,id',
-            'categories.*.isNew' => 'boolean',
-        ]);
+        try {
+            $validated = $request->validate([
+                'categories' => 'required|array',
+                'categories.*.id' => 'nullable|exists:categories,id',
+                'categories.*.name' => 'required|string|max:255',
+                'categories.*.type' => 'required|string|max:255',
+                'categories.*.order' => 'required|integer|min:1',
+                'categories.*.color_id' => 'nullable|exists:colors,id',
+                'categories.*.isNew' => 'boolean',
+            ]);
+        }catch (\Exception $e) {
+            return back()->with('error', 'Gagal memperbarui kategori: ' . $e->getMessage());
+        }
 
         DB::beginTransaction();
 
