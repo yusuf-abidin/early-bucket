@@ -21,17 +21,22 @@ class UpdateCategoryRequest extends StoreCategoryRequest
      */
     public function rules(): array
     {
-        $rules = parent::rules();
-        unset($rules['type']);
-        $rules['order'] = ['nullable', 'integer', 'min:1'];
-        return $rules;
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'order' => ['nullable', 'integer', 'min:1'],
+            'color_id' => ['nullable', 'exists:colors,id'],
+        ];
     }
 
     public function messages(): array
     {
         return [
+            'name.required' => 'Nama kategori harus diisi',
+            'name.string' => 'Nama kategori harus berupa teks',
+            'name.max' => 'Maksimal 255 karakter',
             'order.integer' => 'Nomor urut harus berupa angka',
-            'order.min' => 'Nomor urut minimal 1'
+            'order.min' => 'Nomor urut minimal 1',
+            'color_id.exists' => 'Warna tidak valid'
         ];
     }
 }
