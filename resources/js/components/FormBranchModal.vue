@@ -53,9 +53,6 @@ const submit = () => {
         onSuccess: () => {
             closeModal();
         },
-        onFinish: () => {
-            if (selectedBranch.value) closeModal();
-        },
     };
 
     if (!selectedBranch.value) {

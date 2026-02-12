@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBranchRequest;
+use App\Http\Requests\UpdateBranchRequest;
 use App\Models\Branch;
 use Illuminate\Http\Request;
 
@@ -22,12 +23,9 @@ class BranchController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Branch $branch)
+    public function update(UpdateBranchRequest $request, Branch $branch)
     {
-        $validated = $request->validate([
-           'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'area_id' => ['sometimes', 'required', 'exists:areas,id']
-        ]);
+        $validated = $request->validated();
 
         $branch->update($validated);
         return back()->with('success', 'Cabang berhasil diubah.');
