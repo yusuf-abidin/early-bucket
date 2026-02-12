@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTaskRequest;
 use App\Models\Category;
 use App\Models\Task;
 use App\Models\User;
@@ -93,18 +94,11 @@ class DebtorSavingsController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request)
     {
-        $validated = $request->validate([
-            'task_description' => ['required', 'max:255'],
-            'users' => ['nullable', 'array'],
-            'users.*' => ['exists:users,id'],
-            'category_id' => ['required'],
-            'due_date' => ['required'],
-            'notes' => ['nullable', 'max:255']
+        $validated = array_merge($request->validated(), [
+            'type' => Task::TYPE_DEBITUR
         ]);
-
-        $validated['type'] = Task::TYPE_DEBITUR;
 
         $debtSavings = Task::create($validated);
         if ($request->has('users')) {
