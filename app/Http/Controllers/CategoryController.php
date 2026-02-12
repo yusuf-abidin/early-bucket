@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCategoryRequest;
 use App\Models\Category;
 use App\Models\Color;
 use Illuminate\Http\Request;
@@ -75,51 +76,20 @@ class CategoryController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
-            'color_id' => 'nullable|exists:colors,id',
-        ]);
+        $validated = $request->validated();
 
-        // Get the max order for this type
         $maxOrder = Category::where('type', $request->type)->max('order') ?? 0;
-
-        $category = Category::create([
-            'name' => $request->name,
-            'type' => $request->type,
-            'order' => $maxOrder + 1,
-            'color_id' => $request->color_id,
+        $validated = array_merge($validated, [
+            'order' => $maxOrder + 1
         ]);
+
+        Category::create($validated);
 
         return back()->with('success', 'Kategori berhasil dibuat.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Category $category)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Category $category)
-    {
-        //
     }
 
     /**
