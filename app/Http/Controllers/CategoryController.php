@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
 use App\Models\Color;
 use Illuminate\Http\Request;
@@ -95,23 +96,19 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Category $category)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'order' => 'nullable|integer|min:1',
-            'color_id' => 'nullable|exists:colors,id',
-        ]);
+        $validated = $request->validated();
 
-        $data = ['name' => $request->name];
+        $data = ['name' => $validated->name];
 
         if ($request->has('color_id')) {
-            $data['color_id'] = $request->color_id;
+            $data['color_id'] = $validated->color_id;
         }
 
         if ($request->has('order')) {
             $oldOrder = $category->order;
-            $newOrder = $request->order;
+            $newOrder = $validated->order;
 
             DB::transaction(function () use ($category, $oldOrder, $newOrder, $data) {
                 if ($oldOrder !== $newOrder) {
