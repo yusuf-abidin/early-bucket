@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AdminStoreUserRequest;
 use App\Models\Color;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -29,17 +30,9 @@ class AdminController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(AdminStoreUserRequest $request)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'position' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'string', 'in:admin,user'],
-            'color_id' => ['nullable', 'exists:colors,id'],
-            'avatar' => ['nullable', 'image', 'max:1024', 'mimes:jpg,jpeg,png'],
-        ]);
+        $validated = $request->validated();
 
         $userData = [
             'name' => $validated['name'],
