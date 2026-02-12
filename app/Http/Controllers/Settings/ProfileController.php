@@ -49,6 +49,11 @@ class ProfileController extends Controller
     {
         $validated = $request->validate([
             'avatar' => ['required', 'image', 'max:1024', 'mimes:jpg,jpeg,png'],
+        ], [
+            'avatar.required' => 'Foto profil harus diisi',
+            'avatar.image' => 'Foto profil harus berupa gambar',
+            'avatar.max' => 'Ukuran maksimal foto profil 1 MB',
+            'avatar.mimes' => 'Format foto profil harus jpg, jpeg, atau png',
         ]);
 
         $user = $request->user();
@@ -93,6 +98,9 @@ class ProfileController extends Controller
     {
         $request->validate([
             'password' => ['required', 'current_password'],
+        ], [
+            'password.required' => 'Password harus diisi',
+            'password.current_password' => 'Password yang Anda masukkan salah',
         ]);
 
         $user = $request->user();

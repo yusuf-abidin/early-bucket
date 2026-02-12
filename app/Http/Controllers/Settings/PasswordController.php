@@ -27,6 +27,12 @@ class PasswordController extends Controller
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
             'password' => ['required', Password::defaults(), 'confirmed'],
+        ], [
+            'current_password.required' => 'Password harus diisi',
+            'current_password.current_password' => 'Password yang Anda masukkan salah',
+            'password.required' => 'Password baru harus diisi',
+            'password.confirmed' => 'Konfirmasi password tidak cocok',
+            'password.min' => 'Password minimal 8 karakter',
         ]);
 
         $request->user()->update([
