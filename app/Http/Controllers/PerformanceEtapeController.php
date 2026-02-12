@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpsertPerformanceEtapeRequest;
 use App\Models\Area;
-use App\Models\Branch;
 use App\Models\Category;
 use App\Models\PerformanceEtape;
 use App\Models\User;
@@ -26,22 +26,11 @@ class PerformanceEtapeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(UpsertPerformanceEtapeRequest $request)
     {
         try {
 
-            $validated = $request->validate([
-                'branch_id' => ['required' , 'exists:branches,id'],
-                'etape_no' => ['required', Rule::in(['1', '2', '3', 'eom'])],
-                'year' => ['required', 'integer'],
-                'month' => ['required', 'integer', 'between:1,12'],
-                'user_id' => ['nullable', 'exists:users,id'],
-                'komitmen_etape_id' => ['nullable', 'exists:categories,id'],
-                'komitmen_eom_bc_id' => ['nullable', 'exists:categories,id'],
-                'komitmen_eom_bm_id' => ['nullable', 'exists:categories,id'],
-                'prognosa_akhir_bulan' => ['nullable', 'numeric'],
-                'kendala' => ['nullable', 'string'],
-            ]);
+            $validated = $request->validated();
 
             $performance = PerformanceEtape::updateOrCreate(
                 [
