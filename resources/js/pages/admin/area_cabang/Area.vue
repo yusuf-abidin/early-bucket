@@ -12,7 +12,7 @@ import DialogDeleteBranch from '@/components/DialogDeleteBranch.vue';
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
-        title: 'Manajemen Area',
+        title: 'Manajemen Area & Cabang',
         href: admin.areas.index().url,
     },
 ];

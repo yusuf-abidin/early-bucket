@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
-import { email } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
 
 defineProps<{
