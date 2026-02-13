@@ -50,6 +50,8 @@ const props = defineProps<{
     currentEtape?: number;
 }>();
 
+const isProcessing = ref<boolean>(false);
+
 const editingId = ref<number | null>(null);
 const editForm = ref<any>({});
 
@@ -60,6 +62,7 @@ const startEdit = (item: any) => {
 };
 
 const handleSave = () => {
+    isProcessing.value = true;
     router.post(etape.store().url, editForm.value, {
         onSuccess: () => {
             editingId.value = null;
@@ -68,7 +71,11 @@ const handleSave = () => {
         onError: (errors) => {
             console.error('Save error:', errors);
         },
+        onFinish: () => {
+            isProcessing.value = false;
+        },
         preserveScroll: true,
+        preserveState: true,
     });
 };
 
@@ -253,7 +260,10 @@ onUnmounted(() => {
                                 @click.stop
                                 class="w-full"
                             >
-                                <Select v-model="editForm.user_id">
+                                <Select
+                                    v-model="editForm.user_id"
+                                    :disabled="isProcessing"
+                                >
                                     <SelectTrigger class="h-9 w-full">
                                         <SelectValue placeholder="Pilih PIC" />
                                     </SelectTrigger>
@@ -293,7 +303,10 @@ onUnmounted(() => {
                                 @click.stop
                                 class="w-full"
                             >
-                                <Select v-model="editForm.komitmen_etape_id">
+                                <Select
+                                    v-model="editForm.komitmen_etape_id"
+                                    :disabled="isProcessing"
+                                >
                                     <SelectTrigger class="h-9 w-full">
                                         <SelectValue
                                             placeholder="Pilih Komitmen"
@@ -338,7 +351,10 @@ onUnmounted(() => {
                                 @click.stop
                                 class="w-full"
                             >
-                                <Select v-model="editForm.komitmen_eom_bc_id">
+                                <Select
+                                    v-model="editForm.komitmen_eom_bc_id"
+                                    :disabled="isProcessing"
+                                >
                                     <SelectTrigger class="h-9 w-full">
                                         <SelectValue
                                             placeholder="Pilih Komitmen"
@@ -383,7 +399,10 @@ onUnmounted(() => {
                                 @click.stop
                                 class="w-full"
                             >
-                                <Select v-model="editForm.komitmen_eom_bm_id">
+                                <Select
+                                    v-model="editForm.komitmen_eom_bm_id"
+                                    :disabled="isProcessing"
+                                >
                                     <SelectTrigger class="h-9 w-full">
                                         <SelectValue
                                             placeholder="Pilih Komitmen"
@@ -404,7 +423,11 @@ onUnmounted(() => {
                             <div v-else class="cursor-pointer">
                                 <Badge
                                     v-if="branch.komitmen_eom_bm"
-                                    :class="getBadgeColor(branch.komitmen_eom_bm.color?.name)"
+                                    :class="
+                                        getBadgeColor(
+                                            branch.komitmen_eom_bm.color?.name,
+                                        )
+                                    "
                                 >
                                     {{ branch.komitmen_eom_bm.name }}
                                 </Badge>
@@ -428,6 +451,7 @@ onUnmounted(() => {
                                 class="w-full"
                             >
                                 <Input
+                                    :disabled="isProcessing"
                                     v-model="editForm.prognosa_akhir_bulan"
                                     type="number"
                                     step="0.01"
@@ -455,6 +479,7 @@ onUnmounted(() => {
                                 class="flex items-start gap-2"
                             >
                                 <Textarea
+                                    :disabled="isProcessing"
                                     v-model="editForm.kendala"
                                     placeholder="Masukkan kendala..."
                                     class="min-h-[60px] flex-1 resize-none text-sm"
@@ -463,6 +488,7 @@ onUnmounted(() => {
                                 />
                                 <div class="flex flex-col gap-1.5">
                                     <Button
+                                        :disabled="isProcessing"
                                         @click="handleSave"
                                         size="icon"
                                         class="h-7 w-7 bg-green-600 hover:bg-green-700"
@@ -471,6 +497,7 @@ onUnmounted(() => {
                                         <Check class="h-4 w-4" />
                                     </Button>
                                     <Button
+                                        :disabled="isProcessing"
                                         @click="cancelEdit"
                                         size="icon"
                                         variant="destructive"
