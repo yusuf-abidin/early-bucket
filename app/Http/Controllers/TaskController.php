@@ -135,9 +135,7 @@ class TaskController extends Controller
             ->withCount([
                 // 1. Benar-benar Pending (Belum lewat deadline & bukan mendekati deadline)
                 'tasks as completed_this_week_count' => function (Builder $query) {
-                    $query->whereNotNull('completed_at')
-                        ->whereBetween('completed_at', [now()->startOfWeek(), now()->endOfWeek()
-                    ]);
+                    $query->whereNotNull('completed_at');
                 },
             ])
             ->get();
