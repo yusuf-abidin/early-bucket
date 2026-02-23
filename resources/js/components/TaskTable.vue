@@ -40,6 +40,12 @@ import { Badge } from '@/components/ui/badge';
 import { useTableResize } from '@/composables/useTableResize';
 import '@/assets/styles/table-resize.css';
 import { getBadgeColor } from '@/lib/utils';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const dialogDeleteTask = defineModel<boolean>('dialogDeleteTask', {
     default: false,
@@ -180,7 +186,7 @@ const { columnWidths, startResize } = useTableResize({
                 <Input
                     v-model="searchQuery"
                     placeholder="Cari agenda"
-                    class="pl-9 min-w-[150px]"
+                    class="min-w-[150px] pl-9"
                 />
             </div>
 
@@ -453,7 +459,9 @@ const { columnWidths, startResize } = useTableResize({
                                     v-for="user in task.users"
                                     :key="user.id"
                                     :class="
-                                    getBadgeColor(user.color?.name ?? 'Abu-Abu')
+                                        getBadgeColor(
+                                            user.color?.name ?? 'Abu-Abu',
+                                        )
                                     "
                                 >
                                     {{ user.name }}
@@ -461,7 +469,23 @@ const { columnWidths, startResize } = useTableResize({
                             </div>
                         </TableCell>
                         <TableCell v-if="visibleColumns.dueDate">
-                            <Badge variant="outline">
+                            <TooltipProvider v-if="task.due_date_updated_at">
+                                <Tooltip>
+                                    <TooltipTrigger as-child>
+                                        <Badge
+                                            variant="outline"
+                                            class="bg-yellow-200 border-yellow-400 text-yellow-800"
+                                        >
+                                            {{ task.due_date }}
+                                        </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Deadline telah diubah pada {{ task.due_date_updated_at }}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+
+                            <Badge variant="outline" v-else>
                                 {{ task.due_date }}
                             </Badge>
                         </TableCell>
@@ -478,7 +502,9 @@ const { columnWidths, startResize } = useTableResize({
                         <TableCell v-if="visibleColumns.category">
                             <Badge
                                 :class="
-                                    getBadgeColor(task.category?.color?.name ?? 'Abu-Abu')
+                                    getBadgeColor(
+                                        task.category?.color?.name ?? 'Abu-Abu',
+                                    )
                                 "
                             >
                                 {{ task.category?.name }}
@@ -504,9 +530,7 @@ const { columnWidths, startResize } = useTableResize({
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel
-                                        >Aksi</DropdownMenuLabel
-                                    >
+                                    <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                         @click="openEditModal(task)"

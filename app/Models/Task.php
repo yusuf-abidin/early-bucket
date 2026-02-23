@@ -15,12 +15,14 @@ class Task extends Model
         'task_description',
         'category_id',
         'due_date',
+        'due_date_updated_at',
         'completed_at',
         'notes'
     ];
 
     protected $casts = [
         'due_date' => 'datetime:Y-m-d',
+        'due_date_updated_at' => 'datetime:Y-m-d',
         'created_at' => 'datetime:Y-m-d',
         'completed_at' => 'datetime:Y-m-d',
     ];
@@ -35,5 +37,16 @@ class Task extends Model
 
     public function isCompleted() : bool{
         return $this->completed_at !== null;
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::updating(function ($model) {
+            if($model->isDirty('due_date')) {
+                $model->due_date_updated_at = now();
+            }
+        });
     }
 }

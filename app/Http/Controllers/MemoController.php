@@ -86,7 +86,7 @@ class MemoController extends Controller
         }
 
         $memo->update(Arr::except($validated, ['users']));
-        
+
         if($request->has('users')) {
             $memo->users()->sync($validated['users'] ?? []);
         }

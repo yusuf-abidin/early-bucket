@@ -85,6 +85,7 @@ export interface Task {
     completed_at: string | null;
     created_at: string;
     updated_at: string;
+    due_date_updated_at: string;
 }
 
 export interface UserSummary extends Pick<User, 'id' | 'name' | 'avatar' | 'position'>{
