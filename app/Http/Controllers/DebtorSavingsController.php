@@ -20,6 +20,12 @@ class DebtorSavingsController extends Controller
             ->where('tasks.type', Task::TYPE_DEBITUR)
             ->orderBy('due_date');
 
+        $queryDebtSavings->when($request->filled('user_ids'), function ($query) use ($request) {
+            $query->whereHas('users', function ($q) use ($request) {
+                $q->whereIn('users.id', $request->user_ids);
+            });
+        });
+
         if ($request->filled('user_id')) {
             $queryDebtSavings->whereHas('users', function ($query) use ($request) {
                 $query->where('users.id', $request->user_id);

@@ -46,6 +46,14 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { router } from '@inertiajs/vue3';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 const dialogDeleteTask = defineModel<boolean>('dialogDeleteTask', {
     default: false,
@@ -64,6 +72,9 @@ const props = defineProps<{
     tasksData: Task[];
     usersData: User[];
     categories: Category[];
+    initialFilters?: {
+        userIds?: number[];
+    }
 }>();
 const searchQuery = ref('');
 
@@ -173,6 +184,28 @@ const { columnWidths, startResize } = useTableResize({
     },
     minWidth: 20,
 });
+
+const selectedUsers = ref<number[]>(props.initialFilters?.userIds || []);
+const applyFilters = () => {
+    const query: Record<string, any> = {
+        user_ids:
+            selectedUsers.value.length > 0 ? selectedUsers.value : undefined,
+    };
+
+    router.get(window.location.pathname, query, {
+        preserveState: true,
+        replace: true,
+        preserveScroll: true,
+    });
+};
+
+watch(
+    [selectedUsers],
+    () => {
+        applyFilters();
+    },
+    { deep: true },
+);
 </script>
 
 <template>
@@ -191,6 +224,22 @@ const { columnWidths, startResize } = useTableResize({
             </div>
 
             <div class="flex items-center gap-2">
+                <!-- User Filter (Multiple Select) -->
+                <Select v-model="selectedUsers" multiple>
+                    <SelectTrigger class="w-[180px]">
+                        <SelectValue placeholder="Filter pengguna" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem
+                            v-for="user in props.usersData"
+                            :key="user.id"
+                            :value="user.id"
+                        >
+                            {{ user.name }}
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
+
                 <!-- Column Filter -->
                 <Popover>
                     <PopoverTrigger as-child>
@@ -474,13 +523,16 @@ const { columnWidths, startResize } = useTableResize({
                                     <TooltipTrigger as-child>
                                         <Badge
                                             variant="outline"
-                                            class="bg-yellow-200 border-yellow-400 text-yellow-800"
+                                            class="border-yellow-400 bg-yellow-200 text-yellow-800"
                                         >
                                             {{ task.due_date }}
                                         </Badge>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                        <p>Deadline telah diubah pada {{ task.due_date_updated_at }}</p>
+                                        <p>
+                                            Deadline telah diubah pada
+                                            {{ task.due_date_updated_at }}
+                                        </p>
                                     </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
