@@ -40,6 +40,7 @@ const props = defineProps<{
         userIds?: number[];
         sortBy?: string;
         sortDir?: 'asc' | 'desc';
+        dateBy?: string;
     };
 }>();
 
@@ -66,6 +67,7 @@ const dateRange = ref<{
     end: parseSafeDate(props.initialFilters?.createdTo),
 });
 const selectedUsers = ref<number[]>(props.initialFilters?.userIds || []);
+const dateBy = ref<string>(props.initialFilters?.dateBy || 'created_at');
 const sortBy = ref(props.initialFilters?.sortBy || 'created_at');
 const sortDir = ref<'asc' | 'desc'>(props.initialFilters?.sortDir || 'desc');
 
@@ -109,6 +111,7 @@ const applyFilters = () => {
             selectedUsers.value.length > 0 ? selectedUsers.value : undefined,
         sort_by: sortBy.value,
         sort_dir: sortDir.value,
+        date_by: dateBy.value,
     };
 
     router.get(window.location.pathname, query, {
@@ -120,7 +123,7 @@ const applyFilters = () => {
 
 // Watch changes dan apply filters
 watch(
-    [dateRange, selectedUsers, sortBy, sortDir],
+    [dateRange, selectedUsers, sortBy, sortDir, dateBy],
     () => {
         applyFilters();
     },
@@ -201,10 +204,34 @@ const toggleSortDir = () => {
                         <span v-else>Filter tanggal</span>
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent class="w-auto p-0" align="start">
+                <PopoverContent class="w-auto p-3" align="start">
+                    <div class="mb-3 border-b border-border pb-3">
+                        <label
+                            class="mb-1.5 block text-xs font-medium text-muted-foreground"
+                        >
+                            Berdasarkan:
+                        </label>
+                        <Select v-model="dateBy">
+                            <SelectTrigger class="w-full">
+                                <SelectValue placeholder="Filter tanggal" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="created_at"
+                                    >Tanggal Dibuat</SelectItem
+                                >
+                                <SelectItem value="due_date"
+                                    >Deadline</SelectItem
+                                >
+                                <SelectItem value="completed_at"
+                                    >Tanggal Selesai</SelectItem
+                                >
+                            </SelectContent>
+                        </Select>
+                    </div>
+
                     <RangeCalendar
                         v-model="dateRange"
-                        class="rounded-md border shadow-sm"
+                        class="rounded-md border-none shadow-none"
                         :number-of-months="1"
                         disable-days-outside-current-view
                     />

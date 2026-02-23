@@ -137,6 +137,10 @@ class TaskController extends Controller
     {
         $sortBy = $request->sort_by ?? 'created_at';
         $sortDir = strtolower($request->sort_dir ?? 'desc') === 'asc' ? 'asc' : 'desc';
+        $dateBy = $request->date_by ?? 'created_at';
+
+        $allowedDateColumns = ['created_at', 'due_date', 'completed_at'];
+        $targetColumn = in_array($dateBy, $allowedDateColumns) ? $dateBy : 'created_at';
 
         $usersSummary = User::select('id', 'name', 'avatar', 'position')->orderBy('name')
             ->withCount([
@@ -156,11 +160,11 @@ class TaskController extends Controller
             ->when($request->search, function ($query, $search) {
                 $query->where('task_description', 'like', "%{$search}%");
             })
-            ->when($request->date_from, function ($query, $date) {
-                $query->whereDate('tasks.created_at', '>=', $date);
+            ->when($request->date_from, function ($query, $date) use ($targetColumn){
+                $query->whereDate("tasks.{$targetColumn}", '>=', $date);
             })
-            ->when($request->date_to, function ($query, $date) {
-                $query->whereDate('tasks.created_at', '<=', $date);
+            ->when($request->date_to, function ($query, $date) use ($targetColumn) {
+                $query->whereDate("tasks.{$targetColumn}", '<=', $date);
             })
 
             ->when($request->filled('user_id'), function ($query) use ($request) {
