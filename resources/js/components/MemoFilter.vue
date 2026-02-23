@@ -36,6 +36,7 @@ const props = withDefaults(
             userIds?: number[];
             sortBy?: string;
             sortDir?: 'asc' | 'desc';
+            dateBy?: string;
         };
         mode?: 'index' | 'history';
         defaultColumns: Record<string, boolean>;
@@ -72,6 +73,7 @@ const dateRange = ref<{
 });
 
 const selectedUsers = ref<number[]>(props.initialFilters?.userIds || []);
+const dateBy = ref<string>(props.initialFilters?.dateBy || 'received_at');
 const sortBy = ref(props.initialFilters?.sortBy || 'received_at');
 const sortDir = ref<'asc' | 'desc'>(props.initialFilters?.sortDir || 'desc');
 
@@ -100,6 +102,7 @@ const applyFilters = () => {
             selectedUsers.value.length > 0 ? selectedUsers.value : undefined,
         sort_by: sortBy.value,
         sort_dir: sortDir.value,
+        date_by: dateBy.value,
     };
 
     router.get(window.location.pathname, query, {
@@ -110,7 +113,7 @@ const applyFilters = () => {
 };
 
 watch(
-    [dateRange, selectedUsers, sortBy, sortDir],
+    [dateRange, selectedUsers, sortBy, sortDir, dateBy],
     () => {
         applyFilters();
     },
@@ -198,7 +201,33 @@ const toggleSortDir = () => {
                         </span>
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent class="w-auto p-0" align="start">
+                <PopoverContent class="w-auto p-3" align="start">
+                    <div class="mb-3 border-b border-border pb-3">
+                        <label
+                            class="mb-1.5 block text-xs font-medium text-muted-foreground"
+                        >
+                            Berdasarkan
+                        </label>
+                        <Select v-model="dateBy">
+                            <SelectTrigger class="w-full">
+                                <SelectValue placeholder="Filter Tanggal" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="received_at">
+                                    Tanggal Masuk
+                                </SelectItem>
+                                <SelectItem value="due_date">
+                                    Deadline
+                                </SelectItem>
+                                <SelectItem
+                                    value="completed_at"
+                                    v-if="mode === 'history'"
+                                >
+                                    Tanggal Selesai
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                     <RangeCalendar
                         v-model="dateRange"
                         class="rounded-md border shadow-sm"

@@ -37,6 +37,11 @@ class Memo extends Model
 
     public function scopeFilterAndSort($query, $request)
     {
+        $dateBy = $request->date_by ?? 'created_at';
+
+        $allowedDateColumns = ['received_at', 'due_date', 'completed_at'];
+        $targetColumn = in_array($dateBy, $allowedDateColumns) ? $dateBy : 'created_at';
+
         return $query
             ->when($request->search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -46,11 +51,11 @@ class Memo extends Model
                         ->orWhere('follow_up_note', 'like', "%{$search}%");
                 });
             })
-            ->when($request->date_from, function ($query, $date){
-                $query->whereDate('received_at', '>=', $date);
+            ->when($request->date_from, function ($query, $date) use ($targetColumn) {
+                $query->whereDate($targetColumn, '>=', $date);
             })
-            ->when($request->date_to, function ($query, $date){
-                $query->whereDate('received_at', '<=', $date);
+            ->when($request->date_to, function ($query, $date) use ($targetColumn){
+                $query->whereDate($targetColumn, '<=', $date);
             })
             ->when($request->filled('user_id'), function ($query) use ($request) {
                 $query->whereHas('users', function ($q) use ($request) {
