@@ -480,7 +480,7 @@ watch(
                             "
                             class="text-center text-muted-foreground"
                         >
-                            No tasks found
+                            Tidak ada data
                         </TableCell>
                     </TableRow>
                     <TableRow

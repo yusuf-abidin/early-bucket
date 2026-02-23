@@ -262,7 +262,7 @@ const { columnWidths, startResize } = useTableResize({
                         "
                         class="text-center text-muted-foreground"
                     >
-                        No memos found
+                        Data memo tidak ditemukan
                     </TableCell>
                 </TableRow>
                 <TableRow v-for="(memo, index) in memos" :key="memo.id">
@@ -328,7 +328,9 @@ const { columnWidths, startResize } = useTableResize({
                             minWidth: columnWidths.due_date + 'px',
                         }"
                     >
-                        <Badge v-if="memo.due_date" variant="outline">{{ memo.due_date }}</Badge>
+                        <Badge v-if="memo.due_date" variant="outline">{{
+                            memo.due_date
+                        }}</Badge>
                     </TableCell>
 
                     <TableCell
@@ -340,7 +342,9 @@ const { columnWidths, startResize } = useTableResize({
                     >
                         <Badge
                             :class="
-                                getBadgeColor(memo.category?.color?.name ?? 'Abu-Abu')
+                                getBadgeColor(
+                                    memo.category?.color?.name ?? 'Abu-Abu',
+                                )
                             "
                         >
                             {{ memo.category?.name }}
@@ -380,7 +384,9 @@ const { columnWidths, startResize } = useTableResize({
                             <Badge
                                 v-for="user in memo.users"
                                 :key="user.id"
-                                :class="getBadgeColor(user.color?.name ?? 'Abu-Abu')"
+                                :class="
+                                    getBadgeColor(user.color?.name ?? 'Abu-Abu')
+                                "
                             >
                                 {{ user.name }}
                             </Badge>

@@ -182,7 +182,7 @@ const visibleColumns = inject<Ref<Record<string, boolean>>>('visibleColumns');
                         "
                         class="text-center text-muted-foreground"
                     >
-                        No tasks found
+                        Tidak ada data
                     </TableCell>
                 </TableRow>
 
