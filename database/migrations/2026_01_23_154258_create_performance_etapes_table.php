@@ -16,9 +16,8 @@ return new class extends Migration
             $table->foreignId('branch_id')->constrained();
             $table->tinyInteger('etape_no');
             $table->foreignId('user_id')->nullable()->constrained();
-            $table->foreignId('komitmen_etape_id')->nullable()->constrained('categories', 'id');
-            $table->foreignId('komitmen_eom_bc_id')->nullable()->constrained('categories', 'id');
-            $table->foreignId('komitmen_eom_bm_id')->nullable()->constrained('categories', 'id');
+            $table->foreignId('komitmen_etape_bc_id')->nullable()->constrained('categories', 'id');
+            $table->foreignId('komitmen_etape_bm_id')->nullable()->constrained('categories', 'id');
             $table->decimal('prognosa_akhir_bulan')->nullable();
             $table->text('kendala')->nullable();
             $table->smallInteger('year');

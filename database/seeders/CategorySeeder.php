@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\PerformanceEtape;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -51,27 +52,11 @@ class CategorySeeder extends Seeder
             'Ragu' => 3,
             'Tidak Tercapai' => 1,
         ];
-        foreach ($categories as $name => $colorId) {
-            Category::create([
-                'name' => $name,
-                'type' => 'komitmen_etape',
-                'order' => $order,
-                'color_id' => $colorId
-            ]);
-            $order++;
-        }
-
-        $order = 1;
-        $categories = [
-            'Membaik' => 5,
-            'Square' => 3,
-            'Memburuk' => 1,
-        ];
 
         foreach ($categories as $name => $colorId) {
             Category::create([
                 'name' => $name,
-                'type' => 'komitmen_EOM_(BC)',
+                'type' => PerformanceEtape::TYPE_ETAPE_BC,
                 'order' => $order,
                 'color_id' => $colorId
             ]);
@@ -87,7 +72,7 @@ class CategorySeeder extends Seeder
         foreach ($categories as $name => $colorId) {
             Category::create([
                 'name' => $name,
-                'type' => 'komitmen_EOM_(BM)',
+                'type' => PerformanceEtape::TYPE_ETAPE_BM,
                 'order' => $order,
                 'color_id' => $colorId
             ]);

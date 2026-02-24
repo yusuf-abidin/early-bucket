@@ -40,9 +40,8 @@ const props = defineProps<{
         total_branches: number;
     };
     categories: {
-        komitmen_etape: any[];
-        komitmen_eom_bc: any[];
-        komitmen_eom_bm: any[];
+        komitmen_etape_bc: any[];
+        komitmen_etape_bm: any[];
     };
     users?: { id: number; name: string }[];
     currentYear?: number;
@@ -112,9 +111,8 @@ const handleAreaPIC = (areaId: number, userId: number) => {
         year: props.currentYear || branch.year,
         month: props.currentMonth || branch.month,
         user_id: userId,
-        komitmen_etape_id: branch.komitmen_etape_id,
-        komitmen_eom_bc_id: branch.komitmen_eom_bc_id,
-        komitmen_eom_bm_id: branch.komitmen_eom_bm_id,
+        komitmen_etape_bc_id: branch.komitmen_etape_bc_id,
+        komitmen_etape_bm_id: branch.komitmen_etape_bm_id,
         prognosa_akhir_bulan: branch.prognosa_akhir_bulan,
         kendala: branch.kendala,
     }));
@@ -148,24 +146,49 @@ onUnmounted(() => {
                     <TableHead class="w-[200px] min-w-[200px] font-bold">
                         Area / Cabang
                     </TableHead>
-                    <TableHead class="w-[180px] min-w-[180px] font-bold"
-                        >PIC</TableHead
-                    >
-                    <TableHead class="w-40 min-w-40 font-bold">
-                        Komitmen Etape
-                    </TableHead>
-                    <TableHead class="w-40 min-w-40 font-bold">
-                        Komitmen EOM (BC)
-                    </TableHead>
-                    <TableHead class="w-40 min-w-40 font-bold">
-                        Komitmen EOM (BM)
-                    </TableHead>
+
                     <TableHead class="w-[180px] min-w-[180px] font-bold">
-                        Prognosa Akhir Bulan
+                        PIC
                     </TableHead>
-                    <TableHead class="min-w-[250px] font-bold"
-                        >Kendala</TableHead
+
+                    <TableHead class="w-40 min-w-40 text-center font-bold">
+                        <div class="flex flex-col">
+                            <span>Komitmen Etape</span>
+                            <span
+                                class="text-xs font-normal text-muted-foreground"
+                            >
+                                CLQH / BC
+                            </span>
+                        </div>
+                    </TableHead>
+
+                    <TableHead class="w-40 min-w-40 text-center font-bold">
+                        <div class="flex flex-col">
+                            <span>Komitmen Etape</span>
+                            <span
+                                class="text-xs font-normal text-muted-foreground"
+                            >
+                                RLQH / BM
+                            </span>
+                        </div>
+                    </TableHead>
+
+                    <TableHead
+                        class="w-[180px] min-w-[180px] text-right font-bold"
                     >
+                        <div class="flex flex-col items-end">
+                            <span>Outstanding</span>
+                            <span
+                                class="text-xs font-normal text-muted-foreground"
+                            >
+                                Dalam Juta
+                            </span>
+                        </div>
+                    </TableHead>
+
+                    <TableHead class="min-w-[250px] font-bold">
+                        Kendala
+                    </TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -179,7 +202,7 @@ onUnmounted(() => {
                         :colspan="7"
                         class="h-24 text-center text-muted-foreground"
                     >
-                        Tidak ditemukan data ETAPE
+                        Tidak ditemukan data
                     </TableCell>
                 </TableRow>
 
@@ -191,6 +214,9 @@ onUnmounted(() => {
                     <TableRow class="bg-muted/50 hover:bg-muted/50">
                         <TableCell class="font-semibold">
                             {{ area.name }}
+                            <span class="ml-1 text-xs text-muted-foreground">
+                                • {{ area.branches?.length || 0 }} cabang
+                            </span>
                         </TableCell>
                         <TableCell>
                             <DropdownMenu>
@@ -221,12 +247,8 @@ onUnmounted(() => {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </TableCell>
-                        <TableCell
-                            colspan="3"
-                            class="text-sm text-muted-foreground"
-                        >
-                            {{ area.branches?.length || 0 }} cabang
-                        </TableCell>
+                        <TableCell></TableCell>
+                        <TableCell></TableCell>
                         <TableCell
                             class="text-right font-mono font-semibold tabular-nums"
                         >
@@ -299,7 +321,7 @@ onUnmounted(() => {
                             </div>
                         </TableCell>
 
-                        <!-- Komitmen Etape -->
+                        <!-- Komitmen Etape BC-->
                         <TableCell @click="startEdit(branch)">
                             <div
                                 v-if="editingId === branch.branch_id"
@@ -307,7 +329,7 @@ onUnmounted(() => {
                                 class="w-full"
                             >
                                 <Select
-                                    v-model="editForm.komitmen_etape_id"
+                                    v-model="editForm.komitmen_etape_bc_id"
                                     :disabled="isProcessing"
                                 >
                                     <SelectTrigger class="h-9 w-full">
@@ -318,7 +340,7 @@ onUnmounted(() => {
                                     <SelectContent>
                                         <SelectItem
                                             v-for="komitmen in props.categories
-                                                .komitmen_etape"
+                                                .komitmen_etape_bc"
                                             :key="komitmen.id"
                                             :value="komitmen.id"
                                         >
@@ -329,15 +351,15 @@ onUnmounted(() => {
                             </div>
                             <div v-else class="cursor-pointer">
                                 <Badge
-                                    v-if="branch.komitmen_etape"
+                                    v-if="branch.komitmen_etape_bc"
                                     :class="
                                         getBadgeColor(
-                                            branch.komitmen_etape.color?.name ??
-                                                'Abu-Abu',
+                                            branch.komitmen_etape_bc.color
+                                                ?.name ?? 'Abu-Abu',
                                         )
                                     "
                                 >
-                                    {{ branch.komitmen_etape.name }}
+                                    {{ branch.komitmen_etape_bc.name }}
                                 </Badge>
                                 <span
                                     v-else
@@ -348,7 +370,7 @@ onUnmounted(() => {
                             </div>
                         </TableCell>
 
-                        <!-- Komitmen EOM BC -->
+                        <!-- Komitmen Etape BM -->
                         <TableCell @click="startEdit(branch)">
                             <div
                                 v-if="editingId === branch.branch_id"
@@ -356,7 +378,7 @@ onUnmounted(() => {
                                 class="w-full"
                             >
                                 <Select
-                                    v-model="editForm.komitmen_eom_bc_id"
+                                    v-model="editForm.komitmen_etape_bm_id"
                                     :disabled="isProcessing"
                                 >
                                     <SelectTrigger class="h-9 w-full">
@@ -367,7 +389,7 @@ onUnmounted(() => {
                                     <SelectContent>
                                         <SelectItem
                                             v-for="komitmen in props.categories
-                                                .komitmen_eom_bc"
+                                                .komitmen_etape_bm"
                                             :key="komitmen.id"
                                             :value="komitmen.id"
                                         >
@@ -378,64 +400,15 @@ onUnmounted(() => {
                             </div>
                             <div v-else class="cursor-pointer">
                                 <Badge
-                                    v-if="branch.komitmen_eom_bc"
+                                    v-if="branch.komitmen_etape_bm"
                                     :class="
                                         getBadgeColor(
-                                            branch.komitmen_eom_bc.color
+                                            branch.komitmen_etape_bm.color
                                                 ?.name ?? 'Abu-Abu',
                                         )
                                     "
                                 >
-                                    {{ branch.komitmen_eom_bc.name }}
-                                </Badge>
-                                <span
-                                    v-else
-                                    class="text-sm text-muted-foreground"
-                                >
-                                    -
-                                </span>
-                            </div>
-                        </TableCell>
-
-                        <!-- Komitmen EOM BM -->
-                        <TableCell @click="startEdit(branch)">
-                            <div
-                                v-if="editingId === branch.branch_id"
-                                @click.stop
-                                class="w-full"
-                            >
-                                <Select
-                                    v-model="editForm.komitmen_eom_bm_id"
-                                    :disabled="isProcessing"
-                                >
-                                    <SelectTrigger class="h-9 w-full">
-                                        <SelectValue
-                                            placeholder="Pilih Komitmen"
-                                        />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem
-                                            v-for="komitmen in props.categories
-                                                .komitmen_eom_bm"
-                                            :key="komitmen.id"
-                                            :value="komitmen.id"
-                                        >
-                                            {{ komitmen.name }}
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div v-else class="cursor-pointer">
-                                <Badge
-                                    v-if="branch.komitmen_eom_bm"
-                                    :class="
-                                        getBadgeColor(
-                                            branch.komitmen_eom_bm.color
-                                                ?.name ?? 'Abu-Abu',
-                                        )
-                                    "
-                                >
-                                    {{ branch.komitmen_eom_bm.name }}
+                                    {{ branch.komitmen_etape_bm.name }}
                                 </Badge>
                                 <span
                                     v-else
@@ -544,12 +517,12 @@ onUnmounted(() => {
                     <TableCell class="text-sm text-muted-foreground">
                     </TableCell>
                     <TableCell></TableCell>
-                    <TableCell></TableCell>
                     <TableCell
                         class="text-right font-mono text-lg tabular-nums"
                     >
                         {{ formatAngkaPrognosa(props.nasional.total_prognosa) }}
                     </TableCell>
+                    <TableCell></TableCell>
                     <TableCell></TableCell>
                 </TableRow>
             </TableFooter>

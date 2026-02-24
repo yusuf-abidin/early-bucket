@@ -6,14 +6,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 
 const props = defineProps<{
     users: { id: number; name: string }[];
     initialFilters?: {
         userIds?: number[];
-        etapeNo: number;
+        etapeNo: string;
         year: number;
         month: number;
     };
@@ -54,7 +54,7 @@ const applyFilters = () => {
     const query: Record<string, any> = {
         user_ids:
             selectedUsers.value.length > 0 ? selectedUsers.value : undefined,
-        etape_no: Number(selectedEtape.value),
+        etape_no: selectedEtape.value,
         month: Number(selectedMonth.value),
         year: Number(selectedYear.value),
     };
@@ -67,26 +67,30 @@ const applyFilters = () => {
 
 const selectEtape = [
     {
-        etape_no: 1,
+        etape_no: '1',
         label: 'Etape 1',
     },
     {
-        etape_no: 2,
+        etape_no: '2',
         label: 'Etape 2',
     },
     {
-        etape_no: 3,
+        etape_no: '3',
         label: 'Etape 3',
+    },
+    {
+        etape_no: 'program_khusus',
+        label: 'Program Khusus',
     },
 ];
 
-const selectedEtape = ref<number>(
+const selectedEtape = ref<string>(
     (() => {
         const urlEtapeNo = getQueryParam('etape_no');
         if (urlEtapeNo) {
-            return Number(urlEtapeNo);
+            return urlEtapeNo;
         }
-        return props.initialFilters?.etapeNo || 1;
+        return props.initialFilters?.etapeNo || '1';
     })(),
 );
 
@@ -149,8 +153,14 @@ onMounted(() => {
 });
 
 const getMonthLabel = (val: number) => {
-    return months.find(m => m.value === Number(val))?.label || '-';
-}
+    return months.find((m) => m.value === Number(val))?.label || '-';
+};
+
+const activeEtapeLabel = computed(() => {
+    const etapeValue = props.initialFilters?.etapeNo;
+    const found = selectEtape.find((item) => item.etape_no === etapeValue);
+    return found ? found.label : '-';
+});
 </script>
 
 <template>
@@ -219,7 +229,8 @@ const getMonthLabel = (val: number) => {
             </Select>
         </div>
         <h1 class="text-lg font-medium tracking-tight">
-            Etape {{ initialFilters?.etapeNo }} • {{ getMonthLabel(initialFilters?.month ?? 1) }}
+            {{ activeEtapeLabel }} •
+            {{ getMonthLabel(initialFilters?.month ?? 1) }}
             {{ initialFilters?.year }}
         </h1>
     </div>

@@ -24,13 +24,12 @@ class UpsertPerformanceEtapeRequest extends FormRequest
     {
         return [
             'branch_id' => ['required', 'exists:branches,id'],
-            'etape_no' => ['required', Rule::in(['1', '2', '3', 'eom'])],
+            'etape_no' => ['required', Rule::in(['1', '2', '3', 'eom', 'program_khusus'])],
             'year' => ['required', 'integer', 'min:2020', 'max:' . (now()->year + 10)],
             'month' => ['required', 'integer', 'between:1,12'],
             'user_id' => ['nullable', 'exists:users,id'],
-            'komitmen_etape_id' => ['nullable', 'exists:categories,id'],
-            'komitmen_eom_bc_id' => ['nullable', 'exists:categories,id'],
-            'komitmen_eom_bm_id' => ['nullable', 'exists:categories,id'],
+            'komitmen_etape_bc_id' => ['nullable', 'exists:categories,id'],
+            'komitmen_etape_bm_id' => ['nullable', 'exists:categories,id'],
             'prognosa_akhir_bulan' => ['nullable', 'numeric'],
             'kendala' => ['nullable', 'string'],
 
@@ -49,9 +48,8 @@ class UpsertPerformanceEtapeRequest extends FormRequest
             'month.integer' => 'Bulan harus berupa angka',
             'month.between' => 'Bulan harus antara 1 sampai 12',
             'user_id.exists' => 'Pengguna tidak valid',
-            'komitmen_etape_id.exists' => 'Komitmen etape tidak valid',
-            'komitmen_eom_bc_id.exists' => 'Komitmen EOM BC tidak valid',
-            'komitmen_eom_bm_id.exists' => 'Komitmen EOM BM tidak valid',
+            'komitmen_etape_bc_id.exists' => 'Komitmen EOM BC tidak valid',
+            'komitmen_etape_bm_id.exists' => 'Komitmen EOM BM tidak valid',
             'prognosa_akhir_bulan.numeric' => 'Prognosa akhir bulan harus berupa angka',
             'kendala.string' => 'Kendala harus berupa teks'
         ];

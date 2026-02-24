@@ -41,9 +41,8 @@ class PerformanceEtapeController extends Controller
                 ],
                 [
                     'user_id' => $validated['user_id'],
-                    'komitmen_etape_id' => $validated['komitmen_etape_id'],
-                    'komitmen_eom_bc_id' => $validated['komitmen_eom_bc_id'],
-                    'komitmen_eom_bm_id' => $validated['komitmen_eom_bm_id'],
+                    'komitmen_etape_bc_id' => $validated['komitmen_etape_bc_id'],
+                    'komitmen_etape_bm_id' => $validated['komitmen_etape_bm_id'],
                     'prognosa_akhir_bulan' => $validated['prognosa_akhir_bulan'],
                     'kendala' => $validated['kendala'],
                 ]
@@ -59,13 +58,12 @@ class PerformanceEtapeController extends Controller
         $validated = $request->validate([
             'performance' => 'required|array',
             'performance.*.branch_id' => 'required|exists:branches,id',
-            'performance.*.etape_no' => ['required', Rule::in(['1', '2', '3', 'eom'])],
+            'performance.*.etape_no' => ['required', Rule::in(['1', '2', '3', 'eom', 'program_khusus'])],
             'performance.*.year' => 'required|integer',
             'performance.*.month' => 'required|integer|between:1,12',
             'performance.*.user_id' => 'nullable|exists:users,id',
-            'performance.*.komitmen_etape_id' => 'nullable|exists:categories,id',
-            'performance.*.komitmen_eom_bc_id' => 'nullable|exists:categories,id',
-            'performance.*.komitmen_eom_bm_id' => 'nullable|exists:categories,id',
+            'performance.*.komitmen_etape_bc_id' => 'nullable|exists:categories,id',
+            'performance.*.komitmen_etape_bm_id' => 'nullable|exists:categories,id',
             'performance.*.prognosa_akhir_bulan' => 'nullable|numeric',
             'performance.*.kendala' => 'nullable|string',
         ]);
@@ -76,7 +74,7 @@ class PerformanceEtapeController extends Controller
             PerformanceEtape::upsert(
                 $validated['performance'],
                 ['branch_id', 'etape_no', 'year', 'month'],
-                ['user_id', 'komitmen_etape_id', 'komitmen_eom_bc_id', 'komitmen_eom_bm_id', 'prognosa_akhir_bulan', 'kendala'],
+                ['user_id', 'komitmen_etape_bc_id', 'komitmen_etape_bm_id', 'prognosa_akhir_bulan', 'kendala'],
             );
 
             \DB::commit();
@@ -129,13 +127,10 @@ class PerformanceEtapeController extends Controller
             'user:id,name,color_id',
             'user.color:id,name,class',
 
-            'komitmenEtape:id,name,color_id',
-            'komitmenEtape.color:id,name,class',
-
-            'komitmenEomBc:id,name,color_id',
-            'komitmenEomBc.color:id,name,class',
-            'komitmenEomBm:id,name,color_id',
-            'komitmenEomBm.color:id,name,class',
+            'komitmenEtapeBC:id,name,color_id',
+            'komitmenEtapeBC.color:id,name,class',
+            'komitmenEtapeBM:id,name,color_id',
+            'komitmenEtapeBM.color:id,name,class',
 
         ])
             ->where('month', $month)
@@ -186,12 +181,10 @@ class PerformanceEtapeController extends Controller
                     'user_id' => $displayUserId,
                     'user_name' => $displayUser?->name,
                     'user' => $displayUser,
-                    'komitmen_etape_id' => $performance?->komitmen_etape_id,
-                    'komitmen_etape' => $performance?->komitmenEtape,
-                    'komitmen_eom_bc_id' => $performance?->komitmen_eom_bc_id,
-                    'komitmen_eom_bc' => $performance?->komitmenEomBc,
-                    'komitmen_eom_bm_id' => $performance?->komitmen_eom_bm_id,
-                    'komitmen_eom_bm' => $performance?->komitmenEomBm,
+                    'komitmen_etape_bc_id' => $performance?->komitmen_etape_bc_id,
+                    'komitmen_etape_bc' => $performance?->komitmenEtapeBc,
+                    'komitmen_etape_bm_id' => $performance?->komitmen_etape_bm_id,
+                    'komitmen_etape_bm' => $performance?->komitmenEtapeBm,
                     'prognosa_akhir_bulan' => $performance?->prognosa_akhir_bulan,
                     'kendala' => $performance?->kendala,
 
@@ -223,15 +216,11 @@ class PerformanceEtapeController extends Controller
 
         $users = User::select('id', 'name')->get();
         $categories = [
-            'komitmen_etape' => Category::where('type', 'komitmen_etape')
+            'komitmen_etape_bc' => Category::where('type', PerformanceEtape::TYPE_ETAPE_BC)
                 ->orderBy('order')
                 ->with('color:id,name,class')
                 ->get(['id', 'name', 'color_id']),
-            'komitmen_eom_bc' => Category::where('type', 'komitmen_EOM_(BC)')
-                ->orderBy('order')
-                ->with('color:id,name,class')
-                ->get(['id', 'name', 'color_id']),
-            'komitmen_eom_bm' => Category::where('type', 'komitmen_EOM_(BM)')
+            'komitmen_etape_bm' => Category::where('type', PerformanceEtape::TYPE_ETAPE_BM)
                 ->orderBy('order')
                 ->with('color:id,name,class')
                 ->get(['id', 'name', 'color_id']),

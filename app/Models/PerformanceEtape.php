@@ -7,13 +7,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PerformanceEtape extends Model
 {
+    const TYPE_ETAPE_BC = 'komitmen_ETAPE_(CLQH/BC)';
+    const TYPE_ETAPE_BM = 'komitmen_ETAPE_(RLQH/BM)';
+
     protected $fillable = [
         'branch_id',
         'etape_no',
         'user_id',
-        'komitmen_etape_id',
-        'komitmen_eom_bc_id',
-        'komitmen_eom_bm_id',
+        'komitmen_etape_bc_id',
+        'komitmen_etape_bm_id',
         'prognosa_akhir_bulan',
         'kendala',
         'year',
@@ -34,17 +36,13 @@ class PerformanceEtape extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function komitmenEtape(): BelongsTo {
-        return $this->belongsTo(Category::class, 'komitmen_etape_id');
+    public function komitmenEtapeBC(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'komitmen_etape_bc_id');
     }
 
-    public function komitmenEomBc(): BelongsTo
+    public function komitmenEtapeBM(): BelongsTo
     {
-        return $this->belongsTo(Category::class, 'komitmen_eom_bc_id');
-    }
-
-    public function komitmenEomBm(): BelongsTo
-    {
-        return $this->belongsTo(Category::class, 'komitmen_eom_bm_id');
+        return $this->belongsTo(Category::class, 'komitmen_etape_bm_id');
     }
 }
