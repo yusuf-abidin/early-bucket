@@ -28,6 +28,12 @@ class TaskController extends Controller
                 $query->whereHas('users', function ($q) use ($request) {
                     $q->whereIn('users.id', $request->user_ids);
                 });
+            })
+            ->when($request->date_from, function ($query, $date) {
+                $query->whereDate('due_date', '>=', $date);
+            })
+            ->when($request->date_to, function ($query, $date) {
+                $query->whereDate('due_date', '<=', $date);
             });
 
         if($request->filled('user_id')){

@@ -17,6 +17,7 @@ import {
     ArrowUpDown,
     ArrowUp,
     ArrowDown,
+    CalendarIcon,
 } from 'lucide-vue-next';
 import {
     Table,
@@ -39,7 +40,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useTableResize } from '@/composables/useTableResize';
 import '@/assets/styles/table-resize.css';
-import { getBadgeColor } from '@/lib/utils';
+import { cn, df, getBadgeColor } from '@/lib/utils';
 import {
     Tooltip,
     TooltipContent,
@@ -54,6 +55,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { CalendarDate, getLocalTimeZone } from '@internationalized/date';
+import { RangeCalendar } from '@/components/ui/range-calendar';
 
 const dialogDeleteTask = defineModel<boolean>('dialogDeleteTask', {
     default: false,
@@ -74,7 +77,9 @@ const props = defineProps<{
     categories: Category[];
     initialFilters?: {
         userIds?: number[];
-    }
+        date_from: string;
+        date_to: string;
+    };
 }>();
 const searchQuery = ref('');
 
@@ -86,6 +91,25 @@ const defaultColumns = {
     category: true,
     notes: true,
 };
+
+const parseSafeDate = (
+    dateStr: string | undefined,
+): CalendarDate | undefined => {
+    if (!dateStr) return undefined;
+    try {
+        return parseSafeDate(dateStr.split('T')[0]);
+    } catch (e) {
+        return undefined;
+    }
+};
+
+const dateRange = ref<{
+    start: CalendarDate | undefined;
+    end: CalendarDate | undefined;
+}>({
+    start: parseSafeDate(props.initialFilters?.date_from),
+    end: parseSafeDate(props.initialFilters?.date_to),
+});
 
 const getStoredColumns = () => {
     const stored = localStorage.getItem('tasksTableColumns');
@@ -190,6 +214,12 @@ const applyFilters = () => {
     const query: Record<string, any> = {
         user_ids:
             selectedUsers.value.length > 0 ? selectedUsers.value : undefined,
+        date_from: dateRange.value.start
+            ? dateRange.value.start.toString()
+            : undefined,
+        date_to: dateRange.value.end
+            ? dateRange.value.end.toString()
+            : undefined,
     };
 
     router.get(window.location.pathname, query, {
@@ -200,7 +230,7 @@ const applyFilters = () => {
 };
 
 watch(
-    [selectedUsers],
+    [dateRange, selectedUsers],
     () => {
         applyFilters();
     },
@@ -211,8 +241,10 @@ watch(
 <template>
     <div class="space-y-4">
         <!-- Header dengan Search dan Filter -->
-        <div class="flex items-center justify-between gap-4">
-            <div class="relative max-w-sm flex-1">
+        <div
+            class="flex w-full flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between"
+        >
+            <div class="relative w-full lg:max-w-sm">
                 <Search
                     class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                 />
@@ -223,10 +255,66 @@ watch(
                 />
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Date Range Filter -->
+                <Popover>
+                    <PopoverTrigger as-child>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            :class="
+                                cn(
+                                    'w-full justify-start text-left font-normal sm:w-[220px]',
+                                    !dateRange && 'text-muted-foreground',
+                                )
+                            "
+                        >
+                            <CalendarIcon class="mr-2 h-4 w-4 shrink-0" />
+                            <span class="truncate">
+                                <template v-if="dateRange.start">
+                                    <template v-if="dateRange.end">
+                                        {{
+                                            df.format(
+                                                dateRange.start.toDate(
+                                                    getLocalTimeZone(),
+                                                ),
+                                            )
+                                        }}
+                                        -
+                                        {{
+                                            df.format(
+                                                dateRange.end.toDate(
+                                                    getLocalTimeZone(),
+                                                ),
+                                            )
+                                        }}
+                                    </template>
+                                    <template v-else>
+                                        {{
+                                            df.format(
+                                                dateRange.start.toDate(
+                                                    getLocalTimeZone(),
+                                                ),
+                                            )
+                                        }}
+                                    </template>
+                                </template>
+                                <span v-else>Filter deadline</span>
+                            </span>
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent class="w-auto p-0" align="start">
+                        <RangeCalendar
+                            v-model="dateRange"
+                            class="rounded-md border shadow-sm"
+                            :number-of-months="1"
+                            disable-days-outside-current-view
+                        />
+                    </PopoverContent>
+                </Popover>
                 <!-- User Filter (Multiple Select) -->
                 <Select v-model="selectedUsers" multiple>
-                    <SelectTrigger class="w-[180px]">
+                    <SelectTrigger class="w-full sm:w-[180px]">
                         <SelectValue placeholder="Filter pengguna" />
                     </SelectTrigger>
                     <SelectContent>
@@ -243,7 +331,11 @@ watch(
                 <!-- Column Filter -->
                 <Popover>
                     <PopoverTrigger as-child>
-                        <Button variant="outline" size="sm">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            class="w-full sm:w-auto"
+                        >
                             <Settings2 class="mr-2 h-4 w-4" />
                             Kolom
                         </Button>
@@ -344,7 +436,11 @@ watch(
                         </div>
                     </PopoverContent>
                 </Popover>
-                <Button size="sm" @click="openCreateModal">
+                <Button
+                    size="sm"
+                    @click="openCreateModal"
+                    class="w-full sm:w-auto"
+                >
                     <Plus class="mr-2 h-4 w-4" />
                     Buat Agenda
                 </Button>
