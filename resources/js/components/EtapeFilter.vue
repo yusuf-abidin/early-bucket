@@ -88,9 +88,11 @@ const selectedEtape = ref<string>(
     (() => {
         const urlEtapeNo = getQueryParam('etape_no');
         if (urlEtapeNo) {
-            return urlEtapeNo;
+            return String(urlEtapeNo);
         }
-        return props.initialFilters?.etapeNo || '1';
+        return props.initialFilters?.etapeNo
+            ? String(props.initialFilters.etapeNo)
+            : '1';
     })(),
 );
 

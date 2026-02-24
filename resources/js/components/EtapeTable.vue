@@ -199,7 +199,7 @@ onUnmounted(() => {
                     "
                 >
                     <TableCell
-                        :colspan="7"
+                        :colspan="6"
                         class="h-24 text-center text-muted-foreground"
                     >
                         Tidak ditemukan data
@@ -214,9 +214,6 @@ onUnmounted(() => {
                     <TableRow class="bg-muted/50 hover:bg-muted/50">
                         <TableCell class="font-semibold">
                             {{ area.name }}
-                            <span class="ml-1 text-xs text-muted-foreground">
-                                • {{ area.branches?.length || 0 }} cabang
-                            </span>
                         </TableCell>
                         <TableCell>
                             <DropdownMenu>
@@ -247,7 +244,11 @@ onUnmounted(() => {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </TableCell>
-                        <TableCell></TableCell>
+                        <TableCell
+                            class="text-sm text-muted-foreground"
+                        >
+                            {{ area.branches?.length || 0 }} cabang
+                        </TableCell>
                         <TableCell></TableCell>
                         <TableCell
                             class="text-right font-mono font-semibold tabular-nums"
@@ -522,7 +523,6 @@ onUnmounted(() => {
                     >
                         {{ formatAngkaPrognosa(props.nasional.total_prognosa) }}
                     </TableCell>
-                    <TableCell></TableCell>
                     <TableCell></TableCell>
                 </TableRow>
             </TableFooter>
