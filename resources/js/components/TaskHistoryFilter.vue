@@ -138,27 +138,29 @@ const toggleSortDir = () => {
 
 <template>
     <div
-        class="flex w-full max-w-full flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between"
+        class="flex w-full flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between"
     >
         <!-- Search Input -->
-        <div class="relative flex max-w-sm min-w-0 flex-1 items-center gap-2">
-            <div class="relative flex-1">
-                <Search
-                    class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                />
-                <Input
-                    v-model="searchQuery"
-                    placeholder="Cari agenda"
-                    class="min-w-[150px] pl-9"
-                    @keyup.enter="applyFilters"
-                />
+        <div class="relative w-full lg:max-w-sm">
+            <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                    <Search
+                        class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <Input
+                        v-model="searchQuery"
+                        placeholder="Cari agenda"
+                        class="min-w-[150px] pl-9"
+                        @keyup.enter="applyFilters"
+                    />
+                </div>
+                <Button variant="secondary" size="sm" @click="applyFilters">
+                    Cari
+                </Button>
             </div>
-            <Button variant="secondary" size="sm" @click="applyFilters">
-                Cari
-            </Button>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex min-w-0 flex-wrap items-center gap-2">
             <!-- Date Range Filter -->
             <Popover>
                 <PopoverTrigger as-child>
@@ -167,7 +169,7 @@ const toggleSortDir = () => {
                         size="sm"
                         :class="
                             cn(
-                                'w-[220px] justify-start text-left font-normal',
+                                'w-full justify-start text-left font-normal sm:w-[220px]',
                                 !dateRange && 'text-muted-foreground',
                             )
                         "
@@ -240,7 +242,7 @@ const toggleSortDir = () => {
 
             <!-- User Filter (Multiple Select) -->
             <Select v-model="selectedUsers" multiple>
-                <SelectTrigger class="w-[180px]">
+                <SelectTrigger class="w-full sm:w-[180px]">
                     <SelectValue placeholder="Filter pengguna" />
                 </SelectTrigger>
                 <SelectContent>
@@ -257,7 +259,11 @@ const toggleSortDir = () => {
             <!-- Sort Filter -->
             <Popover>
                 <PopoverTrigger as-child>
-                    <Button variant="outline" size="sm">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        class="w-full sm:w-auto"
+                    >
                         <ArrowUpDown class="mr-2 h-4 w-4" />
                         Sort
                     </Button>
@@ -300,7 +306,11 @@ const toggleSortDir = () => {
             <!-- Column Filter -->
             <Popover>
                 <PopoverTrigger as-child>
-                    <Button variant="outline" size="sm">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        class="w-full sm:w-auto"
+                    >
                         <Settings2 class="mr-2 h-4 w-4" />
                         Kolom
                     </Button>

@@ -127,10 +127,10 @@ const toggleSortDir = () => {
 
 <template>
     <div
-        class="flex w-full max-w-full flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between"
+        class="flex w-full flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between"
     >
         <!-- Search Input -->
-        <div class="relative w-full min-w-24 sm:max-w-sm sm:flex-1">
+        <div class="relative w-full lg:max-w-sm">
             <div class="flex items-center gap-2">
                 <!-- Search input group -->
                 <div class="relative flex-1">
@@ -153,7 +153,7 @@ const toggleSortDir = () => {
         </div>
 
         <!-- Filter Buttons Container -->
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex min-w-0 flex-wrap items-center gap-2">
             <!-- Date Range Filter -->
             <Popover>
                 <PopoverTrigger as-child>
