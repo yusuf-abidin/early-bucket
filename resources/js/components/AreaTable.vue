@@ -71,7 +71,7 @@ const handleDeleteArea = (area: Area) => {
 };
 
 // States
-const expandedAreas = ref<number[]>([]);
+const expandedAreas = ref<number[]>(props.areas?.map(area => area.id) ?? []);
 const editingAreaId = ref<number | null>(null);
 const editName = ref(''); // State sementara untuk nama yang sedang diedit
 const searchQuery = ref(props.search || '');
@@ -179,7 +179,7 @@ const handleUpdateArea = (area: Area) => {
 
         <div class="flex flex-wrap items-center gap-2">
             <Button
-                variant="outline"
+                variant="secondary"
                 @click="toggleExpandAll"
                 class="flex-1 cursor-pointer sm:flex-none"
             >
@@ -187,7 +187,7 @@ const handleUpdateArea = (area: Area) => {
             </Button>
 
             <Button
-                variant="secondary"
+                variant="outline"
                 @click="handleFormBranch()"
                 class="flex-1 cursor-pointer gap-2 sm:flex-none"
             >
