@@ -150,31 +150,46 @@ class CategoryController extends Controller
             return back()->withErrors(['message' => 'Tidak dapat menghapus kategori terakhir']);
         }
         if($category->tasks()->exists()) {
-            return back()->withErrors(['message' => 'Tidak dapat menghapus kategori yang masih memiliki pending matter.']);
+            $hasUnfinishedTask = $category->tasks()
+                ->whereNull('completed_at')
+                ->exists();
+            if($hasUnfinishedTask){
+                return back()->withErrors(['message' => 'Tidak dapat menghapus kategori karena masih ada data yang belum diselesaikan']);
+            }
         }
 
         if($category->memos()->exists()) {
-            return back()->withErrors(['message' => 'Tidak dapat menghapus kategori yang masih memiliki memo.']);
+            $hasUnfinishedMemo = $category->memos()
+                ->whereNull('completed_at')
+                ->exists();
+            if($hasUnfinishedMemo){
+                return back()->withErrors(['message' => 'Tidak dapat menghapus kategori karena masih ada memo yang belum diselesaikan']);
+            }
         }
 
-        if($category->performancesAsKomitmenEtape()->exists()) {
-            return back()->withErrors(['message' => 'Tidak dapat menghapus kategori yang masih memiliki performance komitmen etape.']);
+        if($category->performancesAsKomitmenEtapeBc()->exists()) {
+            return back()->withErrors(['message' => 'Tidak dapat menghapus kategori yang masih memiliki komitmen etape/eom.']);
         }
 
-        if($category->performancesAsKomitmenEomBc()->exists()) {
-            return back()->withErrors(['message' => 'Tidak dapat menghapus kategori yang masih memiliki performance komitmen eom bc.']);
-        }
-
-        if ($category->performancesAsKomitmenEomBm()->exists()){
-            return back()->withErrors(['message' => 'Tidak dapat menghapus kategori yang masih memiliki performance komitmen eom bm.']);
+        if($category->performancesAsKomitmenEtapeBm()->exists()) {
+            return back()->withErrors(['message' => 'Tidak dapat menghapus kategori yang masih memiliki  komitmen etape/eom']);
         }
 
         DB::transaction(function () use ($category) {
             $type = $category->type;
             $order = $category->order;
 
-            // Delete the category
-            $category->delete();
+            $relation = match($type) {
+                'pending_matter' => 'tasks',
+                'sifat_memo'     => 'memos',
+                default          => null,
+            };
+
+            if ($relation && $category->$relation()->exists()) {
+                $category->delete();
+            } else {
+                $category->forceDelete();
+            }
 
             // Reorder remaining categories
             Category::where('type', $type)

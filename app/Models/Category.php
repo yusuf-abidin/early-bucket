@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Category extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'name',
         'type',
@@ -50,15 +52,11 @@ class Category extends Model
         return $this->belongsTo(Color::class);
     }
 
-    public function performancesAsKomitmenEtape(): HasMany {
-        return $this->hasMany(PerformanceEtape::class, 'komitmen_etape_id');
+    public function performancesAsKomitmenEtapeBc(): HasMany {
+        return $this->hasMany(PerformanceEtape::class, 'komitmen_etape_bc_id');
     }
 
-    public function performancesAsKomitmenEomBc(): HasMany {
-        return $this->hasMany(PerformanceEtape::class, 'komitmen_eom_bc_id');
-    }
-
-    public function performancesAsKomitmenEomBm(): HasMany {
-        return $this->hasMany(PerformanceEtape::class, 'komitmen_eom_bm_id');
+    public function performancesAsKomitmenEtapeBm(): HasMany {
+        return $this->hasMany(PerformanceEtape::class, 'komitmen_etape_bm_id');
     }
 }

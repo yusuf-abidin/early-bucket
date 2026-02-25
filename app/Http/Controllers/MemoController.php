@@ -115,7 +115,9 @@ class MemoController extends Controller
         $sortDir = strtolower($request->sort_dir ?? 'desc') === 'asc' ? 'asc' : 'desc';
 
         $memos = Memo::query()
-            ->with(['users', 'category'])
+            ->with(['users', 'category' => function ($query) {
+                $query->withTrashed();
+            }])
             ->archived()
             ->filterAndSort($request)
             ->applySort($sortBy, $sortDir)

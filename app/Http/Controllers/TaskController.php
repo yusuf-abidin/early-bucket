@@ -160,7 +160,9 @@ class TaskController extends Controller
         $tasksQuery = Task::query()
             ->where('tasks.type', Task::TYPE_PENDING)
             ->whereNotNull('completed_at')
-            ->with(['category', 'users']);
+            ->with(['category' => function ($query) {
+                $query->withTrashed();
+            }, 'users']);
 
         $tasksQuery
             ->when($request->search, function ($query, $search) {
