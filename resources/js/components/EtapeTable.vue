@@ -186,7 +186,7 @@ onUnmounted(() => {
                         </div>
                     </TableHead>
 
-                    <TableHead class="min-w-[250px] font-bold">
+                    <TableHead class="min-w-[250px] font-bold text-center">
                         Kendala
                     </TableHead>
                 </TableRow>
