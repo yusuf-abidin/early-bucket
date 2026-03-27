@@ -23,7 +23,8 @@ class StoreBranchRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'area_id' => ['required', 'exists:areas,id']
+            'area_id' => ['nullable', 'exists:areas,id'],
+            'regional_id' => ['required', 'exists:regionals,id']
         ];
     }
 
@@ -33,8 +34,9 @@ class StoreBranchRequest extends FormRequest
             'name.required' => 'Nama cabang harus diisi',
             'name.string' => 'Nama cabang harus berupa teks',
             'name.max' => 'Maksimal 255 karakter',
-            'area_id.required' => 'Area harus dipilih',
-            'area_id.exists' => 'Area tidak valid'
+            'area_id.exists' => 'Area tidak valid',
+            'regional_id.required' => 'Regional harus dipilih',
+            'regional_id.exists' => 'Regional tidak valid',
         ];
     }
 }

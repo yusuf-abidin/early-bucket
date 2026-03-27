@@ -63,7 +63,7 @@ const dialogDeleteBranchIsOpen = ref<boolean>(false);
             />
 
             <FormBranchModal
-                :areas="props.all_regionals"
+                :regionals="props.all_regionals"
                 v-model:selected-branch="selectedBranch"
                 v-model:form-branch-is-open="formBranchIsOpen"
             />

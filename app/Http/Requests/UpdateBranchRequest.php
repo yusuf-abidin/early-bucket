@@ -23,7 +23,8 @@ class UpdateBranchRequest extends FormRequest
     {
         return [
             'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'area_id' => ['sometimes', 'required', 'exists:areas,id']
+            'area_id' => ['sometimes', 'nullable', 'exists:areas,id'],
+            'regional_id' => ['sometimes', 'required', 'exists:regionals,id'],
         ];
     }
 
@@ -33,7 +34,8 @@ class UpdateBranchRequest extends FormRequest
             'name.required' => 'Nama cabang harus diisi',
             'name.string' => 'Nama cabang harus berupa teks',
             'name.max' => 'Maksimal 255 karakter',
-            'area_id.required' => 'Area harus dipilih',
+            'regional_id.required' => 'Regional harus dipilih',
+            'regional_id.exists' => 'Regional tidak valid',
             'area_id.exists' => 'Area tidak valid'
         ];
     }

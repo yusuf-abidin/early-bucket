@@ -21,4 +21,22 @@ class Area extends Model
         return $this->hasMany(Branch::class);
     }
 
+    protected static function booted(): void
+    {
+        static::updated(function ($area) {
+
+            if (! $area->wasChanged('regional_id')) {
+                return;
+            }
+
+            Branch::withoutEvents(function () use ($area) {
+                $area->branches()->update([
+                    'regional_id' => $area->regional_id,
+                    'updated_at'  => now(),
+                ]);
+            });
+
+        });
+    }
+
 }

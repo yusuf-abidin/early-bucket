@@ -307,7 +307,7 @@ const hoverAddButton = ref<boolean>(false);
                                         class="h-8"
                                     />
                                 </div>
-                            <span v-else class="font-bold text-sm">{{ regional.name }}</span>
+                            <span v-else class="font-extrabold text-sm">{{ regional.name }}</span>
                             </div>
                         </TableCell>
                         <TableCell class="text-center">
