@@ -3,22 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Area extends Model
+class Regional extends Model
 {
     protected $fillable = [
-        'regional_id',
-        'name'
+        'name',
     ];
 
-    public function regional(): BelongsTo {
-        return $this->belongsTo(Regional::class);
+    public function areas(): HasMany {
+        return $this->hasMany(Area::class);
     }
 
     public function branches(): HasMany {
         return $this->hasMany(Branch::class);
     }
-
 }
