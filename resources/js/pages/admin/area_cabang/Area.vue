@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { Area, Branch, BreadcrumbItem } from '@/types';
+import { Area, Branch, BreadcrumbItem, Regional } from '@/types';
 import admin from '@/routes/admin';
 import AreaTable from '@/components/AreaTable.vue';
 import { ref } from 'vue';
@@ -9,6 +9,7 @@ import FormAreaModal from '@/components/FormAreaModal.vue';
 import DialogDeleteArea from '@/components/DialogDeleteArea.vue';
 import FormBranchModal from '@/components/FormBranchModal.vue';
 import DialogDeleteBranch from '@/components/DialogDeleteBranch.vue';
+import FormRegionalModal from '@/components/FormRegionalModal.vue';
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
@@ -22,13 +23,14 @@ const props = defineProps<{
     all_areas: Area[];
 }>();
 
-const selectedArea = ref<Area | null>(null)
-const selectedBranch = ref<Branch | null>(null)
-const formAreaIsOpen = ref<boolean>(false)
-const formBranchIsOpen = ref<boolean>(false)
-const dialogDeleteAreaIsOpen = ref<boolean>(false)
-const dialogDeleteBranchIsOpen = ref<boolean>(false)
-
+const selectedRegional = ref<Regional | null>(null);
+const selectedArea = ref<Area | null>(null);
+const selectedBranch = ref<Branch | null>(null);
+const formRegionalIsOpen = ref<boolean>(false);
+const formAreaIsOpen = ref<boolean>(false);
+const formBranchIsOpen = ref<boolean>(false);
+const dialogDeleteAreaIsOpen = ref<boolean>(false);
+const dialogDeleteBranchIsOpen = ref<boolean>(false);
 </script>
 
 <template>
@@ -39,19 +41,25 @@ const dialogDeleteBranchIsOpen = ref<boolean>(false)
         >
             <AreaTable
                 :areas="props.areas"
+                v-model:selected-regional="selectedRegional"
                 v-model:selected-area="selectedArea"
                 v-model:selected-branch="selectedBranch"
+                v-model:form-regional-is-open="formRegionalIsOpen"
                 v-model:form-area-is-open="formAreaIsOpen"
                 v-model:dialog-delete-area="dialogDeleteAreaIsOpen"
                 v-model:form-branch-is-open="formBranchIsOpen"
                 v-model:dialog-delete-branch="dialogDeleteBranchIsOpen"
             />
 
+            <FormRegionalModal
+                v-model:form-regional-is-open="formRegionalIsOpen"
+                v-model:selected-regional="selectedRegional"
+            />
+
             <FormAreaModal
                 v-model:form-area-is-open="formAreaIsOpen"
                 v-model:selected-area="selectedArea"
             />
-
 
             <FormBranchModal
                 :areas="props.all_areas"
@@ -68,7 +76,6 @@ const dialogDeleteBranchIsOpen = ref<boolean>(false)
                 v-model:selected-branch="selectedBranch"
                 v-model:dialog-delete-branch="dialogDeleteBranchIsOpen"
             />
-
         </div>
     </AppLayout>
 </template>

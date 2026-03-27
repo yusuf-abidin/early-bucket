@@ -21,9 +21,14 @@ import {
     ChevronDown,
     Plus,
 } from 'lucide-vue-next';
-import { Area, Branch } from '@/types';
+import { Area, Branch, Regional } from '@/types';
 import { router } from '@inertiajs/vue3';
 import admin from '@/routes/admin';
+import {
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
+} from '@/components/ui/hover-card';
 
 // Props definition
 const props = defineProps<{
@@ -31,11 +36,17 @@ const props = defineProps<{
     search?: string;
 }>();
 
+const selectedRegional = defineModel<Regional | null>('selectedRegional', {
+    default: null,
+});
 const selectedArea = defineModel<Area | null>('selectedArea', {
     default: null,
 });
 const selectedBranch = defineModel<Branch | null>('selectedBranch', {
     default: null,
+});
+const formRegionalIsOpen = defineModel<boolean>('formRegionalIsOpen', {
+    default: false,
 });
 const formAreaIsOpen = defineModel<boolean>('formAreaIsOpen', {
     default: false,
@@ -50,14 +61,22 @@ const dialogDeleteBranch = defineModel<boolean>('dialogDeleteBranch', {
     default: false,
 });
 
+const handleFormRegional = (regional: Regional | null = null) => {
+    formRegionalIsOpen.value = true;
+    selectedRegional.value = regional;
+    hoverAddButton.value = false;
+};
+
 const handleFormArea = (area: Area | null = null) => {
     formAreaIsOpen.value = true;
     selectedArea.value = area;
+    hoverAddButton.value = false;
 };
 
 const handleFormBranch = (branch: Branch | null = null) => {
     formBranchIsOpen.value = true;
     selectedBranch.value = branch;
+    hoverAddButton.value = false;
 };
 
 const handleDeleteBranch = (branch: Branch) => {
@@ -71,7 +90,7 @@ const handleDeleteArea = (area: Area) => {
 };
 
 // States
-const expandedAreas = ref<number[]>(props.areas?.map(area => area.id) ?? []);
+const expandedAreas = ref<number[]>(props.areas?.map((area) => area.id) ?? []);
 const editingAreaId = ref<number | null>(null);
 const editName = ref(''); // State sementara untuk nama yang sedang diedit
 const searchQuery = ref(props.search || '');
@@ -147,6 +166,8 @@ const handleUpdateArea = (area: Area) => {
         },
     );
 };
+
+const hoverAddButton = ref<boolean>(false);
 </script>
 
 <template>
@@ -186,22 +207,37 @@ const handleUpdateArea = (area: Area) => {
                 {{ allExpanded ? 'Collapse All' : 'Expand All' }}
             </Button>
 
-            <Button
-                variant="outline"
-                @click="handleFormBranch()"
-                class="flex-1 cursor-pointer gap-2 sm:flex-none"
-            >
-                <Plus class="h-4 w-4" />
-                <span class="whitespace-nowrap">Tambah Cabang</span>
-            </Button>
-
-            <Button
-                @click="handleFormArea()"
-                class="flex-1 cursor-pointer gap-2 sm:flex-none"
-            >
-                <Plus class="h-4 w-4" />
-                <span class="whitespace-nowrap">Tambah Area</span>
-            </Button>
+            <HoverCard v-model:open="hoverAddButton" :open-delay="300">
+                <HoverCardTrigger as-child>
+                    <Button class="flex-1 cursor-pointer gap-2 sm:flex-none">
+                        <Plus class="h-4 w-4" />
+                        Tambah</Button
+                    >
+                </HoverCardTrigger>
+                <HoverCardContent align="end" side="bottom" :side-offset="8" class="flex flex-col gap-1 w-40">
+                    <Button
+                        class="cursor-pointer"
+                        variant="ghost"
+                        @click="handleFormRegional()"
+                    >
+                        Regional
+                    </Button>
+                    <Button
+                        class="cursor-pointer"
+                        variant="ghost"
+                        @click="handleFormArea()"
+                    >
+                        Area
+                    </Button>
+                    <Button
+                        class="cursor-pointer"
+                        variant="ghost"
+                        @click="handleFormBranch()"
+                    >
+                        Cluster
+                    </Button>
+                </HoverCardContent>
+            </HoverCard>
         </div>
     </div>
 

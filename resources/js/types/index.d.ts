@@ -133,15 +133,24 @@ export interface Memo {
     follow_up_note: string;
 }
 
+export interface Regional {
+    id: number;
+    name: string;
+    areas: Area[];
+    branches: Branch[];
+}
+
 export interface Area {
     id: number;
+    regional_id: number;
     name: string;
     branches: Branch[];
 }
 
 export interface Branch {
     id: number;
-    area_id: number;
+    regional_id: number;
+    area_id: number | null;
     name: string;
 }
 
