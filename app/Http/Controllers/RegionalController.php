@@ -2,17 +2,75 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Area;
 use App\Models\Regional;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class RegionalController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $search = $request->input('search');
+        $regionals = Regional::query()
+            ->select('id', 'name')
+
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+
+                    ->orWhereHas('areas', function ($aq) use ($search) {
+                        $aq->where('name', 'like', "%{$search}%");
+                    })
+
+                    ->orWhereHas('branches', function ($bq) use ($search) {
+                        $bq->whereNull('area_id')
+                            ->where('name', 'like', "%{$search}%");
+                    })
+
+                    ->orWhereHas('areas.branches', function ($bq) use ($search) {
+                        $bq->where('name', 'like', "%{$search}%");
+                    });
+                });
+            })
+
+            ->with([
+                'areas' => function ($aq) {
+                    $aq->select('id', 'name', 'regional_id')
+                        ->orderBy('name');
+                },
+                'branches' => function ($bq) {
+                    $bq->select('id', 'name', 'regional_id', 'area_id')
+                        ->whereNull('area_id')
+                        ->orderBy('name');
+                },
+                'areas.branches' => function ($bq) {
+                    $bq->select('id', 'name', 'area_id', 'regional_id')->orderBy('name');
+                }
+            ])
+
+            ->orderBy('name')
+            ->get();
+
+        $allRegionals = Regional::query()
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->with([
+                'areas' => function ($query) {
+                    $query->select('id', 'name', 'regional_id')
+                        ->orderBy('name');
+                }
+            ])
+            ->get();
+
+        return Inertia::render('admin/area_cabang/Area', [
+            'regionals' => $regionals,
+            'search' => $search,
+            'all_regionals' => $allRegionals,
+        ]);
     }
 
     /**

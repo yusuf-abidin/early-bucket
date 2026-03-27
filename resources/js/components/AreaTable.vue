@@ -32,7 +32,7 @@ import {
 
 // Props definition
 const props = defineProps<{
-    areas: Area[];
+    regionals: Regional[];
     search?: string;
 }>();
 
@@ -54,6 +54,9 @@ const formAreaIsOpen = defineModel<boolean>('formAreaIsOpen', {
 const formBranchIsOpen = defineModel<boolean>('formBranchIsOpen', {
     default: false,
 });
+const dialogDeleteRegional = defineModel<boolean>('dialogDeleteRegional', {
+    default: false,
+});
 const dialogDeleteArea = defineModel<boolean>('dialogDeleteArea', {
     default: false,
 });
@@ -62,26 +65,26 @@ const dialogDeleteBranch = defineModel<boolean>('dialogDeleteBranch', {
 });
 
 const handleFormRegional = (regional: Regional | null = null) => {
-    formRegionalIsOpen.value = true;
     selectedRegional.value = regional;
+    formRegionalIsOpen.value = true;
     hoverAddButton.value = false;
 };
 
 const handleFormArea = (area: Area | null = null) => {
-    formAreaIsOpen.value = true;
     selectedArea.value = area;
+    formAreaIsOpen.value = true;
     hoverAddButton.value = false;
 };
 
 const handleFormBranch = (branch: Branch | null = null) => {
-    formBranchIsOpen.value = true;
     selectedBranch.value = branch;
+    formBranchIsOpen.value = true;
     hoverAddButton.value = false;
 };
 
-const handleDeleteBranch = (branch: Branch) => {
-    selectedBranch.value = branch;
-    dialogDeleteBranch.value = true;
+const handleDeleteRegional = (regional: Regional) => {
+    selectedRegional.value = regional;
+    dialogDeleteRegional.value = true;
 };
 
 const handleDeleteArea = (area: Area) => {
@@ -89,26 +92,33 @@ const handleDeleteArea = (area: Area) => {
     dialogDeleteArea.value = true;
 };
 
-// States
-const expandedAreas = ref<number[]>(props.areas?.map((area) => area.id) ?? []);
-const editingAreaId = ref<number | null>(null);
-const editName = ref(''); // State sementara untuk nama yang sedang diedit
-const searchQuery = ref(props.search || '');
-const areaInputRefs = ref<Record<number, any>>({});
+const handleDeleteBranch = (branch: Branch) => {
+    selectedBranch.value = branch;
+    dialogDeleteBranch.value = true;
+};
 
-// Computed
-const allExpanded = computed(() => {
-    return expandedAreas.value.length === props.areas.length;
-});
+// -------------------------
+// Expand/Collapse State
+// Level regional dan level area masing-masing punya state sendiri
+// -------------------------
+const expandedRegionals = ref<number[]>(
+    props.regionals?.map((r) => r.id) ?? [],
+);
+const expandedAreas = ref<number[]>(
+    props.regionals?.flatMap((r) => r.areas?.map((a) => a.id) ?? []) ?? [],
+);
 
-const applyFilters = () => {
-    const query: Record<string, any> = {
-        search: searchQuery.value || undefined,
-    };
-    router.get(window.location.pathname, query, {
-        preserveState: true,
-        replace: true,
-    });
+const allRegionalsExpanded = computed(
+    () => expandedRegionals.value.length === props.regionals.length,
+);
+
+const toggleRegional = (regionalId: number) => {
+    const index = expandedRegionals.value.indexOf(regionalId);
+    if (index > -1) {
+        expandedRegionals.value.splice(index, 1);
+    } else {
+        expandedRegionals.value.push(regionalId);
+    }
 };
 
 const toggleArea = (areaId: number) => {
@@ -121,49 +131,80 @@ const toggleArea = (areaId: number) => {
 };
 
 const toggleExpandAll = () => {
-    if (allExpanded.value) {
+    if (allRegionalsExpanded.value) {
+        expandedRegionals.value = [];
         expandedAreas.value = [];
     } else {
-        expandedAreas.value = props.areas.map((area) => area.id);
+        expandedRegionals.value = props.regionals.map((r) => r.id);
+        expandedAreas.value = props.regionals.flatMap(
+            (r) => r.areas?.map((a) => a.id) ?? [],
+        );
     }
 };
 
-const startEditArea = async (area: Area) => {
-    editingAreaId.value = area.id;
-    editName.value = area.name; // Copy nama ke state sementara
+// -------------------------
+// Inline edit area
+// -------------------------
+const editingRegionalId = ref<number | null>(null);
+const editName = ref('');
+const regionalInputRefs = ref<Record<number, any>>({});
+
+const startEditRegional = async (regional: Regional) => {
+    editingRegionalId.value = regional.id;
+    editName.value = regional.name;
 
     await nextTick();
 
-    const component = areaInputRefs.value[area.id];
+    const component = regionalInputRefs.value[regional.id];
     if (component) {
         const inputElement =
             component.$el instanceof HTMLInputElement
                 ? component.$el
                 : component.$el?.querySelector('input');
-        if (inputElement) {
-            inputElement.focus();
-        }
+        if (inputElement) inputElement.focus();
     }
 };
 
 const cancelEdit = () => {
-    editingAreaId.value = null;
+    editingRegionalId.value = null;
     editName.value = '';
 };
 
-const handleUpdateArea = (area: Area) => {
+const handleUpdateRegional = (regional: Regional) => {
     if (!editName.value.trim()) return;
 
     router.patch(
-        admin.areas.update(area.id).url,
-        {
-            name: editName.value,
-        },
+        admin.regionals.update(regional.id).url,
+        { name: editName.value },
         {
             onSuccess: () => {
-                editingAreaId.value = null;
+                editingRegionalId.value = null;
             },
         },
+    );
+};
+
+// -------------------------
+// Hitung total cabang per regional (area.branches + direct branches)
+// -------------------------
+const totalBranchesInRegional = (regional: Regional): number => {
+    const fromAreas = regional.areas?.reduce(
+        (sum, area) => sum + (area.branches?.length ?? 0),
+        0,
+    ) ?? 0;
+    const direct = regional.branches?.length ?? 0;
+    return fromAreas + direct;
+};
+
+// -------------------------
+// Search
+// -------------------------
+const searchQuery = ref(props.search || '');
+const applyFilters = () => {
+    router.get(
+        window.location.pathname,
+        { search: searchQuery.value || undefined },
+        { preserveState: true, replace: true },
     );
 };
 
@@ -171,29 +212,20 @@ const hoverAddButton = ref<boolean>(false);
 </script>
 
 <template>
-    <div
-        class="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-    >
+    <!-- Toolbar -->
+    <div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex w-full items-center gap-2 sm:max-w-sm">
             <div class="relative flex-1">
-                <Search
-                    class="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground"
-                />
+                <Search class="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground" />
                 <Input
                     type="text"
                     v-model="searchQuery"
-                    placeholder="Cari area atau cabang"
+                    placeholder="Cari regional, area, atau cabang"
                     class="w-full min-w-[150px] pl-9"
                     @keyup.enter="applyFilters"
                 />
             </div>
-
-            <Button
-                variant="secondary"
-                size="sm"
-                @click="applyFilters"
-                class="cursor-pointer"
-            >
+            <Button variant="secondary" size="sm" @click="applyFilters" class="cursor-pointer">
                 Cari
             </Button>
         </div>
@@ -204,178 +236,253 @@ const hoverAddButton = ref<boolean>(false);
                 @click="toggleExpandAll"
                 class="flex-1 cursor-pointer sm:flex-none"
             >
-                {{ allExpanded ? 'Collapse All' : 'Expand All' }}
+                {{ allRegionalsExpanded ? 'Collapse All' : 'Expand All' }}
             </Button>
 
             <HoverCard v-model:open="hoverAddButton" :open-delay="300">
                 <HoverCardTrigger as-child>
                     <Button class="flex-1 cursor-pointer gap-2 sm:flex-none">
                         <Plus class="h-4 w-4" />
-                        Tambah</Button
-                    >
+                        Tambah
+                    </Button>
                 </HoverCardTrigger>
-                <HoverCardContent align="end" side="bottom" :side-offset="8" class="flex flex-col gap-1 w-40">
-                    <Button
-                        class="cursor-pointer"
-                        variant="ghost"
-                        @click="handleFormRegional()"
-                    >
+                <HoverCardContent align="end" side="bottom" :side-offset="8" class="flex w-40 flex-col gap-1">
+                    <Button class="cursor-pointer" variant="ghost" @click="handleFormRegional()">
                         Regional
                     </Button>
-                    <Button
-                        class="cursor-pointer"
-                        variant="ghost"
-                        @click="handleFormArea()"
-                    >
+                    <Button class="cursor-pointer" variant="ghost" @click="handleFormArea()">
                         Area
                     </Button>
-                    <Button
-                        class="cursor-pointer"
-                        variant="ghost"
-                        @click="handleFormBranch()"
-                    >
-                        Cluster
+                    <Button class="cursor-pointer" variant="ghost" @click="handleFormBranch()">
+                        Cabang
                     </Button>
                 </HoverCardContent>
             </HoverCard>
         </div>
     </div>
 
+    <!-- Table -->
     <div class="overflow-x-auto rounded-md border">
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead class="w-[50px]"></TableHead>
-                    <TableHead class="font-bold">Nama Area/Cabang</TableHead>
-                    <TableHead class="w-[150px] text-center font-bold"
-                        >Total Cabang</TableHead
-                    >
-                    <TableHead class="w-[150px] text-right font-bold"
-                        >Aksi</TableHead
-                    >
+                    <TableHead class="w-[30px]"></TableHead>
+                    <TableHead class="font-bold">Nama</TableHead>
+                    <TableHead class="w-[130px] text-center font-bold">Total Cabang</TableHead>
+                    <TableHead class="w-[120px] text-right font-bold">Aksi</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
-                <template v-for="area in areas" :key="area.id">
+                <!-- Empty state -->
+                <TableRow v-if="regionals.length === 0">
+                    <TableCell colspan="4" class="py-10 text-center text-muted-foreground">
+                        Data tidak ditemukan.
+                    </TableCell>
+                </TableRow>
+
+                <template v-for="regional in regionals" :key="regional.id">
+                    <!-- ===== ROW: REGIONAL ===== -->
                     <TableRow
-                        class="cursor-pointer hover:bg-muted/50"
-                        :class="{
-                            'bg-muted/30': expandedAreas.includes(area.id),
-                        }"
-                        @click="toggleArea(area.id)"
+                        class="cursor-pointer bg-muted/20 hover:bg-muted/40"
+                        @click="toggleRegional(regional.id)"
                     >
-                        <TableCell class="p">
-                            <ChevronRight
-                                v-if="!expandedAreas.includes(area.id)"
+                        <TableCell>
+                            <ChevronDown
+                                v-if="expandedRegionals.includes(regional.id)"
                                 class="h-4 w-4 text-gray-500"
                             />
-                            <ChevronDown v-else class="h-4 w-4 text-gray-500" />
+                            <ChevronRight v-else class="h-4 w-4 text-gray-500" />
                         </TableCell>
                         <TableCell>
-                            <div @click.stop class="max-w-md">
+                            <div @click.stop>
                                 <div
-                                    v-if="editingAreaId === area.id"
-                                    class="flex items-center gap-2"
+                                 v-if="editingRegionalId === regional.id"
+                                 class="flex items-center gap-2"
                                 >
                                     <Input
                                         v-model="editName"
-                                        :ref="
-                                            (el) =>
-                                                (areaInputRefs[area.id] = el)
-                                        "
-                                        @keyup.enter="handleUpdateArea(area)"
+                                        :ref="(el) => (regionalInputRefs[regional.id] = el)"
+                                        @keyup.enter="handleUpdateRegional(regional)"
                                         @keyup.esc="cancelEdit"
                                         class="h-8"
                                     />
                                 </div>
-                                <span v-else class="font-semibold">
-                                    {{ area.name }}
-                                </span>
+                            <span v-else class="font-bold text-sm">{{ regional.name }}</span>
                             </div>
                         </TableCell>
                         <TableCell class="text-center">
                             <Badge variant="secondary" class="font-mono">
-                                {{ area.branches?.length || 0 }}
+                                {{ totalBranchesInRegional(regional) }}
                             </Badge>
                         </TableCell>
                         <TableCell class="text-right" @click.stop>
                             <div class="flex justify-end gap-1">
-                                <template v-if="editingAreaId !== area.id">
+                                <template v-if="editingRegionalId !== regional.id">
                                     <Button
                                         size="icon"
                                         variant="ghost"
-                                        @click="startEditArea(area)"
-                                        title="Edit Area"
                                         class="cursor-pointer"
+                                        title="Edit Regional"
+                                        @click="startEditRegional(regional)"
                                     >
                                         <Pencil class="h-4 w-4 text-blue-600" />
                                     </Button>
                                     <Button
-                                        class="cursor-pointer"
-                                        v-if="area.branches?.length === 0"
+                                        v-if="totalBranchesInRegional(regional) === 0 && (regional.areas?.length ?? 0) === 0"
                                         size="icon"
                                         variant="ghost"
-                                        @click="handleDeleteArea(area)"
-                                        title="Hapus Area"
+                                        class="cursor-pointer"
+                                        title="Hapus Regional"
+                                        @click="handleDeleteRegional(regional)"
                                     >
                                         <Trash2 class="h-4 w-4 text-red-600" />
                                     </Button>
                                 </template>
-
                                 <template v-else>
                                     <Button
                                         size="icon"
                                         variant="ghost"
-                                        @click="handleUpdateArea(area)"
                                         class="hover:bg-green-50"
+                                        @click="handleUpdateRegional(regional)"
                                     >
                                         <Check class="h-4 w-4 text-green-600" />
                                     </Button>
                                     <Button
                                         size="icon"
                                         variant="ghost"
-                                        @click="cancelEdit"
                                         class="hover:bg-red-50"
+                                        @click="cancelEdit"
                                     >
                                         <X class="h-4 w-4 text-red-600" />
                                     </Button>
+
                                 </template>
                             </div>
                         </TableCell>
                     </TableRow>
 
-                    <template v-if="expandedAreas.includes(area.id)">
+                    <template v-if="expandedRegionals.includes(regional.id)">
+
+                        <!-- ===== ROW: AREA (di bawah regional) ===== -->
+                        <template v-for="area in regional.areas" :key="area.id">
+                            <TableRow
+                                class="cursor-pointer hover:bg-muted/30"
+                                :class="{ 'bg-muted/10': expandedAreas.includes(area.id) }"
+                                @click="toggleArea(area.id)"
+                            >
+                                <TableCell>
+                                    <!-- indentasi level 1 -->
+                                    <div class="flex items-center pl-5">
+                                        <ChevronDown
+                                            v-if="expandedAreas.includes(area.id)"
+                                            class="h-4 w-4 text-gray-400"
+                                        />
+                                        <ChevronRight v-else class="h-4 w-4 text-gray-400" />
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <span class="font-semibold text-sm">
+                                        {{ area.name }}
+                                    </span>
+                                </TableCell>
+                                <TableCell class="text-center">
+                                    <Badge variant="outline" class="font-mono">
+                                        {{ area.branches?.length ?? 0 }}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell class="text-right" @click.stop>
+                                    <div class="flex justify-end gap-1">
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            class="cursor-pointer"
+                                            title="Edit Area"
+                                            @click="handleFormArea(area)"
+                                        >
+                                            <Pencil class="h-4 w-4 text-blue-600" />
+                                        </Button>
+                                        <Button
+                                            v-if="(area.branches?.length ?? 0) === 0"
+                                            size="icon"
+                                            variant="ghost"
+                                            class="cursor-pointer"
+                                            title="Hapus Area"
+                                            @click="handleDeleteArea(area)"
+                                        >
+                                            <Trash2 class="h-4 w-4 text-red-600" />
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+
+                            <!-- ===== ROW: BRANCH di bawah AREA ===== -->
+                            <template v-if="expandedAreas.includes(area.id)">
+                                <TableRow
+                                    v-for="branch in area.branches"
+                                    :key="branch.id"
+                                >
+                                    <TableCell></TableCell>
+                                    <TableCell>
+                                        <div class="flex items-center gap-2 pl-14">
+                                            <div class="h-1.5 w-1.5 rounded-full bg-slate-300"></div>
+                                            <span class="text-sm">{{ branch.name }}</span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell></TableCell>
+                                    <TableCell class="text-right">
+                                        <div class="flex justify-end gap-1">
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                class="cursor-pointer"
+                                                title="Edit Cabang"
+                                                @click="handleFormBranch(branch)"
+                                            >
+                                                <Pencil class="h-3.5 w-3.5 text-slate-500" />
+                                            </Button>
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                class="cursor-pointer"
+                                                title="Hapus Cabang"
+                                                @click="handleDeleteBranch(branch)"
+                                            >
+                                                <Trash2 class="h-4 w-4 text-red-600" />
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            </template>
+                        </template>
+
+                        <!-- ===== ROW: BRANCH langsung di bawah REGIONAL (tanpa area) ===== -->
                         <TableRow
-                            v-for="branch in area.branches"
+                            v-for="branch in regional.branches"
                             :key="branch.id"
                         >
                             <TableCell></TableCell>
                             <TableCell>
                                 <div class="flex items-center gap-2 pl-8">
-                                    <div
-                                        class="h-2 w-2 rounded-full bg-slate-300"
-                                    ></div>
-                                    <span>{{ branch.name }}</span>
+                                    <div class="h-1.5 w-1.5 rounded-full bg-blue-300"></div>
+                                    <span class="text-sm">{{ branch.name }}</span>
                                 </div>
                             </TableCell>
                             <TableCell></TableCell>
                             <TableCell class="text-right">
                                 <div class="flex justify-end gap-1">
                                     <Button
-                                        class="cursor-pointer"
                                         size="icon"
                                         variant="ghost"
-                                        @click="handleFormBranch(branch)"
+                                        class="cursor-pointer"
                                         title="Edit Cabang"
+                                        @click="handleFormBranch(branch)"
                                     >
-                                        <Pencil
-                                            class="h-3.5 w-3.5 text-slate-500"
-                                        />
+                                        <Pencil class="h-3.5 w-3.5 text-slate-500" />
                                     </Button>
                                     <Button
-                                        class="cursor-pointer"
                                         size="icon"
                                         variant="ghost"
+                                        class="cursor-pointer"
                                         title="Hapus Cabang"
                                         @click="handleDeleteBranch(branch)"
                                     >
@@ -384,17 +491,9 @@ const hoverAddButton = ref<boolean>(false);
                                 </div>
                             </TableCell>
                         </TableRow>
+
                     </template>
                 </template>
-
-                <TableRow v-if="areas.length === 0">
-                    <TableCell
-                        colspan="4"
-                        class="py-10 text-center text-muted-foreground"
-                    >
-                        Data area tidak ditemukan.
-                    </TableCell>
-                </TableRow>
             </TableBody>
         </Table>
     </div>

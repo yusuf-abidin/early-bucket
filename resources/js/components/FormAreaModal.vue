@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Area } from '@/types';
+import { Area, Regional } from '@/types';
 import { useForm } from '@inertiajs/vue3';
 import {
     Dialog,
@@ -16,14 +16,17 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import AreaController from '@/actions/App/Http/Controllers/AreaController';
 import { watch } from 'vue';
+import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from '@/components/ui/select';
 
+const props = defineProps<{
+    regionals: Regional[];
+}>();
 const formAreaIsOpen = defineModel<boolean>('formAreaIsOpen', {
     default: false,
 });
 const selectedArea = defineModel<Area | null>('selectedArea', {
     default: null,
 });
-
 
 const closeModal = () => {
     formAreaIsOpen.value = false;
@@ -33,16 +36,17 @@ const closeModal = () => {
 };
 
 const form = useForm({
+    regional_id: '' as string | number,
     name: '',
 });
 
 const submit = () => {
     const options = {
         onSuccess: () => {
-            closeModal()
+            closeModal();
         },
         onFinish: () => {
-            if (selectedArea.value) closeModal()
+            if (selectedArea.value) closeModal();
         },
     };
 
@@ -60,19 +64,20 @@ watch(
     (newArea) => {
         if (newArea) {
             const data = {
+                regional_id: newArea.regional_id ?? '',
                 name: newArea.name ?? '',
-            }
+            };
             form.defaults(data);
             form.reset();
-        }else {
+        } else {
             form.defaults({
                 name: '',
+                regional_id: '',
             });
             form.reset();
         }
-    }
-)
-
+    },
+);
 </script>
 
 <template>
@@ -83,11 +88,7 @@ watch(
             <ScrollArea>
                 <DialogHeader class="px-6 pt-6">
                     <DialogTitle class="text-2xl font-semibold">
-                        {{
-                            selectedArea
-                                ? 'Edit Area'
-                                : 'Tambah Area Baru'
-                        }}
+                        {{ selectedArea ? 'Edit Area' : 'Tambah Area Baru' }}
                     </DialogTitle>
                     <DialogDescription>
                         {{
@@ -99,8 +100,37 @@ watch(
                 </DialogHeader>
                 <form @submit.prevent="submit" class="space-y-6 px-6 pb-6">
                     <div class="space-y-2">
-
-                        <Label for="name"> Nama Area
+                        <Label for="regional_id">
+                            Regional
+                            <span class="text-destructive">*</span>
+                        </Label>
+                        <Select
+                            v-model="form.regional_id"
+                            :disabled="form.processing"
+                        >
+                         <SelectTrigger id="regional">
+                             <SelectValue placeholder="Pilih Regional" />
+                         </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem
+                                    v-for="regional in props.regionals"
+                                    :key="regional.id"
+                                    :value="regional.id"
+                                >
+                                    {{ regional.name }}
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <p
+                            v-if="form.errors.regional_id"
+                            class="text-xs text-destructive"
+                        >
+                            {{ form.errors.regional_id }}
+                        </p>
+                    </div>
+                    <div class="space-y-2">
+                        <Label for="name">
+                            Nama Area
                             <span class="text-destructive">*</span>
                         </Label>
                         <Input
@@ -110,7 +140,10 @@ watch(
                             type="text"
                             name="name"
                         />
-                        <p v-if="form.errors.name" class="text-xs text-destructive">
+                        <p
+                            v-if="form.errors.name"
+                            class="text-xs text-destructive"
+                        >
                             {{ form.errors.name }}
                         </p>
                     </div>

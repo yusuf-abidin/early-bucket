@@ -44,14 +44,17 @@ class AreaController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
+            'regional_id' => 'required|exists:regionals,id',
             'name' => 'required|string|max:255',
         ], [
+            'regional_id.required' => 'Regional harus dipilih',
+            'regional_id.exists' => 'Regional tidak valid',
             'name.required' => 'Nama area harus diisi',
             'name.string' => 'Nama area harus berupa teks',
             'name.max' => 'Maksimal 255 karakter',
         ]);
-        Area::create($request->only('name'));
+        Area::create($validated);
         return back()->with('success', 'Area berhasil dibuat.');
     }
 
@@ -60,15 +63,18 @@ class AreaController extends Controller
      */
     public function update(Request $request, Area $area)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'regional_id' => 'required|exists:regionals,id',
         ], [
+            'regional_id.required' => 'Regional harus dipilih',
+            'regional_id.exists' => 'Regional tidak valid',
             'name.required' => 'Nama area harus diisi',
             'name.string' => 'Nama area harus berupa teks',
             'name.max' => 'Maksimal 255 karakter',
         ]);
 
-        $area->update($request->only('name'));
+        $area->update($validated);
         return back()->with('success', 'Area berhasil diubah.');
     }
 

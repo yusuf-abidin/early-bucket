@@ -19,8 +19,8 @@ const breadcrumbItems: BreadcrumbItem[] = [
 ];
 
 const props = defineProps<{
-    areas: Area[];
-    all_areas: Area[];
+    regionals: Regional[];
+    all_regionals: Regional[];
 }>();
 
 const selectedRegional = ref<Regional | null>(null);
@@ -40,7 +40,7 @@ const dialogDeleteBranchIsOpen = ref<boolean>(false);
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <AreaTable
-                :areas="props.areas"
+                :regionals="props.regionals"
                 v-model:selected-regional="selectedRegional"
                 v-model:selected-area="selectedArea"
                 v-model:selected-branch="selectedBranch"
@@ -57,12 +57,13 @@ const dialogDeleteBranchIsOpen = ref<boolean>(false);
             />
 
             <FormAreaModal
+                :regionals="props.all_regionals"
                 v-model:form-area-is-open="formAreaIsOpen"
                 v-model:selected-area="selectedArea"
             />
 
             <FormBranchModal
-                :areas="props.all_areas"
+                :areas="props.all_regionals"
                 v-model:selected-branch="selectedBranch"
                 v-model:form-branch-is-open="formBranchIsOpen"
             />
