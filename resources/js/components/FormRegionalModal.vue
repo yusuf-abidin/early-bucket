@@ -15,6 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import RegionalController from '@/actions/App/Http/Controllers/RegionalController';
 
 const formRegionalIsOpen = defineModel<boolean>('formRegionalIsOpen', {
     default: false,
@@ -35,7 +36,24 @@ const form = useForm({
     name: '',
 });
 
-const submit = () => {};
+const submit = () => {
+    const options = {
+        onSuccess: () => {
+            closeModal();
+        },
+        onFinish: () => {
+            if (selectedRegional.value) closeModal();
+        },
+    };
+
+    if (!selectedRegional.value) {
+        const route = RegionalController.store.form();
+        form.submit(route.method, route.action, options);
+    } else {
+        const route = RegionalController.update.form(selectedRegional.value.id);
+        form.submit(route.method, route.action, options);
+    }
+};
 
 watch(
     () => selectedRegional.value,

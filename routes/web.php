@@ -45,6 +45,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::put('categories/{category}', [\App\Http\Controllers\CategoryController::class, 'update'])->name('categories.update');
         Route::delete('categories/{category}', [\App\Http\Controllers\CategoryController::class, 'destroy'])->name('categories.destroy');
 
+//        MANAJEMEN REGIONAL
+        Route::post('regionals', [\App\Http\Controllers\RegionalController::class, 'store'])->name('regionals.store');
+        Route::patch('regionals/{regional}', [\App\Http\Controllers\RegionalController::class, 'update'])->name('regionals.update');
+
 //        MANAJEMEN AREA
         Route::get('areas', [\App\Http\Controllers\AreaController::class, 'index'])->name('areas.index');
         Route::post('areas', [\App\Http\Controllers\AreaController::class, 'store'])->name('areas.store');

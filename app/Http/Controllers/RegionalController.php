@@ -28,31 +28,34 @@ class RegionalController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ], [
+            'name.required' => 'Nama regional harus diisi',
+            'name.string' => 'Nama regional harus berupa teks',
+            'name.max' => 'Maksimal 255 karakter',
+        ]);
+
+        Regional::create($request->only('name'));
+        return back()->with('success', 'Regional berhasil dibuat.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Regional $regional)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Regional $regional)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Regional $regional)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ], [
+            'name.required' => 'Nama regional harus diisi',
+            'name.string' => 'Nama regional harus berupa teks',
+            'name.max' => 'Maksimal 255 karakter',
+        ]);
+
+        $regional->update($request->only('name'));
+        return back()->with('success', 'Regional berhasil diubah.');
     }
 
     /**
