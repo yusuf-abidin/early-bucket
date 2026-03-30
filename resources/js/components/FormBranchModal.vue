@@ -37,7 +37,35 @@ const selectedBranch = defineModel<Branch | null>('selectedBranch', {
     default: null,
 });
 
+const addFromRegional = defineModel<number | null>('addFromRegional', {
+    default: null,
+});
+
+const addFromArea = defineModel<number | null>('addFromArea', {
+    default: null,
+});
+
+watch(
+    () => addFromRegional.value,
+    (newRegional) => {
+        if (newRegional) {
+            form.regional_id = newRegional;
+            form.area_id = '';
+        }
+    },
+)
+
+watch(
+    () => addFromArea.value,
+    (newArea) => {
+        if (newArea) {
+            form.area_id = newArea;
+        }
+    },
+)
 const closeModal = () => {
+    addFromRegional.value = null;
+    addFromArea.value = null;
     formBranchIsOpen.value = false;
     selectedBranch.value = null;
     form.reset();

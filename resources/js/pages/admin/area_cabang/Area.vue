@@ -31,6 +31,8 @@ const formAreaIsOpen = ref<boolean>(false);
 const formBranchIsOpen = ref<boolean>(false);
 const dialogDeleteAreaIsOpen = ref<boolean>(false);
 const dialogDeleteBranchIsOpen = ref<boolean>(false);
+const addFromRegional = ref<number | null>(null);
+const addFromArea = ref<number | null>(null);
 </script>
 
 <template>
@@ -49,6 +51,8 @@ const dialogDeleteBranchIsOpen = ref<boolean>(false);
                 v-model:dialog-delete-area="dialogDeleteAreaIsOpen"
                 v-model:form-branch-is-open="formBranchIsOpen"
                 v-model:dialog-delete-branch="dialogDeleteBranchIsOpen"
+                v-model:add-from-regional="addFromRegional"
+                v-model:add-from-area="addFromArea"
             />
 
             <FormRegionalModal
@@ -66,6 +70,8 @@ const dialogDeleteBranchIsOpen = ref<boolean>(false);
                 :regionals="props.all_regionals"
                 v-model:selected-branch="selectedBranch"
                 v-model:form-branch-is-open="formBranchIsOpen"
+                v-model:add-from-regional="addFromRegional"
+                v-model:add-from-area="addFromArea"
             />
 
             <DialogDeleteArea

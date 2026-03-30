@@ -63,6 +63,12 @@ const dialogDeleteArea = defineModel<boolean>('dialogDeleteArea', {
 const dialogDeleteBranch = defineModel<boolean>('dialogDeleteBranch', {
     default: false,
 });
+const addFromRegional = defineModel<number | null>('addFromRegional', {
+    default: null,
+});
+const addFromfromArea = defineModel<number | null>('addFromArea', {
+    default: null,
+});
 
 const handleFormRegional = (regional: Regional | null = null) => {
     selectedRegional.value = regional;
@@ -76,7 +82,13 @@ const handleFormArea = (area: Area | null = null) => {
     hoverAddButton.value = false;
 };
 
-const handleFormBranch = (branch: Branch | null = null) => {
+const handleFormBranch = (branch: Branch | null = null, fromRegional: number | null = null, fromArea: number | null = null) => {
+    if (fromRegional !== null) {
+        addFromRegional.value = fromRegional;
+    }
+    if (fromArea !== null) {
+        addFromfromArea.value = fromArea;
+    }
     selectedBranch.value = branch;
     formBranchIsOpen.value = true;
     hoverAddButton.value = false;
@@ -402,6 +414,15 @@ const hoverAddButton = ref<boolean>(false);
                                             <Pencil class="h-4 w-4 text-blue-600" />
                                         </Button>
                                         <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            class="cursor-pointer"
+                                            title="Tambah Cabang"
+                                            @click="handleFormBranch(null, regional.id, area.id)"
+                                        >
+                                            <Plus class="h-4 w-4 text-green-600" />
+                                        </Button>
+                                        <Button
                                             v-if="(area.branches?.length ?? 0) === 0"
                                             size="icon"
                                             variant="ghost"
@@ -423,7 +444,7 @@ const hoverAddButton = ref<boolean>(false);
                                 >
                                     <TableCell></TableCell>
                                     <TableCell>
-                                        <div class="flex items-center gap-2 pl-14">
+                                        <div class="flex items-center gap-2 pl-6">
                                             <div class="h-1.5 w-1.5 rounded-full bg-slate-300"></div>
                                             <span class="text-sm">{{ branch.name }}</span>
                                         </div>
@@ -462,7 +483,7 @@ const hoverAddButton = ref<boolean>(false);
                         >
                             <TableCell></TableCell>
                             <TableCell>
-                                <div class="flex items-center gap-2 pl-8">
+                                <div class="flex items-center gap-2 pl-3">
                                     <div class="h-1.5 w-1.5 rounded-full bg-blue-300"></div>
                                     <span class="text-sm">{{ branch.name }}</span>
                                 </div>
