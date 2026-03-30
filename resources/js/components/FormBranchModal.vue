@@ -111,7 +111,6 @@ watch(
             };
             form.defaults(data);
             form.reset();
-            console.log(newBranch);
         } else {
             form.defaults({
                 name: '',

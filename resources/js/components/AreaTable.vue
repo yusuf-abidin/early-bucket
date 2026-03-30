@@ -295,7 +295,7 @@ const hoverAddButton = ref<boolean>(false);
                 <template v-for="regional in regionals" :key="regional.id">
                     <!-- ===== ROW: REGIONAL ===== -->
                     <TableRow
-                        class="cursor-pointer bg-muted/20 hover:bg-muted/40"
+                        class="cursor-pointer bg-primary/10 hover:bg-primary/20"
                         @click="toggleRegional(regional.id)"
                     >
                         <TableCell>
@@ -378,8 +378,8 @@ const hoverAddButton = ref<boolean>(false);
                         <!-- ===== ROW: AREA (di bawah regional) ===== -->
                         <template v-for="area in regional.areas" :key="area.id">
                             <TableRow
-                                class="cursor-pointer hover:bg-muted/30"
-                                :class="{ 'bg-muted/10': expandedAreas.includes(area.id) }"
+                                class="cursor-pointer hover:bg-yellow-300/40"
+                                :class="{ 'bg-yellow-200/50': expandedAreas.includes(area.id) }"
                                 @click="toggleArea(area.id)"
                             >
                                 <TableCell>
