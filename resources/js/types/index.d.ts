@@ -138,6 +138,7 @@ export interface Regional {
     name: string;
     areas: Area[];
     branches: Branch[];
+    contact_cluster?: ContactCluster;
 }
 
 export interface Area {
@@ -145,6 +146,7 @@ export interface Area {
     regional_id: number;
     name: string;
     branches: Branch[];
+    contact_cluster?: ContactCluster;
 }
 
 export interface Branch {
@@ -152,6 +154,7 @@ export interface Branch {
     regional_id: number;
     area_id: number | null;
     name: string;
+    contact_cluster?: ContactCluster;
 }
 
 export interface PerformanceEtape {
@@ -164,5 +167,24 @@ export interface PerformanceEtape {
     year: number;
     month: number;
 }
+
+export interface ContactCluster {
+    id: number;
+    regional: Regional;
+    area: Area;
+    branch: Branch;
+    name: string;
+    nip: string;
+    phone: string;
+    position: string;
+}
+
+export type EditContactPayload = {
+    targetType: 'REGIONAL' | 'AREA' | 'BRANCH';
+    regional?: Regional;
+    area?: Area;
+    branch?: Branch;
+    contact: ContactCluster | undefined;
+};
 
 export type BreadcrumbItemType = BreadcrumbItem;

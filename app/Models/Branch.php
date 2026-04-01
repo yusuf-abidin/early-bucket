@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Branch extends Model
 {
@@ -40,5 +41,10 @@ class Branch extends Model
                 $branch->regional_id = $area->regional_id;
             }
         });
+    }
+
+    public function contactCluster(): HasOne
+    {
+        return $this->hasOne(ContactCluster::class);
     }
 }

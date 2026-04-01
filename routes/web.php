@@ -101,6 +101,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('etape', [\App\Http\Controllers\PerformanceEtapeController::class, 'store'])->name('etape.store');
     Route::post('etape/bulk', [\App\Http\Controllers\PerformanceEtapeController::class, 'bulkStore'])->name('etape.bulk');
     Route::get('eom', [\App\Http\Controllers\PerformanceEtapeController::class, 'endOfMonth'])->name('eom.index');
+
+    Route::prefix('contact-cluster')->name('contact-cluster.')->group(function () {
+        Route::get('', [\App\Http\Controllers\ContactClusterController::class, 'index'])->name('index');
+        Route::post('', [\App\Http\Controllers\ContactClusterController::class, 'store'])->name('store');
+        Route::patch('{contactCluster}', [\App\Http\Controllers\ContactClusterController::class, 'update'])->name('update');
+        Route::delete('{contactCluster}', [\App\Http\Controllers\ContactClusterController::class, 'destroy'])->name('destroy');
+    });
 });
 
 

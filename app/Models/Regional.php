@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Regional extends Model
 {
@@ -17,5 +18,10 @@ class Regional extends Model
 
     public function branches(): HasMany {
         return $this->hasMany(Branch::class);
+    }
+
+    public function contactCluster(): HasOne
+    {
+        return $this->hasOne(ContactCluster::class);
     }
 }

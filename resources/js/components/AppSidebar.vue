@@ -23,6 +23,7 @@ import { LayoutDashboard } from 'lucide-vue-next';
 import etape from '@/routes/etape';
 import debtorSavings from '@/routes/debtor-savings';
 import eom from '@/routes/eom';
+import contactCluster from '@/routes/contact-cluster';
 
 const props = withDefaults(defineProps<SidebarProps>(), {
     collapsible: 'icon',
@@ -53,6 +54,10 @@ const mainNavItems: NavItem[] = [
             {
                 title: 'Arsip Memo',
                 href: memos.archive().url,
+            },
+            {
+                title: 'Kontak Cluster',
+                href: contactCluster.index().url,
             },
         ],
     },
