@@ -53,7 +53,7 @@ watch(
             form.area_id = '';
         }
     },
-)
+);
 
 watch(
     () => addFromArea.value,
@@ -62,7 +62,7 @@ watch(
             form.area_id = newArea;
         }
     },
-)
+);
 const closeModal = () => {
     addFromRegional.value = null;
     addFromArea.value = null;
@@ -79,11 +79,13 @@ const form = useForm({
 });
 
 const submit = () => {
-
     form.transform((data) => ({
         ...data,
-        area_id: data.area_id === 'none' || data.area_id === '' ? null : data.area_id,
-    }))
+        area_id:
+            data.area_id === 'none' || data.area_id === ''
+                ? null
+                : data.area_id,
+    }));
     const options = {
         onSuccess: () => {
             closeModal();
@@ -144,15 +146,15 @@ const onRegionalChange = () => {
                     <DialogTitle class="text-2xl font-semibold">
                         {{
                             selectedBranch
-                                ? 'Edit Cabang'
-                                : 'Tambah Cabang Baru'
+                                ? 'Edit Cluster/Cabang'
+                                : 'Tambah Cluster/Cabang Baru'
                         }}
                     </DialogTitle>
                     <DialogDescription>
                         {{
                             selectedBranch
-                                ? 'Perbarui informasi cabang ini.'
-                                : 'Isi informasi cabang baru di bawah ini.'
+                                ? 'Perbarui informasi cluster/cabang ini.'
+                                : 'Isi informasi cluster/cabang baru di bawah ini.'
                         }}
                     </DialogDescription>
                 </DialogHeader>
@@ -219,7 +221,7 @@ const onRegionalChange = () => {
 
                     <div class="space-y-2">
                         <Label for="name">
-                            Nama Cabang
+                            Nama Cluster/Cabang
                             <span class="text-destructive">*</span>
                         </Label>
                         <Input

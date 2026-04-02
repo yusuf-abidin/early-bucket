@@ -266,7 +266,7 @@ const hoverAddButton = ref<boolean>(false);
                         Area
                     </Button>
                     <Button class="cursor-pointer" variant="ghost" @click="handleFormBranch()">
-                        Cabang
+                        Cluster/Cabang
                     </Button>
                 </HoverCardContent>
             </HoverCard>
@@ -280,7 +280,7 @@ const hoverAddButton = ref<boolean>(false);
                 <TableRow>
                     <TableHead class="w-[30px]"></TableHead>
                     <TableHead class="font-bold">Nama</TableHead>
-                    <TableHead class="w-[130px] text-center font-bold">Total Cabang</TableHead>
+                    <TableHead class="w-[130px] text-center font-bold"></TableHead>
                     <TableHead class="w-[120px] text-right font-bold">Aksi</TableHead>
                 </TableRow>
             </TableHeader>
