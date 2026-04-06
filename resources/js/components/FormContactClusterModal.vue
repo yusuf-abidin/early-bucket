@@ -198,27 +198,28 @@ watch(
                     </div>
                 </form>
                 <DialogFooter
-                    class="flex w-full items-center justify-between! px-6 pt-4 pb-6"
+                    class="px-6 pt-4 pb-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between"
                 >
-                    <!-- kiri -->
+                    <!-- LEFT (Delete) -->
                     <Button
                         v-if="editContactPayload?.contact"
                         variant="destructive"
                         :disabled="form.processing"
-                        class="gap-1.5"
+                        class="w-full sm:w-auto gap-1.5"
                         @click="deleteContact"
                     >
                         Hapus Kontak
                     </Button>
 
-                    <!-- kanan -->
-                    <div class="ml-auto flex items-center gap-2">
+                    <!-- RIGHT GROUP -->
+                    <div class="flex flex-col gap-2 sm:flex-row sm:ml-auto">
                         <DialogClose asChild>
                             <Button
                                 type="button"
                                 variant="outline"
                                 @click="closeModal"
                                 :disabled="form.processing"
+                                class="w-full sm:w-auto"
                             >
                                 Batal
                             </Button>
@@ -228,7 +229,7 @@ watch(
                             type="submit"
                             @click="submit"
                             :disabled="form.processing"
-                            class="min-w-24 gap-1.5"
+                            class="w-full sm:w-auto min-w-24 gap-1.5"
                         >
                             {{ form.processing ? 'Menyimpan...' : 'Simpan' }}
                         </Button>
