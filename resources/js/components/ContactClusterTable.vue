@@ -14,8 +14,16 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Pencil, Copy } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { Badge } from '@/components/ui/badge';
+import {
+    TooltipProvider,
+} from '@/components/ui/tooltip';
+import { Building2, MapPin, Landmark } from 'lucide-vue-next';
+import { ref} from 'vue';
+import ContactNameCell from '@/components/ContactNameCell.vue';
+import NipCell from '@/components/NipCell.vue';
+import EditCell from '@/components/EditCell.vue';
+import PhoneCell from '@/components/PhoneCell.vue';
 
 defineProps<{
     regionals: Regional[];
@@ -42,7 +50,6 @@ const editRegionalContact = (
         branch: undefined,
         contact: contact,
     };
-
     formContactIsOpen.value = true;
 };
 
@@ -78,7 +85,7 @@ const createWhatsappLink = (phone: string | null, message?: string): string | un
     if (!phone) return undefined;
     let cleaned = phone.replace(/\D/g, '');
 
-    const isValid = /^(?:62|0)?8\d{9,12}$/.test(cleaned);
+    const isValid = /^(?:62|0)?8\d{7,12}$/.test(cleaned);
     if (!isValid) return undefined;
 
     if (cleaned.startsWith('62')) {
@@ -93,293 +100,248 @@ const createWhatsappLink = (phone: string | null, message?: string): string | un
     return `${baseUrl}?text=${encodeURIComponent(message)}`;
 };
 
-const copiedId = ref<number | null>(null);
+const copiedId = ref<number | undefined>(undefined);
 
 const copyPhone = async (phone: string, id: number) => {
     if (!phone) return;
-
     await navigator.clipboard.writeText(phone);
     copiedId.value = id;
-
     setTimeout(() => {
-        copiedId.value = null;
+        copiedId.value = undefined;
     }, 1500);
 };
 </script>
 
 <template>
-    <div class="rounded-lg border">
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead rowspan="2" class="w-64 border-r align-middle">
-                    </TableHead>
+    <TooltipProvider :delay-duration="200">
+        <div class="overflow-hidden rounded-xl border border-border shadow-sm">
+            <Table>
+                <!-- ── HEADER ─────────────────────────────────────────────── -->
+                <TableHeader>
+                    <!-- Row 1 – group labels -->
+                    <TableRow class="border-b-0">
+                        <TableHead
+                            rowspan="2"
+                            class="border-r text-center font-semibold uppercase tracking-wider"
+                        >
+                            Wilayah
+                        </TableHead>
 
-                    <!-- RLQH -->
-                    <TableHead
-                        colspan="4"
-                        class="border-r bg-emerald-50 text-center font-extrabold"
-                    >
-                        RLQH / ALQH
-                    </TableHead>
-
-                    <!-- CLQH -->
-                    <TableHead colspan="4" class="bg-blue-50 text-center font-extrabold">
-                        CLQH
-                    </TableHead>
-                </TableRow>
-
-                <TableRow>
-                    <!-- Sub header RLQH -->
-                    <TableHead class="border-t">Nama</TableHead>
-                    <TableHead class="border-t">NIP</TableHead>
-                    <TableHead class="border-t">Kontak</TableHead>
-                    <TableHead class="w-3.5 border-t border-r"></TableHead>
-                    <!-- Sub header CLQH -->
-                    <TableHead class="border-t">Nama</TableHead>
-                    <TableHead class="border-t">NIP</TableHead>
-                    <TableHead class="border-t">Kontak</TableHead>
-                    <TableHead class="w-3.5 border-t"></TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                <!-- BARIS REGIONAL -->
-                <template v-for="regional in regionals" :key="regional.id">
-                    <TableRow class="group bg-primary/10 hover:bg-primary/20">
-                        <!-- Regional Name -->
-                        <TableCell class="border-r font-extrabold uppercase">
-                            {{ regional.name }}
-                        </TableCell>
-
-                        <!-- RLQH AREA -->
-                        <!-- NAMA RLQH (Regional) -->
-                        <TableCell class="border-r font-bold">{{
-                            regional.contact_cluster?.name
-                        }}</TableCell>
-
-                        <!-- NIP RLQH (Regional) -->
-                        <TableCell class="border-r font-bold">{{
-                            regional.contact_cluster?.nip
-                        }}</TableCell>
-
-                        <!-- PHONE RLQH (Regional) -->
-                        <TableCell class="font-bold">
-                            <div class="flex items-center gap-1">
-                                <a :href="createWhatsappLink(regional.contact_cluster?.phone || null)"
-                                target="_blank"
-                               class="hover:text-blue-600"
-                            >
-                                {{ regional.contact_cluster?.phone }}
-                            </a>
-                            <button
-                                v-if="regional.contact_cluster?.phone"
-                                type="button"
-                                @click="copyPhone(regional.contact_cluster?.phone || '', regional.id)"
-                                class="group visible md:invisible relative flex h-6 w-6 items-center justify-center rounded-md border border-transparent md:group-hover:visible hover:border-border hover:bg-muted active:scale-95"
-                            >
-                                <Copy class="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground" />
-                                <span v-if="copiedId === regional.id"
-                                    class="absolute -top-7 rounded bg-foreground px-2 py-0.5 text-xs text-background shadow"
-                                >
-                                    Copied ✓
+                        <!-- RLQH / ALQH group -->
+                        <TableHead
+                            colspan="4"
+                            class="border-b border-r border-border bg-emerald-50/80 text-center"
+                        >
+                            <div class="flex items-center justify-center gap-1.5">
+                                <span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
+                                <span class="font-bold uppercase tracking-widest">
+                                    RLQH / ALQH
                                 </span>
-                            </button>
                             </div>
-                        </TableCell>
+                        </TableHead>
 
-                        <!-- EDIT RLQH (Regional) -->
-                        <TableCell class="border-r">
-                            <div class="flex items-center justify-center h-full w-full">
-                                <button
-                                    class="visible md:invisible cursor-pointer font-medium text-blue-600 md:group-hover:visible hover:underline"
-                                    @click="editRegionalContact(regional, regional.contact_cluster)"
-                                >
-                                    <Pencil class="h-4 w-4" />
-                                </button>
+                        <!-- CLQH group -->
+                        <TableHead
+                            colspan="4"
+                            class="border-b bg-sky-50/80 text-center"
+                        >
+                            <div class="flex items-center justify-center gap-1.5">
+                                <span class="inline-block h-2 w-2 rounded-full bg-sky-500"></span>
+                                <span class="font-bold uppercase tracking-widest">
+                                    CLQH
+                                </span>
                             </div>
-                        </TableCell>
-
-                        <!-- CLQH Regional (kosong) -->
-                        <TableCell></TableCell>
-                        <TableCell></TableCell>
-                        <TableCell></TableCell>
-                        <TableCell></TableCell>
+                        </TableHead>
                     </TableRow>
 
-                    <!-- BARIS AREA -->
-                    <template v-for="area in regional.areas" :key="area.id">
-                        <TableRow class="group">
-                            <TableCell class="border-r pl-4 font-medium">{{
-                                area.name
-                            }}</TableCell>
-                            <TableCell
-                                class="border-r"
-                                :rowspan="area.branches.length + 1"
-                                >{{ area.contact_cluster?.name }}</TableCell
-                            >
-                            <TableCell
-                                class="border-r"
-                                :rowspan="area.branches.length + 1"
-                                >{{ area.contact_cluster?.nip }}</TableCell
-                            >
-                            <TableCell
-                                class="border-r"
-                                :rowspan="area.branches.length + 1"
-                                >
-                                <div class="flex items-center gap-1">
-                                    <a :href="createWhatsappLink(area.contact_cluster?.phone || null)"
-                                        target="_blank"
-                                       class="hover:text-blue-600"
-                                    >
-                                        {{ area.contact_cluster?.phone }}
-                                    </a>
-                                    <button
-                                        v-if="area.contact_cluster?.phone"
-                                        type="button"
-                                        @click="copyPhone(area.contact_cluster?.phone || '', area.id)"
-                                        class="group visible md:invisible relative flex h-6 w-6 items-center justify-center rounded-md border border-transparent md:group-hover:visible hover:border-border hover:bg-muted active:scale-95"
-                                    >
-                                        <Copy
-                                            class="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground"
-                                        />
-                                        <span v-if="copiedId === area.id"
-                                              class="absolute -top-7 rounded bg-foreground px-2 py-0.5 text-xs text-background shadow">
-                                            Copied ✓
-                                        </span>
-                                    </button>
-                                </div>
-                            </TableCell
-                            >
-                            <TableCell
-                                class="border-r"
-                                :rowspan="area.branches.length + 1"
-                                >
-                                <div class="flex items-center justify-center h-full w-full">
-                                    <button
-                                        class="visible md:invisible cursor-pointer font-medium text-blue-600 group-hover:visible hover:underline"
-                                        @click="editAreaContact(area, area.contact_cluster)"
-                                    >
-                                        <Pencil class="h-4 w-4" />
-                                    </button>
+                    <!-- Row 2 – column sub-labels -->
+                    <TableRow class="bg-muted/20">
+                        <!-- RLQH sub-cols -->
+                        <TableHead class="border-r text-center">Nama</TableHead>
+                        <TableHead class="border-r text-center">NIP</TableHead>
+                        <TableHead class="border-r text-center">Kontak</TableHead>
+                        <TableHead class="w-10 border-r"></TableHead>
+                        <!-- CLQH sub-cols -->
+                        <TableHead class="border-r text-center">Nama</TableHead>
+                        <TableHead class="border-r text-center">NIP</TableHead>
+                        <TableHead class="border-r text-center">Kontak</TableHead>
+                        <TableHead class="w-10 text-xs"></TableHead>
+                    </TableRow>
+                </TableHeader>
+
+                <TableBody>
+                    <template v-for="regional in regionals" :key="regional.id">
+
+                        <!-- ── REGIONAL ROW ──────────────────────────────── -->
+                        <TableRow class="group border-t-2 border-border bg-muted/30 transition-colors">
+                            <!-- Level label -->
+                            <TableCell class="border-r border-border py-3">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <Landmark class="h-3.5 w-3.5" />
+                                    </div>
+                                    <div>
+                                        <Badge variant="secondary" class="mb-0.5 px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wider">
+                                            Regional
+                                        </Badge>
+                                        <p class="text-sm font-bold leading-tight text-foreground">
+                                            {{ regional.name }}
+                                        </p>
+                                    </div>
                                 </div>
                             </TableCell>
-                            <TableCell />
-                            <TableCell />
-                            <TableCell />
-                            <TableCell />
+
+                            <!-- RLQH – Regional -->
+                            <TableCell class="border-r border-border/40 py-3 text-center">
+                                <ContactNameCell :name="regional.contact_cluster?.name" />
+                            </TableCell>
+                            <TableCell class="border-r border-border/40 py-3 text-center">
+                                <NipCell :nip="regional.contact_cluster?.nip" />
+                            </TableCell>
+                            <TableCell class="border-r border-border/40 py-3 text-center">
+                                <PhoneCell
+                                    :phone="regional.contact_cluster?.phone"
+                                    :wa-link="createWhatsappLink(regional.contact_cluster?.phone || null)"
+                                    :entity-id="regional.id"
+                                    :copied-id="copiedId"
+                                    @copy="copyPhone"
+                                />
+                            </TableCell>
+                            <TableCell class="border-r border-border py-3">
+                                <EditCell @edit="editRegionalContact(regional, regional.contact_cluster)" />
+                            </TableCell>
+
+                            <!-- CLQH – empty for Regional row -->
+                            <TableCell /><TableCell /><TableCell /><TableCell />
                         </TableRow>
 
-                        <template
-                            v-for="branch in area.branches"
-                            :key="branch.id"
-                        >
-                            <TableRow class="group">
-                                <TableCell class="border-r pl-6">{{
-                                    branch.name
-                                }}</TableCell>
-                                <TableCell class="border-r">{{
-                                    branch.contact_cluster?.name
-                                }}</TableCell>
-                                <TableCell class="border-r">{{
-                                    branch.contact_cluster?.nip
-                                }}</TableCell>
-                                <TableCell class="border-r">
-                                    <div class="flex items-center gap-1">
-                                        <a :href="createWhatsappLink(branch.contact_cluster?.phone || null)"
-                                            target="_blank"
-                                           class="hover:text-blue-600"
-                                        >
-                                            {{ branch.contact_cluster?.phone }}
-                                        </a>
-                                        <button
-                                            v-if="branch.contact_cluster?.phone"
-                                            type="button"
-                                            @click="copyPhone(branch.contact_cluster?.phone || '', branch.id)"
-                                            class="group visible md:invisible relative flex h-6 w-6 items-center justify-center rounded-md border border-transparent group-hover:visible hover:border-border hover:bg-muted active:scale-95"
-                                        >
-                                            <Copy
-                                                class="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground"
-                                            />
-                                            <span
-                                                v-if="copiedId === branch.id"
-                                                class="absolute -top-7 rounded bg-foreground px-2 py-0.5 text-xs text-background shadow"
-                                            >
-                                                Copied ✓
-                                            </span>
-                                        </button>
+                        <!-- ── AREA ROWS ─────────────────────────────────── -->
+                        <template v-for="area in regional.areas" :key="area.id">
+                            <TableRow class="group border-t border-border/60 transition-colors">
+                                <!-- Area name -->
+                                <TableCell class="border-r border-border/40 py-2.5">
+                                    <div class="flex items-center gap-2 pl-4">
+                                        <div class="h-full w-0.5 shrink-0 self-stretch rounded-full bg-border"></div>
+                                        <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-sky-50 text-sky-600">
+                                            <MapPin class="h-3 w-3" />
+                                        </div>
+                                        <div>
+                                            <Badge variant="outline" class="mb-0.5 border-sky-200 px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wider text-sky-700">
+                                                Area
+                                            </Badge>
+                                            <p class="text-sm font-semibold">{{ area.name }}</p>
+                                        </div>
                                     </div>
                                 </TableCell>
-                                <TableCell class="border-r">
-                                    <div class="flex items-center justify-center h-full w-full">
-                                        <button
-                                            @click="editBranchContact(branch, branch.contact_cluster)"
-                                            class="visible md:invisible cursor-pointer font-medium text-blue-600 group-hover:visible hover:underline"
-                                        >
-                                            <Pencil class="h-4 w-4" />
-                                        </button>
+
+                                <!-- RLQH – Area (rowspan) -->
+                                <TableCell
+                                    class="border-r border-border/40 py-2.5 align-middle text-center"
+                                    :rowspan="area.branches.length + 1"
+                                >
+                                    <ContactNameCell :name="area.contact_cluster?.name" />
+                                </TableCell>
+                                <TableCell
+                                    class="border-r border-border/40 py-2.5 align-middle text-center"
+                                    :rowspan="area.branches.length + 1"
+                                >
+                                    <NipCell :nip="area.contact_cluster?.nip" />
+                                </TableCell>
+                                <TableCell
+                                    class="border-r border-border/40 py-2.5 align-middle text-center"
+                                    :rowspan="area.branches.length + 1"
+                                >
+                                    <PhoneCell
+                                        :phone="area.contact_cluster?.phone"
+                                        :wa-link="createWhatsappLink(area.contact_cluster?.phone || null)"
+                                        :entity-id="area.id"
+                                        :copied-id="copiedId"
+                                        @copy="copyPhone"
+                                    />
+                                </TableCell>
+                                <TableCell
+                                    class="border-r border-border py-2.5 align-middle"
+                                    :rowspan="area.branches.length + 1"
+                                >
+                                    <EditCell @edit="editAreaContact(area, area.contact_cluster)" />
+                                </TableCell>
+
+                                <!-- CLQH – empty -->
+                                <TableCell /><TableCell /><TableCell /><TableCell />
+                            </TableRow>
+
+                            <!-- Branch rows inside Area -->
+                            <template v-for="branch in area.branches" :key="branch.id">
+                                <TableRow class="group border-t border-dashed border-border/40 transition-colors">
+                                    <TableCell class="border-r border-border/40 py-2">
+                                        <div class="flex items-center gap-2 pl-10">
+                                            <div class="h-full w-0.5 shrink-0 self-stretch rounded-full bg-border/50"></div>
+                                            <div class="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground">
+                                                <Building2 class="h-2.5 w-2.5" />
+                                            </div>
+                                            <p class="text-sm text-foreground/90">{{ branch.name }}</p>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell class="border-r border-border/40 py-2 text-center">
+                                        <ContactNameCell :name="branch.contact_cluster?.name" />
+                                    </TableCell>
+                                    <TableCell class="border-r border-border/40 py-2 text-center">
+                                        <NipCell :nip="branch.contact_cluster?.nip" />
+                                    </TableCell>
+                                    <TableCell class="border-r border-border/40 py-2 text-center">
+                                        <PhoneCell
+                                            :phone="branch.contact_cluster?.phone"
+                                            :wa-link="createWhatsappLink(branch.contact_cluster?.phone || null)"
+                                            :entity-id="branch.id"
+                                            :copied-id="copiedId"
+                                            @copy="copyPhone"
+                                        />
+                                    </TableCell>
+                                    <TableCell class="border-r border-border py-2">
+                                        <EditCell @edit="editBranchContact(branch, branch.contact_cluster)" />
+                                    </TableCell>
+                                </TableRow>
+                            </template>
+                        </template>
+
+                        <!-- ── BRANCH DIRECT TO REGIONAL ────────────────── -->
+                        <template v-for="branch in regional.branches" :key="branch.id">
+                            <TableRow class="group border-t border-dashed border-border/40 transition-colors">
+                                <TableCell class="border-r border-border/40 py-2">
+                                    <div class="flex items-center gap-2 pl-4">
+                                        <div class="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground">
+                                            <Building2 class="h-2.5 w-2.5" />
+                                        </div>
+                                        <p class="text-sm text-foreground/90">{{ branch.name }}</p>
                                     </div>
+                                </TableCell>
+                                <!-- RLQH – empty -->
+                                <TableCell /><TableCell /><TableCell />
+                                <TableCell class="border-r border-border" />
+                                <!-- CLQH -->
+                                <TableCell class="border-r border-border/40 py-2 text-center">
+                                    <ContactNameCell :name="branch.contact_cluster?.name" />
+                                </TableCell>
+                                <TableCell class="border-r border-border/40 py-2 text-center">
+                                    <NipCell :nip="branch.contact_cluster?.nip" />
+                                </TableCell>
+                                <TableCell class="border-r border-border/40 py-2 text-center">
+                                    <PhoneCell
+                                        :phone="branch.contact_cluster?.phone"
+                                        :wa-link="createWhatsappLink(branch.contact_cluster?.phone || '')"
+                                        :entity-id="branch.id"
+                                        :copied-id="copiedId"
+                                        @copy="copyPhone"
+                                    />
+                                </TableCell>
+                                <TableCell class="py-2">
+                                    <EditCell @edit="editBranchContact(branch, branch.contact_cluster)" />
                                 </TableCell>
                             </TableRow>
                         </template>
                     </template>
-
-                    <!-- Branch Direct Regional -->
-                    <template
-                        v-for="branch in regional.branches"
-                        :key="branch.id"
-                    >
-                        <TableRow class="group">
-                            <TableCell class="border-r pl-3">{{
-                                branch.name
-                            }}</TableCell>
-                            <TableCell />
-                            <TableCell />
-                            <TableCell />
-                            <TableCell class="border-r" />
-                            <TableCell class="border-r">{{
-                                branch.contact_cluster?.name
-                            }}</TableCell>
-                            <TableCell class="border-r">{{
-                                branch.contact_cluster?.nip
-                            }}</TableCell>
-                            <TableCell class="border-r">
-                                <div class="flex items-center gap-1">
-                                    <a :href="createWhatsappLink(branch.contact_cluster?.phone || '')"
-                                        target="_blank"
-                                       class="hover:text-blue-600"
-                                    >
-                                        {{ branch.contact_cluster?.phone }}
-                                    </a>
-                                    <button
-                                        v-if="branch.contact_cluster?.phone"
-                                        type="button"
-                                        @click="copyPhone(branch.contact_cluster?.phone || '', branch.id)"
-                                        class="group visible md:invisible relative flex h-6 w-6 items-center justify-center rounded-md border border-transparent group-hover:visible hover:border-border hover:bg-muted active:scale-95"
-                                    >
-                                        <Copy class="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground" />
-                                        <span v-if="copiedId === branch.id"
-                                              class="absolute -top-7 rounded bg-foreground px-2 py-0.5 text-xs text-background shadow"
-                                        >
-                                            Copied ✓
-                                        </span>
-                                    </button>
-                                </div>
-                            </TableCell>
-                            <TableCell class="border-r">
-                                <div class="flex items-center justify-center h-full w-full">
-                                    <button
-                                        @click="editBranchContact(branch, branch.contact_cluster)"
-                                        class="visible md:invisible cursor-pointer font-medium text-blue-600 group-hover:visible hover:underline"
-                                    >
-                                        <Pencil class="h-4 w-4" />
-                                    </button>
-
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    </template>
-                </template>
-            </TableBody>
-        </Table>
-    </div>
+                </TableBody>
+            </Table>
+        </div>
+    </TooltipProvider>
 </template>
