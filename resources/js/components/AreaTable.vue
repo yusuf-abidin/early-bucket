@@ -253,7 +253,9 @@ const hoverAddButton = ref<boolean>(false);
 
             <HoverCard v-model:open="hoverAddButton" :open-delay="300">
                 <HoverCardTrigger as-child>
-                    <Button class="flex-1 cursor-pointer gap-2 sm:flex-none">
+                    <Button
+                        @click="hoverAddButton = !hoverAddButton"
+                        class="flex-1 cursor-pointer gap-2 sm:flex-none">
                         <Plus class="h-4 w-4" />
                         Tambah
                     </Button>
