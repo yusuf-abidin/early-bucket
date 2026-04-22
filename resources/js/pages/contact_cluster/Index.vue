@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { BreadcrumbItem, EditContactPayload, Regional } from '@/types';
+import {
+    Branch,
+    BreadcrumbItem,
+    EditContactPayload,
+    Regional,
+    StcTlContact,
+} from '@/types';
 import ContactClusterTable from '@/components/ContactClusterTable.vue';
 import { ref } from 'vue';
 import FormContactClusterModal from '@/components/FormContactClusterModal.vue';
+import FormContactStcTlModal from '@/components/FormContactStcTlModal.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -19,6 +26,13 @@ defineProps<{
 
 const formContactIsOpen = ref<boolean>(false);
 const editingContact = ref<EditContactPayload | null>(null);
+
+const formStcTlIsOpen = ref<boolean>(false);
+const editingStcTl = ref<{
+    branch: Branch;
+    role: 'STC' | 'TL';
+    contact: StcTlContact | null;
+} | null>(null);
 </script>
 
 <template>
@@ -31,11 +45,18 @@ const editingContact = ref<EditContactPayload | null>(null);
                 :regionals="regionals"
                 v-model:form-contact-is-open="formContactIsOpen"
                 v-model:edit-contact-payload="editingContact"
+                v-model:form-stc-tl-is-open="formStcTlIsOpen"
+                v-model:edit-stc-tl-contact="editingStcTl"
             />
 
             <FormContactClusterModal
                 v-model:form-contact-is-open="formContactIsOpen"
                 v-model:editContactPayload="editingContact"
+            />
+
+            <FormContactStcTlModal
+                v-model:edit-stc-tl-contact="editingStcTl"
+                v-model:form-stc-tl-is-open="formStcTlIsOpen"
             />
         </div>
     </AppLayout>

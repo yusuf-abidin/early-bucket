@@ -108,6 +108,12 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('{contactCluster}', [\App\Http\Controllers\ContactClusterController::class, 'update'])->name('update');
         Route::delete('{contactCluster}', [\App\Http\Controllers\ContactClusterController::class, 'destroy'])->name('destroy');
     });
+
+    Route::prefix('stc-tl-contact')->name('stc-tl-contact.')->group(function () {
+        Route::post('', [\App\Http\Controllers\StcTlContactController::class, 'store'])->name('store');
+        Route::patch('{stcTlContact}', [\App\Http\Controllers\StcTlContactController::class, 'update'])->name('update');
+        Route::delete('{stcTlContact}', [\App\Http\Controllers\StcTlContactController::class, 'destroy'])->name('destroy');
+    });
 });
 
 

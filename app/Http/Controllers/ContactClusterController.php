@@ -27,10 +27,12 @@ class ContactClusterController extends Controller
                 $query->orderBy('name');
             },
             'areas.branches.contactCluster',
+            'areas.branches.stcTlContacts',
             'branches' => function ($query) {
                 $query->whereNull('area_id')->orderBy('name');
             },
-            'branches.contactCluster'
+            'branches.contactCluster',
+            'branches.stcTlContacts',
         ])
             ->orderBy('name')->get();
 

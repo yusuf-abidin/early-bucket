@@ -155,6 +155,7 @@ export interface Branch {
     area_id: number | null;
     name: string;
     contact_cluster?: ContactCluster;
+    stc_tl_contacts?: StcTlContact[];
 }
 
 export interface PerformanceEtape {
@@ -177,6 +178,14 @@ export interface ContactCluster {
     nip: string;
     phone: string;
     position: string;
+}
+
+export interface StcTlContact {
+    id: number;
+    name: string;
+    nip: string;
+    phone: string;
+    role: string;
 }
 
 export type EditContactPayload = {
