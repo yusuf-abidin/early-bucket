@@ -47,4 +47,9 @@ class Branch extends Model
     {
         return $this->hasOne(ContactCluster::class);
     }
+
+    public function stcTlContacts(): HasMany
+    {
+        return $this->hasMany(StcTlContact::class);
+    }
 }
