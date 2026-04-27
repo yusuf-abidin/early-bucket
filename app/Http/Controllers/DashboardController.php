@@ -6,6 +6,7 @@ use App\Models\Area;
 use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Memo;
+use App\Models\Regional;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,7 +15,7 @@ use Inertia\Inertia;
 class DashboardController extends Controller
 {
     public function index() {
-
+        $totalRegionals = Regional::count();
         $totalAreas = Area::count();
         $totalBranches = Branch::count();
 
@@ -91,6 +92,7 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard', [
             // General Overview Statistics
             'overview' => [
+                'totalRegionals' => $totalRegionals,
                 'totalAreas' => $totalAreas,
                 'totalBranches' => $totalBranches,
             ],

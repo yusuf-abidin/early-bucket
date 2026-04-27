@@ -12,7 +12,7 @@ import {
     type ChartOptions,
 } from 'chart.js';
 import { dashboard } from '@/routes';
-import { MapPin, Building, Pencil } from 'lucide-vue-next';
+import { MapPin, Building, Pencil, Globe } from 'lucide-vue-next';
 import admin from '@/routes/admin';
 import memos from '@/routes/memos';
 import tasks from '@/routes/tasks';
@@ -22,6 +22,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface Props {
     overview: {
+        totalRegionals: number;
         totalAreas: number;
         totalBranches: number;
     };
@@ -355,13 +356,43 @@ const uploadPhoto = (e: Event) => {
                 <div class="mx-auto max-w-7xl space-y-6 md:space-y-8">
                     <!-- Overview Cards -->
                     <div
-                        class="grid grid-cols-1 gap-5 transition-all delay-100 duration-700 ease-out md:grid-cols-2"
+                        class="grid grid-cols-1 gap-5 transition-all delay-100 duration-700 ease-out md:grid-cols-3"
                         :class="
-                            animate
-                                ? 'translate-y-0 opacity-100'
-                                : 'translate-y-8 opacity-0'
-                        "
+        animate
+            ? 'translate-y-0 opacity-100'
+            : 'translate-y-8 opacity-0'
+    "
                     >
+                        <!-- Total Regional Card -->
+                        <div
+                            class="group overflow-hidden rounded-xl border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-lg"
+                        >
+                            <div class="p-6">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <p
+                                            class="mb-1 text-xs font-semibold tracking-wider uppercase md:text-sm"
+                                        >
+                                            Total Regional
+                                        </p>
+                                        <p
+                                            class="text-4xl font-bold tracking-tight text-blue-600 md:text-4xl"
+                                        >
+                                            {{ overview.totalRegionals }}
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-50 transition-transform duration-300 group-hover:scale-105 dark:bg-blue-900/20"
+                                    >
+                                        <Globe class="h-7 w-7 text-blue-600" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="h-1 bg-gradient-to-r from-blue-600 to-blue-400"
+                            ></div>
+                        </div>
+
                         <!-- Total Area Card -->
                         <div
                             class="group overflow-hidden rounded-xl border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-lg"
@@ -392,7 +423,7 @@ const uploadPhoto = (e: Event) => {
                             ></div>
                         </div>
 
-                        <!-- Total Cabang Card -->
+                        <!-- Total Cluster Card -->
                         <div
                             class="group overflow-hidden rounded-xl border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-lg"
                         >
@@ -402,7 +433,7 @@ const uploadPhoto = (e: Event) => {
                                         <p
                                             class="mb-1 text-xs font-semibold tracking-wider uppercase md:text-sm"
                                         >
-                                            Total Cabang
+                                            Total Cluster
                                         </p>
                                         <p
                                             class="text-4xl font-bold tracking-tight text-blue-600 md:text-4xl"
@@ -413,9 +444,7 @@ const uploadPhoto = (e: Event) => {
                                     <div
                                         class="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-50 transition-transform duration-300 group-hover:scale-105 dark:bg-blue-900/20"
                                     >
-                                        <Building
-                                            class="h-7 w-7 text-blue-600"
-                                        />
+                                        <Building class="h-7 w-7 text-blue-600" />
                                     </div>
                                 </div>
                             </div>
