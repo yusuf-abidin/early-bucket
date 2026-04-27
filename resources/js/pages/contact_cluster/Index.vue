@@ -2,6 +2,7 @@
 import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import {
+    Area,
     Branch,
     BreadcrumbItem,
     EditContactPayload,
@@ -12,6 +13,9 @@ import ContactClusterTable from '@/components/ContactClusterTable.vue';
 import { ref } from 'vue';
 import FormContactClusterModal from '@/components/FormContactClusterModal.vue';
 import FormContactStcTlModal from '@/components/FormContactStcTlModal.vue';
+import RegionalContactDetailModal from '@/components/RegionalContactDetailModal.vue';
+import AreaContactDetailModal from '@/components/AreaContactDetailModal.vue';
+import ClusterContactDetailModal from '@/components/ClusterContactDetailModal.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -33,6 +37,12 @@ const editingStcTl = ref<{
     role: 'STC' | 'TL';
     contact: StcTlContact | null;
 } | null>(null);
+
+const selectedRegion = ref<{
+    regional: Regional | null;
+    area: Area | null;
+    branch: Branch | null;
+} | null>(null);
 </script>
 
 <template>
@@ -47,6 +57,7 @@ const editingStcTl = ref<{
                 v-model:edit-contact-payload="editingContact"
                 v-model:form-stc-tl-is-open="formStcTlIsOpen"
                 v-model:edit-stc-tl-contact="editingStcTl"
+                v-model:selected-region="selectedRegion"
             />
 
             <FormContactClusterModal
@@ -57,6 +68,18 @@ const editingStcTl = ref<{
             <FormContactStcTlModal
                 v-model:edit-stc-tl-contact="editingStcTl"
                 v-model:form-stc-tl-is-open="formStcTlIsOpen"
+            />
+
+            <RegionalContactDetailModal
+                v-model:selected-region="selectedRegion"
+            />
+
+            <AreaContactDetailModal
+                v-model:selected-region="selectedRegion"
+            />
+
+            <ClusterContactDetailModal
+                v-model:selected-region="selectedRegion"
             />
         </div>
     </AppLayout>

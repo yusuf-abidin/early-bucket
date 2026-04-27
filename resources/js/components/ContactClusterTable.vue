@@ -24,6 +24,7 @@ import ContactNameCell from '@/components/ContactNameCell.vue';
 import NipCell from '@/components/NipCell.vue';
 import EditCell from '@/components/EditCell.vue';
 import PhoneCell from '@/components/PhoneCell.vue';
+import { createWhatsappLink } from '@/lib/utils';
 
 defineProps<{
     regionals: Regional[];
@@ -38,6 +39,14 @@ const editContactPayload = defineModel<EditContactPayload | null>(
         default: null,
     },
 );
+
+const selectedRegion = defineModel<{
+    regional: Regional | null;
+    area: Area | null;
+    branch: Branch | null;
+} | null>('selected-region', {
+    default: null,
+});
 
 const formStcTlIsOpen = defineModel<boolean>('form-stc-tl-is-open', {
     default: false,
@@ -56,19 +65,23 @@ const handleAddStcTlContact = (branch: Branch, role: 'STC' | 'TL') => {
         branch: branch,
         role: role,
         contact: null,
-    }
+    };
 
     formStcTlIsOpen.value = true;
-}
+};
 
-const handleEditStcTlContact = (branch: Branch, role: 'STC' | 'TL', contact: StcTlContact) => {
+const handleEditStcTlContact = (
+    branch: Branch,
+    role: 'STC' | 'TL',
+    contact: StcTlContact,
+) => {
     editStcTlContact.value = {
         branch: branch,
         role: role,
         contact: contact,
-    }
+    };
     formStcTlIsOpen.value = true;
-}
+};
 const editRegionalContact = (
     regional: Regional | undefined = undefined,
     contact: ContactCluster | undefined = undefined,
@@ -109,28 +122,6 @@ const editBranchContact = (
         contact: contact,
     };
     formContactIsOpen.value = true;
-};
-
-const createWhatsappLink = (
-    phone: string | null,
-    message?: string,
-): string | undefined => {
-    if (!phone) return undefined;
-    let cleaned = phone.replace(/\D/g, '');
-
-    const isValid = /^(?:62|0)?8\d{7,12}$/.test(cleaned);
-    if (!isValid) return undefined;
-
-    if (cleaned.startsWith('62')) {
-        // sudah benar
-    } else if (cleaned.startsWith('0')) {
-        cleaned = '62' + cleaned.slice(1);
-    } else if (cleaned.startsWith('8')) {
-        cleaned = '62' + cleaned;
-    }
-    const baseUrl = `https://wa.me/${cleaned}`;
-    if (!message) return baseUrl;
-    return `${baseUrl}?text=${encodeURIComponent(message)}`;
 };
 
 const copiedId = ref<number | undefined>(undefined);
@@ -198,6 +189,18 @@ const branchRowspan = (branch: Branch) =>
 
 const areaRowspan = (area: Area) =>
     1 + area.branches.reduce((acc, b) => acc + branchRowspan(b), 0);
+
+const handleClickRegion = (
+    regional: Regional | null = null,
+    area: Area | null = null,
+    branch: Branch | null = null
+) => {
+    selectedRegion.value = {
+        regional : regional,
+        area: area,
+        branch: branch
+    };
+};
 </script>
 
 <template>
@@ -375,7 +378,10 @@ const areaRowspan = (area: Area) =>
                                             Regional
                                         </Badge>
                                         <p
-                                            class="text-sm leading-tight font-bold text-foreground"
+                                            @click="
+                                                handleClickRegion(regional, null, null)
+                                            "
+                                            class="text-sm leading-tight font-bold text-foreground hover:underline hover:cursor-pointer"
                                         >
                                             {{ regional.name }}
                                         </p>
@@ -517,7 +523,9 @@ const areaRowspan = (area: Area) =>
                                             >
                                                 Area
                                             </Badge>
-                                            <p class="text-sm font-semibold">
+                                            <p
+                                                @click="handleClickRegion(regional, area, null)"
+                                                class="text-sm font-semibold hover:underline hover:cursor-pointer">
                                                 {{ area.name }}
                                             </p>
                                         </div>
@@ -679,7 +687,8 @@ const areaRowspan = (area: Area) =>
                                                     />
                                                 </div>
                                                 <p
-                                                    class="text-sm text-foreground/90"
+                                                    @click="handleClickRegion(regional, area, branch)"
+                                                    class="text-sm text-foreground/90 hover:underline hover:cursor-pointer"
                                                 >
                                                     {{ branch.name }}
                                                 </p>
@@ -921,7 +930,15 @@ const areaRowspan = (area: Area) =>
                                                     class="flex items-center justify-center gap-1"
                                                 >
                                                     <EditCell
-                                                        @edit="handleEditStcTlContact(branch, 'STC', getStcContacts(branch)[rowIdx])"
+                                                        @edit="
+                                                            handleEditStcTlContact(
+                                                                branch,
+                                                                'STC',
+                                                                getStcContacts(
+                                                                    branch,
+                                                                )[rowIdx],
+                                                            )
+                                                        "
                                                     />
                                                     <Button
                                                         v-if="
@@ -934,7 +951,12 @@ const areaRowspan = (area: Area) =>
                                                         variant="ghost"
                                                         size="icon"
                                                         class="h-7 w-7 text-violet-500 hover:bg-violet-50"
-                                                        @click="handleAddStcTlContact(branch, 'STC')"
+                                                        @click="
+                                                            handleAddStcTlContact(
+                                                                branch,
+                                                                'STC',
+                                                            )
+                                                        "
                                                     >
                                                         <UserPlus
                                                             class="h-3.5 w-3.5"
@@ -991,7 +1013,12 @@ const areaRowspan = (area: Area) =>
                                                     variant="ghost"
                                                     size="icon"
                                                     class="h-7 w-7 text-violet-400 hover:bg-violet-50"
-                                                    @click="handleAddStcTlContact(branch, 'STC')"
+                                                    @click="
+                                                        handleAddStcTlContact(
+                                                            branch,
+                                                            'STC',
+                                                        )
+                                                    "
                                                 >
                                                     <UserPlus
                                                         class="h-3.5 w-3.5"
@@ -1118,7 +1145,15 @@ const areaRowspan = (area: Area) =>
                                                     class="flex items-center justify-center gap-1"
                                                 >
                                                     <EditCell
-                                                        @edit="handleEditStcTlContact(branch, 'TL', getTlContacts(branch)[rowIdx])"
+                                                        @edit="
+                                                            handleEditStcTlContact(
+                                                                branch,
+                                                                'TL',
+                                                                getTlContacts(
+                                                                    branch,
+                                                                )[rowIdx],
+                                                            )
+                                                        "
                                                     />
                                                     <Button
                                                         v-if="
@@ -1131,7 +1166,12 @@ const areaRowspan = (area: Area) =>
                                                         variant="ghost"
                                                         size="icon"
                                                         class="h-7 w-7 text-amber-500 hover:bg-amber-50"
-                                                        @click="handleAddStcTlContact(branch, 'TL')"
+                                                        @click="
+                                                            handleAddStcTlContact(
+                                                                branch,
+                                                                'TL',
+                                                            )
+                                                        "
                                                     >
                                                         <UserPlus
                                                             class="h-3.5 w-3.5"
@@ -1188,7 +1228,12 @@ const areaRowspan = (area: Area) =>
                                                     variant="ghost"
                                                     size="icon"
                                                     class="h-7 w-7 text-amber-400 hover:bg-amber-50"
-                                                    @click="handleAddStcTlContact(branch, 'TL')"
+                                                    @click="
+                                                        handleAddStcTlContact(
+                                                            branch,
+                                                            'TL',
+                                                        )
+                                                    "
                                                 >
                                                     <UserPlus
                                                         class="h-3.5 w-3.5"
@@ -1497,7 +1542,15 @@ const areaRowspan = (area: Area) =>
                                                 class="flex items-center justify-center gap-1"
                                             >
                                                 <EditCell
-                                                    @edit="handleEditStcTlContact(branch, 'STC', getStcContacts(branch)[rowIdx])"
+                                                    @edit="
+                                                        handleEditStcTlContact(
+                                                            branch,
+                                                            'STC',
+                                                            getStcContacts(
+                                                                branch,
+                                                            )[rowIdx],
+                                                        )
+                                                    "
                                                 /><Button
                                                     v-if="
                                                         rowIdx ===
@@ -1508,7 +1561,12 @@ const areaRowspan = (area: Area) =>
                                                     variant="ghost"
                                                     size="icon"
                                                     class="h-7 w-7 text-violet-500 hover:bg-violet-50"
-                                                    @click="handleAddStcTlContact(branch, 'STC')"
+                                                    @click="
+                                                        handleAddStcTlContact(
+                                                            branch,
+                                                            'STC',
+                                                        )
+                                                    "
                                                     ><UserPlus
                                                         class="h-3.5 w-3.5"
                                                 /></Button>
@@ -1559,7 +1617,12 @@ const areaRowspan = (area: Area) =>
                                                 variant="ghost"
                                                 size="icon"
                                                 class="h-7 w-7 text-violet-400 hover:bg-violet-50"
-                                                @click="handleAddStcTlContact(branch, 'STC')"
+                                                @click="
+                                                    handleAddStcTlContact(
+                                                        branch,
+                                                        'STC',
+                                                    )
+                                                "
                                                 ><UserPlus
                                                     class="h-3.5 w-3.5" /></Button
                                         ></TableCell>
@@ -1679,7 +1742,15 @@ const areaRowspan = (area: Area) =>
                                                 class="flex items-center justify-center gap-1"
                                             >
                                                 <EditCell
-                                                    @edit="handleEditStcTlContact(branch, 'TL', getTlContacts(branch)[rowIdx])"
+                                                    @edit="
+                                                        handleEditStcTlContact(
+                                                            branch,
+                                                            'TL',
+                                                            getTlContacts(
+                                                                branch,
+                                                            )[rowIdx],
+                                                        )
+                                                    "
                                                 /><Button
                                                     v-if="
                                                         rowIdx ===
@@ -1690,7 +1761,12 @@ const areaRowspan = (area: Area) =>
                                                     variant="ghost"
                                                     size="icon"
                                                     class="h-7 w-7 text-amber-500 hover:bg-amber-50"
-                                                    @click="handleAddStcTlContact(branch, 'TL')"
+                                                    @click="
+                                                        handleAddStcTlContact(
+                                                            branch,
+                                                            'TL',
+                                                        )
+                                                    "
                                                     ><UserPlus
                                                         class="h-3.5 w-3.5"
                                                 /></Button>
@@ -1741,7 +1817,12 @@ const areaRowspan = (area: Area) =>
                                                 variant="ghost"
                                                 size="icon"
                                                 class="h-7 w-7 text-amber-400 hover:bg-amber-50"
-                                                @click="handleAddStcTlContact(branch, 'TL')"
+                                                @click="
+                                                    handleAddStcTlContact(
+                                                        branch,
+                                                        'TL',
+                                                    )
+                                                "
                                                 ><UserPlus
                                                     class="h-3.5 w-3.5" /></Button
                                         ></TableCell>

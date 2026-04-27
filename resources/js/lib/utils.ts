@@ -43,3 +43,25 @@ export const getBadgeColor = (name: string): string => {
 export const df = new DateFormatter('id-ID', {
     dateStyle: 'medium',
 });
+
+export const createWhatsappLink = (
+    phone: string | null,
+    message?: string,
+): string | undefined => {
+    if (!phone) return undefined;
+    let cleaned = phone.replace(/\D/g, '');
+
+    const isValid = /^(?:62|0)?8\d{7,12}$/.test(cleaned);
+    if (!isValid) return undefined;
+
+    if (cleaned.startsWith('62')) {
+        // sudah benar
+    } else if (cleaned.startsWith('0')) {
+        cleaned = '62' + cleaned.slice(1);
+    } else if (cleaned.startsWith('8')) {
+        cleaned = '62' + cleaned;
+    }
+    const baseUrl = `https://wa.me/${cleaned}`;
+    if (!message) return baseUrl;
+    return `${baseUrl}?text=${encodeURIComponent(message)}`;
+};
