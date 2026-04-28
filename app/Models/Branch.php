@@ -52,4 +52,8 @@ class Branch extends Model
     {
         return $this->hasMany(StcTlContact::class);
     }
+
+    public function performanceLogs(): HasMany {
+        return $this->hasMany(PerformanceLog::class);
+    }
 }

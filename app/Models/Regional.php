@@ -24,4 +24,8 @@ class Regional extends Model
     {
         return $this->hasOne(ContactCluster::class);
     }
+
+    public function performanceLogs(): HasMany {
+        return $this->hasMany(PerformanceLog::class);
+    }
 }

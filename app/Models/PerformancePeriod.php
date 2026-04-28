@@ -13,4 +13,8 @@ class PerformancePeriod extends Model
         'start_date',
         'end_date',
     ];
+
+    public function performanceLog() {
+        return $this->hasMany(PerformanceLog::class);
+    }
 }
