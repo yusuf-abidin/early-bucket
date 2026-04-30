@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('area_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('branch_id')->nullable()->constrained()->cascadeOnDelete();
 
-            $table->boolean('is_achieved')->default(false);
+            $table->boolean('is_achieved')->nullable();
             $table->timestamps();
 
             $table->unique(['performance_period_id', 'regional_id']);

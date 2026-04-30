@@ -24,6 +24,7 @@ import etape from '@/routes/etape';
 import debtorSavings from '@/routes/debtor-savings';
 import eom from '@/routes/eom';
 import contactCluster from '@/routes/contact-cluster';
+import performanceLog from '@/routes/performance-log';
 
 const props = withDefaults(defineProps<SidebarProps>(), {
     collapsible: 'icon',
@@ -59,6 +60,10 @@ const mainNavItems: NavItem[] = [
                 title: 'Kontak Cluster',
                 href: contactCluster.index().url,
             },
+            {
+                title: 'Rekapitulasi',
+                href: `${performanceLog.index().url}?year=${new Date().getFullYear()}`,
+            }
         ],
     },
     {

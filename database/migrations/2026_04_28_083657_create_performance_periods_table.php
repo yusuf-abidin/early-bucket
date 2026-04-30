@@ -16,8 +16,8 @@ return new class extends Migration
             $table->tinyInteger('month');
             $table->year('year');
             $table->enum('performance_type', ['etape_1', 'etape_2', 'etape_3', 'eom']);
-            $table->tinyInteger('start_date');
-            $table->tinyInteger('end_date');
+            $table->tinyInteger('start_date')->nullable();
+            $table->tinyInteger('end_date')->nullable();
             $table->timestamps();
 
             $table->unique(['month', 'year', 'performance_type'], 'idx_unique_periods');

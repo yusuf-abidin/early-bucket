@@ -114,6 +114,16 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('{stcTlContact}', [\App\Http\Controllers\StcTlContactController::class, 'update'])->name('update');
         Route::delete('{stcTlContact}', [\App\Http\Controllers\StcTlContactController::class, 'destroy'])->name('destroy');
     });
+
+    Route::prefix('performance-log')->name('performance-log.')->group(function () {
+        Route::get('', [\App\Http\Controllers\PerformanceLogController::class, 'index'])->name('index');
+        Route::post('upsert', [\App\Http\Controllers\PerformanceLogController::class, 'upsert'])->name('upsert');
+    });
+
+    Route::prefix('performance-period')->name('performance-period.')->group(function () {
+        Route::post('upsert', [\App\Http\Controllers\PerformancePeriodController::class, 'upsert'])->name('upsert');
+        Route::post('delete-date/{period}', [\App\Http\Controllers\PerformancePeriodController::class, 'deleteDate'])->name('delete-date');
+    });
 });
 
 
