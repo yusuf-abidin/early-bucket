@@ -7,31 +7,42 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Building2, MapPin, Landmark, CalendarIcon } from 'lucide-vue-next';
+import { Building2, MapPin, Landmark, CalendarIcon, Check, X, Trash2 } from 'lucide-vue-next';
 import { Regional } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { router } from '@inertiajs/vue3';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import PerformanceCheckbox from '@/components/PerformanceCheckbox.vue';
 import performanceLog from '@/routes/performance-log';
 
-onMounted(() => {
-    console.log(props.log_index);
-})
-
 const props = defineProps<{
     year: number;
-    periods: Record<number, Record<string, {
+    periods: Record<
+        number,
+        Record<
+            string,
+            {
                 id: number | null;
                 month: number;
                 type: string;
                 start_date: number | null;
                 end_date: number | null;
-            }>>;
-    log_index: Record<number, Record<string, Record<number, {
-        id: number;
-        is_achieved: boolean;
-    }>>>;
+            }
+        >
+    >;
+    log_index: Record<
+        number,
+        Record<
+            string,
+            Record<
+                number,
+                {
+                    id: number;
+                    is_achieved: boolean;
+                }
+            >
+        >
+    >;
     regionals: Regional[];
 }>();
 
@@ -41,7 +52,7 @@ const editPeriod = defineModel<{
     type: string;
     start_date: number | null;
     end_date: number | null;
-    year: number
+    year: number;
 } | null>('edit-period', { default: null });
 
 const handleEditPeriod = (
@@ -77,9 +88,9 @@ const months = [
 ];
 
 const performanceTypes = ['etape_1', 'etape_2', 'etape_3', 'eom'];
-const isLastPerformanceType = (typeIndex: number) : boolean => {
+const isLastPerformanceType = (typeIndex: number): boolean => {
     return typeIndex === performanceTypes.length - 1;
-}
+};
 
 const loadingCells = ref<Set<string>>(new Set());
 
@@ -112,11 +123,65 @@ function getLog(
     return props.log_index[period.id]?.[entityType]?.[entityId] ?? null;
 }
 
+const hoveredElement = ref<HTMLElement | null>(null);
+const activeCellData = ref<{
+    month: number;
+    type: string;
+    entityType: 'regional' | 'area' | 'branch';
+    entityId: number;
+} | null>(null);
+
+const isHoveringPopover = ref(false);
+const closeTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
+
+const calculatePosition = (el: HTMLElement) => {
+    const rect = el.getBoundingClientRect();
+    return {
+        top: `${rect.top - 48}px`,
+        left: `${rect.left + rect.width / 2}px`,
+        transform: 'translateX(-50%)',
+    };
+};
+
+const handleHover = (
+    el: HTMLElement,
+    month: number,
+    type: string,
+    entityType: 'regional' | 'area' | 'branch',
+    entityId: number,
+) => {
+    if (closeTimeout.value) clearTimeout(closeTimeout.value);
+    hoveredElement.value = el;
+    activeCellData.value = { month, type, entityType, entityId };
+};
+
+const handleLeave = () => {
+    closeTimeout.value = setTimeout(() => {
+        if (!isHoveringPopover.value) {
+            hoveredElement.value = null;
+            activeCellData.value = null;
+        }
+    }, 300)
+};
+
+const keepOpen = () => {
+    isHoveringPopover.value = true;
+    if (closeTimeout.value) clearTimeout(closeTimeout.value);
+}
+
+const closePopover = () => {
+    isHoveringPopover.value = false;
+    hoveredElement.value = null;
+    activeCellData.value = null;
+}
+
 function handleCellClick(
     month: number,
     type: string,
     entityType: 'regional' | 'area' | 'branch',
     entityId: number,
+    manualSelect: boolean = false,
+    manualAchieve?: boolean | null,
 ) {
     const key = cellKey(month, type, entityType, entityId);
 
@@ -126,14 +191,25 @@ function handleCellClick(
     const log = getLog(month, type, entityType, entityId);
 
     let newValue: boolean | null;
-    const currentStatus = log ? log.is_achieved === null ? null : Boolean(log.is_achieved) : null;
-    if (currentStatus == true) {
-        newValue = false;
-    } else if (currentStatus === false) {
-        newValue = null;
+    if (!manualSelect) {
+        const currentStatus = log
+            ? log.is_achieved === null
+                ? null
+                : Boolean(log.is_achieved)
+            : null;
+        if (currentStatus == true) {
+            newValue = false;
+        } else if (currentStatus === false) {
+            newValue = null;
+        } else {
+            newValue = true;
+        }
+    } else if (manualSelect && manualAchieve !== undefined) {
+        newValue = manualAchieve
     } else {
-        newValue = true;
+        newValue = null;
     }
+
 
     loadingCells.value = new Set(loadingCells.value).add(key);
 
@@ -195,7 +271,7 @@ function handleCellClick(
                         <TableHead
                             v-for="(period, type) in periodTypes"
                             :key="type"
-                            class="min-w-[60px] border-b bg-muted/30 border-r last:border-r-0 shadow-[inset_0_-1px_0_0_#e2e8f0]"
+                            class="min-w-[60px] border-r border-b bg-muted/30 shadow-[inset_0_-1px_0_0_#e2e8f0] last:border-r-0"
                         >
                             <div
                                 class="group flex flex-col items-center gap-1.5 py-2"
@@ -211,7 +287,15 @@ function handleCellClick(
                                 </span>
 
                                 <div
-                                    @click="handleEditPeriod(period.id, period.month, period.type, period.start_date, period.end_date)"
+                                    @click="
+                                        handleEditPeriod(
+                                            period.id,
+                                            period.month,
+                                            period.type,
+                                            period.start_date,
+                                            period.end_date,
+                                        )
+                                    "
                                     class="flex items-center gap-1 rounded-full border border-border bg-background px-2 py-0.5 shadow-sm transition-colors group-hover:border-primary/50 hover:cursor-pointer"
                                 >
                                     <CalendarIcon
@@ -284,12 +368,24 @@ function handleCellClick(
                             <TableCell
                                 v-for="(type, typeIdx) in performanceTypes"
                                 :key="type"
-                                :class="
-                                    ['text-center', {
-                                    'border-r' : isLastPerformanceType(typeIdx) && month.value != 12,
-                                }]"
+                                :class="[
+                                    'text-center',
+                                    {
+                                        'border-r':
+                                            isLastPerformanceType(typeIdx) &&
+                                            month.value != 12,
+                                    },
+                                ]"
                             >
                                 <PerformanceCheckbox
+                                    @hover="(e) => handleHover(
+                                                e.target as HTMLElement,
+                                                month.value,
+                                                type,
+                                                'regional',
+                                                regional.id,
+                                            )"
+                                    @leave="handleLeave"
                                     :log="
                                         getLog(
                                             month.value,
@@ -320,7 +416,9 @@ function handleCellClick(
                     </TableRow>
                     <template v-for="area in regional.areas" :key="area.id">
                         <TableRow>
-                            <TableCell class="sticky left-0 bg-background shadow-[inset_-1px_0_0_0_#e2e8f0]">
+                            <TableCell
+                                class="sticky left-0 bg-background shadow-[inset_-1px_0_0_0_#e2e8f0]"
+                            >
                                 <div class="flex items-center gap-2 pl-4">
                                     <div
                                         class="h-full w-0.5 shrink-0 self-stretch rounded-full bg-border"
@@ -350,12 +448,25 @@ function handleCellClick(
                                 <TableCell
                                     v-for="(type, typeIdx) in performanceTypes"
                                     :key="type"
-                                    :class="
-                                    ['text-center', {
-                                    'border-r' : isLastPerformanceType(typeIdx) && month.value != 12,
-                                }]"
+                                    :class="[
+                                        'text-center',
+                                        {
+                                            'border-r':
+                                                isLastPerformanceType(
+                                                    typeIdx,
+                                                ) && month.value != 12,
+                                        },
+                                    ]"
                                 >
                                     <PerformanceCheckbox
+                                        @hover="(e) => handleHover(
+                                                e.target as HTMLElement,
+                                                month.value,
+                                                type,
+                                                'area',
+                                                area.id,
+                                            )"
+                                        @leave="handleLeave"
                                         :log="
                                             getLog(
                                                 month.value,
@@ -389,7 +500,9 @@ function handleCellClick(
                             v-for="branch in area.branches"
                             :key="branch.id"
                         >
-                            <TableCell class="sticky left-0 bg-background shadow-[inset_-1px_0_0_0_#e2e8f0]">
+                            <TableCell
+                                class="sticky left-0 bg-background shadow-[inset_-1px_0_0_0_#e2e8f0]"
+                            >
                                 <div class="flex items-center gap-2 pl-10">
                                     <div
                                         class="h-full w-0.5 shrink-0 self-stretch rounded-full bg-border/50"
@@ -411,12 +524,25 @@ function handleCellClick(
                                 <TableCell
                                     v-for="(type, typeIdx) in performanceTypes"
                                     :key="type"
-                                    :class="
-                                    ['text-center', {
-                                    'border-r' : isLastPerformanceType(typeIdx) && month.value != 12,
-                                }]"
+                                    :class="[
+                                        'text-center',
+                                        {
+                                            'border-r':
+                                                isLastPerformanceType(
+                                                    typeIdx,
+                                                ) && month.value != 12,
+                                        },
+                                    ]"
                                 >
                                     <PerformanceCheckbox
+                                        @hover="(e) => handleHover(
+                                                e.target as HTMLElement,
+                                                month.value,
+                                                type,
+                                                'branch',
+                                                branch.id,
+                                            )"
+                                        @leave="handleLeave"
                                         :log="
                                             getLog(
                                                 month.value,
@@ -452,7 +578,9 @@ function handleCellClick(
                         :key="branch.id"
                     >
                         <TableRow>
-                            <TableCell class="sticky left-0 bg-background shadow-[inset_-1px_0_0_0_#e2e8f0]">
+                            <TableCell
+                                class="sticky left-0 bg-background shadow-[inset_-1px_0_0_0_#e2e8f0]"
+                            >
                                 <div class="flex items-center gap-2 pl-4">
                                     <div
                                         class="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground"
@@ -471,12 +599,25 @@ function handleCellClick(
                                 <TableCell
                                     v-for="(type, typeIdx) in performanceTypes"
                                     :key="type"
-                                    :class="
-                                    ['text-center', {
-                                    'border-r' : isLastPerformanceType(typeIdx) && month.value != 12,
-                                }]"
+                                    :class="[
+                                        'text-center',
+                                        {
+                                            'border-r':
+                                                isLastPerformanceType(
+                                                    typeIdx,
+                                                ) && month.value != 12,
+                                        },
+                                    ]"
                                 >
                                     <PerformanceCheckbox
+                                        @hover="(e) => handleHover(
+                                                e.target as HTMLElement,
+                                                month.value,
+                                                type,
+                                                'branch',
+                                                branch.id,
+                                            )"
+                                        @leave="handleLeave"
                                         :log="
                                             getLog(
                                                 month.value,
@@ -509,6 +650,58 @@ function handleCellClick(
                 </template>
             </TableBody>
         </Table>
+        <Teleport to="body">
+            <div
+                v-if="activeCellData && hoveredElement"
+                :style="calculatePosition(hoveredElement)"
+                class="fixed z-100 flex gap-2 rounded-lg border bg-white p-2 shadow-xl"
+                @mouseenter="keepOpen"
+                @mouseleave="closePopover"
+            >
+                <button
+                    @click="handleCellClick(
+                        activeCellData.month,
+                        activeCellData.type,
+                        activeCellData.entityType,
+                        activeCellData.entityId,
+                        true,
+                        true,
+                    )"
+                    title="Tercapai"
+                    class="hover:bg-green-100 p-1 rounded"
+                >
+                    <Check class="w-5 h-5 text-green-600" />
+                </button>
+                <button
+                    @click="handleCellClick(
+                        activeCellData.month,
+                        activeCellData.type,
+                        activeCellData.entityType,
+                        activeCellData.entityId,
+                        true,
+                        false,
+                    )"
+                    title="Tidak Tercapai"
+                    class="hover:bg-red-100 p-1 rounded"
+                >
+                    <X class="w-5 h-5 text-red-600" />
+                </button>
+                <button
+                    @click="handleCellClick(
+                        activeCellData.month,
+                        activeCellData.type,
+                        activeCellData.entityType,
+                        activeCellData.entityId,
+                        true,
+                        null,
+                    )"
+                    title="Hapus"
+                    class="hover:bg-gray-100 p-1 rounded"
+                >
+                    <Trash2 class="w-5 h-5 text-gray-600"/>
+                </button>
+            </div>
+        </Teleport>
     </div>
 </template>
 

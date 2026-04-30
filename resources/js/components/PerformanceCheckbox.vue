@@ -7,6 +7,8 @@ defineProps<{
 
 defineEmits<{
     (e: 'toggle') : void
+    (e: 'hover', event: MouseEvent) : void
+    (e: 'leave') : void
 }>()
 </script>
 
@@ -16,6 +18,8 @@ defineEmits<{
         class="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-foreground"
     />
         <button
+            @mouseenter="$emit('hover', $event)"
+            @mouseleave="$emit('leave')"
             v-else-if="log?.is_achieved === 1"
             class="hover:cursor-pointer mx-auto flex h-6 w-6 items-center justify-center rounded border-2 border-green-500 bg-green-500 text-white transition-opacity hover:opacity-80"
             @click="$emit('toggle')"
@@ -26,6 +30,8 @@ defineEmits<{
         </button>
 
         <button
+            @mouseenter="$emit('hover', $event)"
+            @mouseleave="$emit('leave')"
             v-else-if="log?.is_achieved === 0"
             class="hover:cursor-pointer mx-auto flex h-6 w-6 items-center justify-center rounded border-2 border-red-500 bg-red-500 text-white transition-opacity hover:opacity-80"
             @click="$emit('toggle')"
@@ -36,6 +42,8 @@ defineEmits<{
         </button>
 
         <button
+            @mouseenter="$emit('hover', $event)"
+            @mouseleave="$emit('leave')"
             v-else
             class="hover:cursor-pointer mx-auto flex h-6 w-6 items-center justify-center rounded border-2 border-slate-200 bg-transparent transition-colors hover:border-green-400 hover:bg-green-50"
             @click="$emit('toggle')"
