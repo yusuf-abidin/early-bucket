@@ -98,7 +98,7 @@ class PerformanceLogController extends Controller
                 $category = 'branch';
                 $id = $log->branch_id;
             }
-            if ($category && $id && !is_null($log->is_achieved)) {
+            if ($category && $id && $log->is_achieved) {
                 $totals[$category][$id][$group] = ($totals[$category][$id][$group] ?? 0) + 1;
                 $totals[$category][$id]['total'] = ($totals[$category][$id]['total'] ?? 0) + 1;
 
