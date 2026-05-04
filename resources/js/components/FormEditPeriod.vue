@@ -21,30 +21,16 @@ import {
 import { Button } from '@/components/ui/button';
 import { router, useForm } from '@inertiajs/vue3';
 import PerformancePeriodController from '@/actions/App/Http/Controllers/PerformancePeriodController';
+import { PerformancePeriod } from '@/types';
 
-const editPeriod = defineModel<{
-    id: number | null;
-    month: number;
-    type: string;
-    start_date: number | null;
-    end_date: number | null;
-    year: number;
-} | null>('edit-period', { default: null });
+const editPeriod = defineModel<PerformancePeriod | null>('edit-period', { default: null });
 
-const months = [
-    { value: 1, label: 'Januari' },
-    { value: 2, label: 'Februari' },
-    { value: 3, label: 'Maret' },
-    { value: 4, label: 'April' },
-    { value: 5, label: 'Mei' },
-    { value: 6, label: 'Juni' },
-    { value: 7, label: 'Juli' },
-    { value: 8, label: 'Agustus' },
-    { value: 9, label: 'September' },
-    { value: 10, label: 'Oktober' },
-    { value: 11, label: 'November' },
-    { value: 12, label: 'Desember' },
-];
+defineProps<{
+    months: {
+        value: number;
+        label: string;
+    }[]
+}>()
 
 const isOpen = ref(false);
 
@@ -67,7 +53,7 @@ watch(
                 start_date: newValue.start_date ?? null,
                 end_date: newValue.end_date ?? null,
                 month: newValue.month ?? null,
-                performance_type: newValue.type ?? null,
+                performance_type: newValue.performance_type ?? null,
                 year: newValue.year ?? null,
             };
             form.defaults(data);
@@ -100,7 +86,7 @@ const closeModal = () => {
 
 const periodeType = computed(() => {
     if (!editPeriod.value) return null;
-    return editPeriod.value.type
+    return editPeriod.value.performance_type
         .replace('_', ' ')
         .replace('etape', 'Etape')
         .replace('eom', 'EOM');

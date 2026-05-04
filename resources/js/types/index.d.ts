@@ -196,4 +196,14 @@ export type EditContactPayload = {
     contact: ContactCluster | undefined;
 };
 
+export interface PerformancePeriod  {
+    id: number | null;
+    month: number;
+    performance_type: string;
+    start_date: number | null;
+    end_date: number | null;
+    year: number;
+    order: number;
+}
+
 export type BreadcrumbItemType = BreadcrumbItem;

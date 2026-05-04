@@ -123,6 +123,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('performance-period')->name('performance-period.')->group(function () {
         Route::post('upsert', [\App\Http\Controllers\PerformancePeriodController::class, 'upsert'])->name('upsert');
         Route::post('delete-date/{period}', [\App\Http\Controllers\PerformancePeriodController::class, 'deleteDate'])->name('delete-date');
+        Route::post('bulk-update', [\App\Http\Controllers\PerformancePeriodController::class, 'bulkUpdate'])->name('bulk-update');
     });
 });
 

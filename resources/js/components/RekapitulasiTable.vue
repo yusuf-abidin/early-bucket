@@ -7,8 +7,17 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Building2, MapPin, Landmark, CalendarIcon, Check, X, Trash2 } from 'lucide-vue-next';
-import { Regional } from '@/types';
+import {
+    Building2,
+    MapPin,
+    Landmark,
+    CalendarIcon,
+    Check,
+    X,
+    Trash2,
+    Pencil,
+} from 'lucide-vue-next';
+import { PerformancePeriod, Regional } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { router } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -17,19 +26,7 @@ import performanceLog from '@/routes/performance-log';
 
 const props = defineProps<{
     year: number;
-    periods: Record<
-        number,
-        Record<
-            string,
-            {
-                id: number | null;
-                month: number;
-                type: string;
-                start_date: number | null;
-                end_date: number | null;
-            }
-        >
-    >;
+    periods: Record<number, Record<string, PerformancePeriod>>;
     log_index: Record<
         number,
         Record<
@@ -44,52 +41,49 @@ const props = defineProps<{
         >
     >;
     regionals: Regional[];
+    months: {
+        value: number;
+        label: string;
+    }[];
+    totals: {
+        regional: Record<number, {
+            etape: number;
+            eom: number;
+        }>;
+        area: Record<number, {
+            etape: number;
+            eom: number;
+        }>;
+        branch: Record<number, {
+            etape: number;
+            eom: number;
+        }>;
+    };
 }>();
 
-const editPeriod = defineModel<{
-    id: number | null;
-    month: number;
-    type: string;
-    start_date: number | null;
-    end_date: number | null;
-    year: number;
-} | null>('edit-period', { default: null });
+const editPeriod = defineModel<PerformancePeriod | null>('edit-period', {
+    default: null,
+});
 
 const handleEditPeriod = (
     id: number | null,
     month: number,
-    type: string,
+    performance_type: string,
     start_date: number | null,
     end_date: number | null,
 ) => {
     editPeriod.value = {
         id: id,
         month: month,
-        type: type,
+        performance_type: performance_type,
         start_date: start_date,
         end_date: end_date,
         year: props.year,
+        order: props.periods[month][performance_type].order,
     };
 };
-
-const months = [
-    { value: 1, label: 'Januari' },
-    { value: 2, label: 'Februari' },
-    { value: 3, label: 'Maret' },
-    { value: 4, label: 'April' },
-    { value: 5, label: 'Mei' },
-    { value: 6, label: 'Juni' },
-    { value: 7, label: 'Juli' },
-    { value: 8, label: 'Agustus' },
-    { value: 9, label: 'September' },
-    { value: 10, label: 'Oktober' },
-    { value: 11, label: 'November' },
-    { value: 12, label: 'Desember' },
-];
-
-const performanceTypes = ['etape_1', 'etape_2', 'etape_3', 'eom'];
-const isLastPerformanceType = (typeIndex: number): boolean => {
-    return typeIndex === performanceTypes.length - 1;
+const getPeriodTypes = (month: number) => {
+    return Object.keys(props.periods[month] || {});
 };
 
 const loadingCells = ref<Set<string>>(new Set());
@@ -161,19 +155,19 @@ const handleLeave = () => {
             hoveredElement.value = null;
             activeCellData.value = null;
         }
-    }, 300)
+    }, 300);
 };
 
 const keepOpen = () => {
     isHoveringPopover.value = true;
     if (closeTimeout.value) clearTimeout(closeTimeout.value);
-}
+};
 
 const closePopover = () => {
     isHoveringPopover.value = false;
     hoveredElement.value = null;
     activeCellData.value = null;
-}
+};
 
 function handleCellClick(
     month: number,
@@ -205,11 +199,10 @@ function handleCellClick(
             newValue = true;
         }
     } else if (manualSelect && manualAchieve !== undefined) {
-        newValue = manualAchieve
+        newValue = manualAchieve;
     } else {
         newValue = null;
     }
-
 
     loadingCells.value = new Set(loadingCells.value).add(key);
 
@@ -221,7 +214,7 @@ function handleCellClick(
                 : {
                       month: period.month,
                       year: props.year,
-                      performance_type: period.type,
+                      performance_type: period.performance_type,
                   }),
             entity_type: entityType,
             entity_id: entityId,
@@ -237,6 +230,20 @@ function handleCellClick(
         },
     );
 }
+
+const selectedMonth = defineModel<{
+    year: number;
+    month: number;
+    availableType: PerformancePeriod[];
+} | null>('selected-month', { default: null });
+
+const handleClickEditMonth = (month: number) => {
+    selectedMonth.value = {
+        year: props.year,
+        month: month,
+        availableType: Object.values(props.periods[month] || {}),
+    };
+};
 </script>
 
 <template>
@@ -251,27 +258,43 @@ function handleCellClick(
                         Wilayah
                     </TableHead>
                     <TableHead
-                        class="text-center"
-                        :class="monthNumber != 12 ? 'border-r' : ''"
-                        v-for="(periodTypes, monthNumber) in props.periods"
-                        :key="monthNumber"
-                        :colspan="Object.keys(periodTypes).length"
+                        class="border-r text-center"
+                        v-for="month in months"
+                        :key="month.value"
+                        :colspan="
+                            Math.max(getPeriodTypes(month.value).length, 1)
+                        "
                     >
-                        {{
-                            months.find((m) => m.value === Number(monthNumber))
-                                ?.label ?? monthNumber
-                        }}
+                        <div class="flex items-center justify-center gap-2">
+                            {{ month.label }}
+                            <button
+                                @click="handleClickEditMonth(month.value)"
+                                title="Edit Daftar Etape"
+                                class="cursor-pointer rounded p-1 hover:bg-blue-100"
+                            >
+                                <Pencil class="h-3 w-3" />
+                            </button>
+                        </div>
+                    </TableHead>
+                    <TableHead class="text-center" colspan="2">
+                        Total
                     </TableHead>
                 </TableRow>
                 <TableRow>
                     <template
-                        v-for="(periodTypes, monthNumber) in props.periods"
-                        :key="'sub-' + monthNumber"
+                        v-for="month in months"
+                        :key="'sub-' + month.value"
                     >
                         <TableHead
-                            v-for="(period, type) in periodTypes"
+                            v-if="getPeriodTypes(month.value).length === 0"
+                            class="min-w-[60px] border-r border-b bg-muted/30 shadow-[inset_0_-1px_0_0_#e2e8f0] text-center"
+                        >-</TableHead>
+                        <TableHead
+                            v-for="(type) in getPeriodTypes(
+                                month.value,
+                            )"
                             :key="type"
-                            class="min-w-[60px] border-r border-b bg-muted/30 shadow-[inset_0_-1px_0_0_#e2e8f0] last:border-r-0"
+                            class="min-w-[60px] border-b bg-muted/30 shadow-[inset_0_-1px_0_0_#e2e8f0] border-r"
                         >
                             <div
                                 class="group flex flex-col items-center gap-1.5 py-2"
@@ -289,11 +312,15 @@ function handleCellClick(
                                 <div
                                     @click="
                                         handleEditPeriod(
-                                            period.id,
-                                            period.month,
-                                            period.type,
-                                            period.start_date,
-                                            period.end_date,
+                                            props.periods[month.value][type].id,
+                                            props.periods[month.value][type]
+                                                .month,
+                                            props.periods[month.value][type]
+                                                .performance_type,
+                                            props.periods[month.value][type]
+                                                .start_date,
+                                            props.periods[month.value][type]
+                                                .end_date,
                                         )
                                     "
                                     class="flex items-center gap-1 rounded-full border border-border bg-background px-2 py-0.5 shadow-sm transition-colors group-hover:border-primary/50 hover:cursor-pointer"
@@ -303,23 +330,30 @@ function handleCellClick(
                                     />
                                     <div
                                         v-if="
-                                            period.start_date || period.end_date
+                                            props.periods[month.value][type]
+                                                .start_date ||
+                                            props.periods[month.value][type]
+                                                .end_date
                                         "
                                         class="flex items-center text-[10px] font-medium whitespace-nowrap text-foreground/80"
                                     >
                                         <span>{{
-                                            period.start_date || null
+                                            props.periods[month.value][type]
+                                                .start_date || null
                                         }}</span>
                                         <span
                                             v-if="
-                                                period.start_date &&
-                                                period.end_date
+                                                props.periods[month.value][type]
+                                                    .start_date &&
+                                                props.periods[month.value][type]
+                                                    .end_date
                                             "
                                             class="mx-1 opacity-50"
                                             >-</span
                                         >
                                         <span>{{
-                                            period.end_date || null
+                                            props.periods[month.value][type]
+                                                .end_date || null
                                         }}</span>
                                     </div>
                                     <div
@@ -332,6 +366,8 @@ function handleCellClick(
                             </div>
                         </TableHead>
                     </template>
+                    <TableHead class="text-center border-r border-b bg-muted/30 shadow-[inset_0_-1px_0_0_#e2e8f0] text-[11px] leading-none font-bold tracking-widest text-muted-foreground uppercase">ETAPE</TableHead>
+                    <TableHead class="text-center border-b bg-muted/30 shadow-[inset_0_-1px_0_0_#e2e8f0] text-[11px] leading-none font-bold tracking-widest text-muted-foreground uppercase">EOM</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -366,25 +402,27 @@ function handleCellClick(
                         </TableCell>
                         <template v-for="month in months" :key="month.value">
                             <TableCell
-                                v-for="(type, typeIdx) in performanceTypes"
+                                v-if="getPeriodTypes(month.value).length === 0"
+                                class="border-r"
+                            />
+                            <TableCell
+                                v-for="(type) in getPeriodTypes(
+                                    month.value,
+                                )"
                                 :key="type"
-                                :class="[
-                                    'text-center',
-                                    {
-                                        'border-r':
-                                            isLastPerformanceType(typeIdx) &&
-                                            month.value != 12,
-                                    },
-                                ]"
+                                class="text-center border-r"
                             >
                                 <PerformanceCheckbox
-                                    @hover="(e) => handleHover(
+                                    @hover="
+                                        (e) =>
+                                            handleHover(
                                                 e.target as HTMLElement,
                                                 month.value,
                                                 type,
                                                 'regional',
                                                 regional.id,
-                                            )"
+                                            )
+                                    "
                                     @leave="handleLeave"
                                     :log="
                                         getLog(
@@ -413,6 +451,12 @@ function handleCellClick(
                                 />
                             </TableCell>
                         </template>
+                        <TableCell class="text-center border-r text-sm text-foreground/90">
+                            {{ props.totals.regional[regional.id]?.etape || 0 }}
+                        </TableCell>
+                        <TableCell class="text-center text-sm text-foreground/90">
+                            {{ props.totals.regional[regional.id]?.eom || 0 }}
+                        </TableCell>
                     </TableRow>
                     <template v-for="area in regional.areas" :key="area.id">
                         <TableRow>
@@ -446,26 +490,29 @@ function handleCellClick(
                                 :key="month.value"
                             >
                                 <TableCell
-                                    v-for="(type, typeIdx) in performanceTypes"
+                                    v-if="
+                                        getPeriodTypes(month.value).length === 0
+                                    "
+                                    class="border-r"
+                                />
+                                <TableCell
+                                    v-for="(type) in getPeriodTypes(
+                                        month.value,
+                                    )"
                                     :key="type"
-                                    :class="[
-                                        'text-center',
-                                        {
-                                            'border-r':
-                                                isLastPerformanceType(
-                                                    typeIdx,
-                                                ) && month.value != 12,
-                                        },
-                                    ]"
+                                    class="text-center border-r"
                                 >
                                     <PerformanceCheckbox
-                                        @hover="(e) => handleHover(
-                                                e.target as HTMLElement,
-                                                month.value,
-                                                type,
-                                                'area',
-                                                area.id,
-                                            )"
+                                        @hover="
+                                            (e) =>
+                                                handleHover(
+                                                    e.target as HTMLElement,
+                                                    month.value,
+                                                    type,
+                                                    'area',
+                                                    area.id,
+                                                )
+                                        "
                                         @leave="handleLeave"
                                         :log="
                                             getLog(
@@ -494,6 +541,12 @@ function handleCellClick(
                                     />
                                 </TableCell>
                             </template>
+                            <TableCell class="text-center border-r text-sm text-foreground/90">
+                                {{ props.totals.area[area.id]?.etape || 0 }}
+                            </TableCell>
+                            <TableCell class="text-center text-sm text-foreground/90">
+                                {{ props.totals.area[area.id]?.eom || 0 }}
+                            </TableCell>
                         </TableRow>
 
                         <TableRow
@@ -522,26 +575,29 @@ function handleCellClick(
                                 :key="month.value"
                             >
                                 <TableCell
-                                    v-for="(type, typeIdx) in performanceTypes"
+                                    v-if="
+                                        getPeriodTypes(month.value).length === 0
+                                    "
+                                    class="border-r"
+                                />
+                                <TableCell
+                                    v-for="(type) in getPeriodTypes(
+                                        month.value,
+                                    )"
                                     :key="type"
-                                    :class="[
-                                        'text-center',
-                                        {
-                                            'border-r':
-                                                isLastPerformanceType(
-                                                    typeIdx,
-                                                ) && month.value != 12,
-                                        },
-                                    ]"
+                                    class="text-center border-r"
                                 >
                                     <PerformanceCheckbox
-                                        @hover="(e) => handleHover(
-                                                e.target as HTMLElement,
-                                                month.value,
-                                                type,
-                                                'branch',
-                                                branch.id,
-                                            )"
+                                        @hover="
+                                            (e) =>
+                                                handleHover(
+                                                    e.target as HTMLElement,
+                                                    month.value,
+                                                    type,
+                                                    'branch',
+                                                    branch.id,
+                                                )
+                                        "
                                         @leave="handleLeave"
                                         :log="
                                             getLog(
@@ -570,6 +626,12 @@ function handleCellClick(
                                     />
                                 </TableCell>
                             </template>
+                            <TableCell class="text-center border-r text-sm text-foreground/90">
+                                {{ props.totals.branch[branch.id]?.etape || 0 }}
+                            </TableCell>
+                            <TableCell class="text-center text-sm text-foreground/90">
+                                {{ props.totals.branch[branch.id]?.eom || 0 }}
+                            </TableCell>
                         </TableRow>
                     </template>
 
@@ -597,26 +659,29 @@ function handleCellClick(
                                 :key="month.value"
                             >
                                 <TableCell
-                                    v-for="(type, typeIdx) in performanceTypes"
+                                    v-if="
+                                        getPeriodTypes(month.value).length === 0
+                                    "
+                                    class="border-r"
+                                />
+                                <TableCell
+                                    v-for="(type) in getPeriodTypes(
+                                        month.value,
+                                    )"
                                     :key="type"
-                                    :class="[
-                                        'text-center',
-                                        {
-                                            'border-r':
-                                                isLastPerformanceType(
-                                                    typeIdx,
-                                                ) && month.value != 12,
-                                        },
-                                    ]"
+                                    class="text-center border-r"
                                 >
                                     <PerformanceCheckbox
-                                        @hover="(e) => handleHover(
-                                                e.target as HTMLElement,
-                                                month.value,
-                                                type,
-                                                'branch',
-                                                branch.id,
-                                            )"
+                                        @hover="
+                                            (e) =>
+                                                handleHover(
+                                                    e.target as HTMLElement,
+                                                    month.value,
+                                                    type,
+                                                    'branch',
+                                                    branch.id,
+                                                )
+                                        "
                                         @leave="handleLeave"
                                         :log="
                                             getLog(
@@ -645,6 +710,12 @@ function handleCellClick(
                                     />
                                 </TableCell>
                             </template>
+                            <TableCell class="text-center border-r text-sm text-foreground/90">
+                                {{ props.totals.branch[branch.id]?.etape || 0 }}
+                            </TableCell>
+                            <TableCell class="text-center text-sm text-foreground/90">
+                                {{ props.totals.branch[branch.id]?.eom || 0 }}
+                            </TableCell>
                         </TableRow>
                     </template>
                 </template>
@@ -659,46 +730,52 @@ function handleCellClick(
                 @mouseleave="closePopover"
             >
                 <button
-                    @click="handleCellClick(
-                        activeCellData.month,
-                        activeCellData.type,
-                        activeCellData.entityType,
-                        activeCellData.entityId,
-                        true,
-                        true,
-                    )"
+                    @click="
+                        handleCellClick(
+                            activeCellData.month,
+                            activeCellData.type,
+                            activeCellData.entityType,
+                            activeCellData.entityId,
+                            true,
+                            true,
+                        )
+                    "
                     title="Tercapai"
-                    class="hover:bg-green-100 p-1 rounded"
+                    class="rounded p-1 hover:bg-green-100"
                 >
-                    <Check class="w-5 h-5 text-green-600" />
+                    <Check class="h-5 w-5 text-green-600" />
                 </button>
                 <button
-                    @click="handleCellClick(
-                        activeCellData.month,
-                        activeCellData.type,
-                        activeCellData.entityType,
-                        activeCellData.entityId,
-                        true,
-                        false,
-                    )"
+                    @click="
+                        handleCellClick(
+                            activeCellData.month,
+                            activeCellData.type,
+                            activeCellData.entityType,
+                            activeCellData.entityId,
+                            true,
+                            false,
+                        )
+                    "
                     title="Tidak Tercapai"
-                    class="hover:bg-red-100 p-1 rounded"
+                    class="rounded p-1 hover:bg-red-100"
                 >
-                    <X class="w-5 h-5 text-red-600" />
+                    <X class="h-5 w-5 text-red-600" />
                 </button>
                 <button
-                    @click="handleCellClick(
-                        activeCellData.month,
-                        activeCellData.type,
-                        activeCellData.entityType,
-                        activeCellData.entityId,
-                        true,
-                        null,
-                    )"
+                    @click="
+                        handleCellClick(
+                            activeCellData.month,
+                            activeCellData.type,
+                            activeCellData.entityType,
+                            activeCellData.entityId,
+                            true,
+                            null,
+                        )
+                    "
                     title="Hapus"
-                    class="hover:bg-gray-100 p-1 rounded"
+                    class="rounded p-1 hover:bg-gray-100"
                 >
-                    <Trash2 class="w-5 h-5 text-gray-600"/>
+                    <Trash2 class="h-5 w-5 text-gray-600" />
                 </button>
             </div>
         </Teleport>

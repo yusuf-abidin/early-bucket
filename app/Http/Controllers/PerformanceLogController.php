@@ -15,8 +15,6 @@ class PerformanceLogController extends Controller
     {
         $year = $request->get('year', date('Y'));
 
-        $performanceTypes = ['etape_1', 'etape_2', 'etape_3', 'eom'];
-
         $existingPeriods = PerformancePeriod::where('year', $year)->get()->keyBy(
             fn($p) => "{$p->month}_{$p->performance_type}"
         );
@@ -25,21 +23,28 @@ class PerformanceLogController extends Controller
 
         for ($month = 1; $month <= 12; $month++) {
             $byType = [];
+            $performanceTypes = PerformancePeriod::where('year', $year)
+                ->where('month', $month)
+                ->orderBy('performance_periods.order')
+                ->pluck('performance_type')
+                ->unique();
             foreach ($performanceTypes as $type) {
                 $key = "{$month}_{$type}";
                 $period = $existingPeriods->get($key);
                 $byType[$type] = $period ? [
                     'id' => $period->id,
                     'month' => $month,
-                    'type' => $type,
+                    'performance_type' => $type,
                     'start_date' => $period->start_date,
                     'end_date' => $period->end_date,
+                    'year' => $year,
                 ] : [
                     'id' => null,
                     'month' => $month,
-                    'type' => $type,
+                    'performance_type' => $type,
                     'start_date' => null,
                     'end_date' => null,
+                    'year' => $year,
                 ];
             }
             $periods[$month] = $byType;
@@ -59,6 +64,48 @@ class PerformanceLogController extends Controller
             }
         }
 
+        $totals = [
+            'regional' => [],
+            'area' => [],
+            'branch' => [],
+        ];
+
+        foreach ($logsRaw as $log) {
+            $period = $log->performancePeriod;
+            if (! $period) {
+                continue;
+            }
+
+            $type = strtolower($period->performance_type);
+
+            if (str_contains($type, 'eom')) {
+                $group = 'eom';
+            } elseif (str_contains($type, 'etape')) {
+                $group = 'etape';
+            } else {
+                continue;
+            }
+            $category = null;
+            $id = null;
+
+            if ($log->regional_id) {
+                $category = 'regional';
+                $id = $log->regional_id;
+            } elseif ($log->area_id) {
+                $category = 'area';
+                $id = $log->area_id;
+            } elseif ($log->branch_id) {
+                $category = 'branch';
+                $id = $log->branch_id;
+            }
+            if ($category && $id && !is_null($log->is_achieved)) {
+                $totals[$category][$id][$group] = ($totals[$category][$id][$group] ?? 0) + 1;
+                $totals[$category][$id]['total'] = ($totals[$category][$id]['total'] ?? 0) + 1;
+
+            }
+        }
+
+
         $regionals = Regional::with([
             'areas' => fn($q) => $q->orderBy('name'),
             'areas.branches' => fn($q) => $q->orderBy('name'),
@@ -71,6 +118,7 @@ class PerformanceLogController extends Controller
             'periods'     => $periods,
             'log_index'   => $logIndex,
             'regionals'   => $regionals,
+            'totals'      => $totals,
         ]);
     }
 
