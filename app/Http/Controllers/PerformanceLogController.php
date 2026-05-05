@@ -162,4 +162,9 @@ class PerformanceLogController extends Controller
 
         return redirect()->back()->with('success', 'Data performa berhasil diperbarui.');
     }
+
+    public function dashboardCrsd(Request $request)
+    {
+        return Inertia::render('performance/DashboardCRSD');
+    }
 }
