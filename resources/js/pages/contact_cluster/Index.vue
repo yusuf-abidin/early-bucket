@@ -5,6 +5,7 @@ import {
     Area,
     Branch,
     BreadcrumbItem,
+    Category,
     EditContactPayload,
     Regional,
     StcTlContact,
@@ -26,6 +27,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 defineProps<{
     regionals: Regional[];
+    categories: Category[];
 }>();
 
 const formContactIsOpen = ref<boolean>(false);
@@ -68,15 +70,14 @@ const selectedRegion = ref<{
             <FormContactStcTlModal
                 v-model:edit-stc-tl-contact="editingStcTl"
                 v-model:form-stc-tl-is-open="formStcTlIsOpen"
+                :categories="categories"
             />
 
             <RegionalContactDetailModal
                 v-model:selected-region="selectedRegion"
             />
 
-            <AreaContactDetailModal
-                v-model:selected-region="selectedRegion"
-            />
+            <AreaContactDetailModal v-model:selected-region="selectedRegion" />
 
             <ClusterContactDetailModal
                 v-model:selected-region="selectedRegion"

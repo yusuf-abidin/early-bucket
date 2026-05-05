@@ -34,6 +34,8 @@ class StcTlContactRequest extends FormRequest
             'nip' => ['nullable', 'numeric'],
             'phone' => ['nullable', 'string', 'regex:/^628\d{7,12}$/'],
             'role' => ['required', 'string', 'in:STC,TL'],
+            'categories' => ['nullable', 'array'],
+            'categories.*' => 'exists:categories,id'
         ];
     }
 

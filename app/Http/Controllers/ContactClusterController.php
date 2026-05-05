@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EditContactRequest;
 use App\Models\Area;
+use App\Models\Category;
 use App\Models\ContactCluster;
 use App\Models\Regional;
+use App\Models\StcTlContact;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -28,16 +30,27 @@ class ContactClusterController extends Controller
             },
             'areas.branches.contactCluster',
             'areas.branches.stcTlContacts',
+            'areas.branches.stcTlContacts.categories' => function ($query) {
+                $query->orderBy('name');
+            },
             'branches' => function ($query) {
                 $query->whereNull('area_id')->orderBy('name');
             },
             'branches.contactCluster',
             'branches.stcTlContacts',
+            'branches.stcTlContacts.categories' => function ($query) {
+                $query->orderBy('name');
+            },
         ])
             ->orderBy('name')->get();
 
+        $categories = Category::where('type', StcTlContact::TYPE_BUCKET)
+            ->orderBy('name')
+            ->get();
+
         return Inertia::render('contact_cluster/Index', [
-            'regionals' => $regionals
+            'regionals' => $regionals,
+            'categories' => $categories,
         ]);
     }
 

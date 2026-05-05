@@ -25,6 +25,7 @@ import NipCell from '@/components/NipCell.vue';
 import EditCell from '@/components/EditCell.vue';
 import PhoneCell from '@/components/PhoneCell.vue';
 import { createWhatsappLink } from '@/lib/utils';
+import BucketCell from '@/components/BucketCell.vue';
 
 defineProps<{
     regionals: Regional[];
@@ -208,7 +209,7 @@ const handleClickRegion = (
         <div class="overflow-x-auto rounded-xl border border-border shadow-sm">
             <Table class="border-separate border-spacing-0">
                 <!-- ── HEADER ─────────────────────────────────────────────── -->
-                <TableHeader>
+                <TableHeader class="sticky top-0 z-20 bg-background">
                     <!-- Row 1 – group labels -->
                     <TableRow class="border-b-0">
                         <TableHead
@@ -322,7 +323,7 @@ const handleClickRegion = (
                             >Nama</TableHead
                         >
                         <TableHead class="border-r border-b text-center"
-                            >NIP</TableHead
+                            >Bucket</TableHead
                         >
                         <TableHead class="border-r border-b text-center"
                             >Kontak</TableHead
@@ -333,7 +334,7 @@ const handleClickRegion = (
                             >Nama</TableHead
                         >
                         <TableHead class="border-r border-b text-center"
-                            >NIP</TableHead
+                            >Bucket</TableHead
                         >
                         <TableHead class="border-r border-b text-center"
                             >Kontak</TableHead
@@ -843,7 +844,7 @@ const handleClickRegion = (
                                                 />
                                             </TableCell>
                                             <TableCell
-                                                class="border-r border-b border-border/40 py-2 text-center transition-colors"
+                                                class="border-r border-b border-border/40 py-2 transition-colors"
                                                 :class="{
                                                     'bg-muted':
                                                         isDataHighlighted(
@@ -860,12 +861,8 @@ const handleClickRegion = (
                                                 "
                                                 @mouseleave="setHover(null)"
                                             >
-                                                <NipCell
-                                                    :nip="
-                                                        getStcContacts(branch)[
-                                                            rowIdx
-                                                        ].nip
-                                                    "
+                                                <BucketCell
+                                                    :categories="getStcContacts(branch)[rowIdx].categories"
                                                 />
                                             </TableCell>
                                             <TableCell
@@ -1058,7 +1055,7 @@ const handleClickRegion = (
                                                 />
                                             </TableCell>
                                             <TableCell
-                                                class="border-r border-b border-border/40 py-2 text-center transition-colors"
+                                                class="border-r border-b border-border/40 py-2 transition-colors"
                                                 :class="{
                                                     'bg-muted':
                                                         isDataHighlighted(
@@ -1075,11 +1072,11 @@ const handleClickRegion = (
                                                 "
                                                 @mouseleave="setHover(null)"
                                             >
-                                                <NipCell
-                                                    :nip="
+                                                <BucketCell
+                                                    :categories="
                                                         getTlContacts(branch)[
                                                             rowIdx
-                                                        ].nip
+                                                        ].categories
                                                     "
                                                 />
                                             </TableCell>
@@ -1474,13 +1471,9 @@ const handleClickRegion = (
                                             "
                                             @mouseleave="setHover(null)"
                                         >
-                                            <NipCell
-                                                :nip="
-                                                    getStcContacts(branch)[
-                                                        rowIdx
-                                                    ].nip
-                                                "
-                                            />
+                                            <BucketCell
+                                                    :categories="getStcContacts(branch)[rowIdx].categories"
+                                                />
                                         </TableCell>
                                         <TableCell
                                             class="border-r border-b border-border/40 py-2 text-center transition-colors"
@@ -1674,13 +1667,9 @@ const handleClickRegion = (
                                             "
                                             @mouseleave="setHover(null)"
                                         >
-                                            <NipCell
-                                                :nip="
-                                                    getTlContacts(branch)[
-                                                        rowIdx
-                                                    ].nip
-                                                "
-                                            />
+                                            <BucketCell
+                                                    :categories="getTlContacts(branch)[rowIdx].categories"
+                                                />
                                         </TableCell>
                                         <TableCell
                                             class="border-r border-b border-border/40 py-2 text-center transition-colors"
@@ -1836,3 +1825,34 @@ const handleClickRegion = (
         </div>
     </TooltipProvider>
 </template>
+
+<style scoped>
+:deep(table) {
+    display: block;
+    overflow-y: auto;
+    max-height: calc(100vh - 6rem);
+    min-height: 570px;
+}
+
+:deep(thead) {
+    display: table-header-group;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--background, #ffffff);
+}
+
+:deep(tbody) {
+    display: table-row-group;
+}
+
+:deep(tr) {
+    display: table-row;
+    width: 100%;
+}
+
+:deep(th),
+:deep(td) {
+    display: table-cell;
+}
+</style>

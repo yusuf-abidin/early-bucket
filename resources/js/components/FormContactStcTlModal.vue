@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { router, useForm } from '@inertiajs/vue3';
-import { Branch, StcTlContact } from '@/types';
-import { watch } from 'vue';
+import { Branch, Category, StcTlContact } from '@/types';
+import { computed, ref, watch } from 'vue';
 import {
     Dialog,
     DialogClose,
@@ -17,6 +17,32 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import stcTlContactController from '@/actions/App/Http/Controllers/StcTlContactController';
 import stcTlContact from '@/routes/stc-tl-contact';
+import {
+    Popover,
+    PopoverAnchor,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+    ListboxContent,
+    ListboxFilter,
+    ListboxItem,
+    ListboxItemIndicator,
+    ListboxRoot,
+    useFilter,
+} from 'reka-ui';
+import {
+    TagsInput,
+    TagsInputInput,
+    TagsInputItem,
+    TagsInputItemDelete,
+    TagsInputItemText,
+} from '@/components/ui/tags-input';
+import { ChevronDown, CheckIcon } from 'lucide-vue-next';
+
+const props = defineProps<{
+    categories: Category[];
+}>();
 
 const formStcTlIsOpen = defineModel<boolean>('form-stc-tl-is-open', {
     default: false,
@@ -48,22 +74,60 @@ const submit = () => {
 const form = useForm({
     branch_id: null as number | null,
     name: '',
-    nip: '',
+    categories: [] as number[],
     phone: '',
     role: '',
 });
 
 const closeModal = () => {
+    categoriesRef.value = [];
+    editStcTlContact.value = null;
     formStcTlIsOpen.value = false;
     form.reset();
     form.clearErrors();
 };
 
+const categoriesRef = ref<number[]>([]);
+const searchTerm = ref('');
+const popoverOpen = ref(false);
+
+const { contains } = useFilter({ sensitivity: 'base' });
+
+const selectedCategories = computed(() =>
+    categoriesRef.value
+        .map((id) => props.categories.find((category) => category.id === id))
+        .filter((category): category is Category => Boolean(category)),
+);
+
+const deleteCategory = (category: Category) => {
+    categoriesRef.value = categoriesRef.value.filter(
+        (id: number) => id !== category.id,
+    );
+};
+
+const filteredCategories = computed(() =>
+    searchTerm.value === ''
+        ? props.categories
+        : props.categories.filter((category) =>
+              contains(category.name, searchTerm.value),
+          ),
+);
+
+watch(categoriesRef, (newCategoriesRef) => {
+    form.categories = newCategoriesRef;
+});
+
+watch(searchTerm, (f) => {
+    if (f) {
+        popoverOpen.value = true;
+    }
+});
+
 const deleteContact = () => {
     if (!editStcTlContact.value?.contact) return;
     router.delete(stcTlContact.destroy(editStcTlContact.value.contact.id).url, {
         preserveScroll: true,
-        onSuccess: closeModal,
+        onSuccess: () => closeModal(),
     });
 };
 
@@ -73,10 +137,16 @@ watch(
         if (!data) return;
 
         form.name = data.contact?.name ?? '';
-        form.nip = data.contact?.nip ?? '';
         form.phone = data.contact?.phone ?? '';
+        categoriesRef.value =
+        data.contact?.categories.map((c: Category) => c.id) ?? [];
+        form.categories = categoriesRef.value;
         form.branch_id = data.branch.id;
         form.role = data.role;
+
+    },
+    {
+        immediate: true,
     },
 );
 </script>
@@ -92,9 +162,7 @@ watch(
                         <template v-if="editStcTlContact?.contact">
                             Edit Kontak
                         </template>
-                        <template v-else>
-                            Tambah Kontak
-                        </template>
+                        <template v-else> Tambah Kontak </template>
                     </DialogTitle>
                     <DialogDescription>
                         <template v-if="editStcTlContact?.contact">
@@ -131,19 +199,100 @@ watch(
                     </div>
 
                     <div class="space-y-2">
-                        <Label for="nip">NIP</Label>
-                        <Input
-                            :disabled="form.processing"
-                            v-model="form.nip"
-                            id="nip"
-                            type="text"
-                            name="nip"
-                        />
+                        <Label for="bucket">Bucket</Label>
+                        <Popover v-model:open="popoverOpen">
+                            <ListboxRoot
+                                v-model="categoriesRef"
+                                highlight-on-hover
+                                multiple
+                            >
+                                <PopoverAnchor>
+                                    <TagsInput
+                                        :disabled="form.processing"
+                                        :model-value="
+                                            selectedCategories.map(
+                                                (c) => c.name,
+                                            )
+                                        "
+                                        class="flex-wrap w-fit"
+                                    >
+                                        <TagsInputItem
+                                            v-for="category in selectedCategories"
+                                            :key="category.name"
+                                            :value="category.name"
+                                            class="w-auto shrink-0"
+                                        >
+                                            <TagsInputItemText />
+                                            <TagsInputItemDelete
+                                                @click="
+                                                    deleteCategory(category)
+                                                "
+                                            />
+                                        </TagsInputItem>
+
+                                        <ListboxFilter
+                                            v-model="searchTerm"
+                                            as-child
+                                        >
+                                            <TagsInputInput
+                                                :disabled="form.processing"
+                                                placeholder="Pilih Bucket"
+                                                @keydown.enter.prevent
+                                                @keydown.down="
+                                                    popoverOpen = true
+                                                "
+                                            />
+                                        </ListboxFilter>
+
+                                        <PopoverTrigger as-child>
+                                            <Button
+                                                type="button"
+                                                size="icon-sm"
+                                                variant="ghost"
+                                                class="order-last ml-auto self-start"
+                                            >
+                                                <ChevronDown class="size-3.5" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                    </TagsInput>
+                                </PopoverAnchor>
+
+                                <PopoverContent
+                                    class="p-1"
+                                    align="start"
+                                    @open-auto-focus.prevent
+                                >
+                                    <ListboxContent
+                                        class="max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto empty:p-1 empty:after:block empty:after:content-['No_options']"
+                                        tabindex="0"
+                                    >
+                                        <ListboxItem
+                                            v-for="item in filteredCategories"
+                                            :key="item.id"
+                                            class="relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground"
+                                            :value="item.id"
+                                            @select="
+                                                () => {
+                                                    searchTerm = '';
+                                                }
+                                            "
+                                        >
+                                            <span>{{ item.name }}</span>
+                                            <ListboxItemIndicator
+                                                class="ml-auto inline-flex items-center justify-center"
+                                            >
+                                                <CheckIcon />
+                                            </ListboxItemIndicator>
+                                        </ListboxItem>
+                                    </ListboxContent>
+                                </PopoverContent>
+                            </ListboxRoot>
+                        </Popover>
                         <p
-                            v-if="form.errors.nip"
+                            v-if="form.errors.categories"
                             class="text-xs text-destructive"
                         >
-                            {{ form.errors.nip }}
+                            {{ form.errors.categories }}
                         </p>
                     </div>
 

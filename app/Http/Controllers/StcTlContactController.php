@@ -15,7 +15,8 @@ class StcTlContactController extends Controller
     public function store(StcTlContactRequest $request)
     {
         $validated = $request->validated();
-        StcTlContact::create($validated);
+        $contact = StcTlContact::create($validated);
+        $contact->categories()->sync($request->categories);
         return back()->with('success', 'Kontak berhasil ditambahkan.');
     }
 
@@ -26,6 +27,7 @@ class StcTlContactController extends Controller
     {
         $validated = $request->validated();
         $stcTlContact->update($validated);
+        $stcTlContact->categories()->sync($request->categories);
         return back()->with('success', 'Kontak berhasil diperbarui.');
     }
 
@@ -35,6 +37,7 @@ class StcTlContactController extends Controller
     public function destroy(StcTlContact $stcTlContact)
     {
         try {
+            $stcTlContact->categories()->detach();
             $stcTlContact->delete();
             return back()->with('success', 'Kontak berhasil dihapus.');
         } catch (\Exception $e) {

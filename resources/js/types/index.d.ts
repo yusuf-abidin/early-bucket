@@ -186,6 +186,7 @@ export interface StcTlContact {
     nip: string;
     phone: string;
     role: string;
+    categories: Category[]
 }
 
 export type EditContactPayload = {
