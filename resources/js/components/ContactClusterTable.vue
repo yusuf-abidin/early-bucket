@@ -16,9 +16,8 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { Building2, MapPin, Landmark, UserPlus } from 'lucide-vue-next';
+import { Building2, MapPin, Landmark } from 'lucide-vue-next';
 import { ref } from 'vue';
 import ContactNameCell from '@/components/ContactNameCell.vue';
 import NipCell from '@/components/NipCell.vue';
@@ -60,6 +59,8 @@ const editStcTlContact = defineModel<{
 } | null>('edit-stc-tl-contact', {
     default: null,
 });
+
+const openedBranches = ref(new Set());
 
 const handleAddStcTlContact = (branch: Branch, role: 'STC' | 'TL') => {
     editStcTlContact.value = {
@@ -136,72 +137,65 @@ const copyPhone = async (phone: string, id: number) => {
     }, 1500);
 };
 
-const activeHover = ref<{
-    id: number | null;
-    type: 'regional' | 'area' | 'branch' | null;
-    section: 'wilayah' | 'rlqh' | 'clqh' | 'stc_tl' | null;
-}>({ id: null, type: null, section: null });
-
-const setHover = (
-    id: number | null,
-    type: 'regional' | 'area' | 'branch' | null = null,
-    section: 'wilayah' | 'rlqh' | 'clqh' | 'stc_tl' | null = null,
-) => {
-    activeHover.value = { id, type, section };
-};
-
-const isWilayahHighlighted = (
-    id: number,
-    type: 'regional' | 'area' | 'branch',
-    parentId?: number,
-) => {
-    const h = activeHover.value;
-    if (type === 'regional')
-        return h.type === 'regional' && h.id === id && h.section === 'rlqh';
-    if (type === 'area')
-        return h.type === 'area' && h.id === id && h.section === 'rlqh';
-    if (type === 'branch') {
-        return (
-            (h.type === 'branch' &&
-                h.id === id &&
-                (h.section === 'clqh' || h.section === 'stc_tl')) ||
-            (h.type === 'area' && h.id === parentId && h.section === 'rlqh')
-        );
-    }
-    return false;
-};
-
-const isDataHighlighted = (
-    id: number,
-    type: 'regional' | 'area' | 'branch',
-) => {
-    const h = activeHover.value;
-    return h.id === id && h.type === type && h.section === 'wilayah';
-};
-
 const getStcContacts = (branch: Branch) =>
     (branch.stc_tl_contacts ?? []).filter((c) => c.role === 'STC');
 
 const getTlContacts = (branch: Branch) =>
     (branch.stc_tl_contacts ?? []).filter((c) => c.role === 'TL');
 
-const branchRowspan = (branch: Branch) =>
-    Math.max(1, getStcContacts(branch).length, getTlContacts(branch).length);
-
-const areaRowspan = (area: Area) =>
-    1 + area.branches.reduce((acc, b) => acc + branchRowspan(b), 0);
+const handleClickBranch = (id: number) => {
+    if (openedBranches.value.has(id)) {
+        openedBranches.value.delete(id);
+    } else {
+        openedBranches.value.add(id);
+    }
+    console.log(openedBranches.value);
+};
 
 const handleClickRegion = (
     regional: Regional | null = null,
     area: Area | null = null,
-    branch: Branch | null = null
+    branch: Branch | null = null,
 ) => {
     selectedRegion.value = {
-        regional : regional,
+        regional: regional,
         area: area,
-        branch: branch
+        branch: branch,
     };
 };
+
+function onEnter(el: Element) {
+    const wrapper = (el as HTMLElement).querySelector(
+        '.accordion-wrapper',
+    ) as HTMLElement;
+    wrapper.style.height = '0';
+    wrapper.style.overflow = 'hidden';
+    requestAnimationFrame(() => {
+        wrapper.style.transition = 'height 0.3s ease';
+        wrapper.style.height = wrapper.scrollHeight + 'px';
+    });
+}
+
+function onAfterEnter(el: Element) {
+    const wrapper = (el as HTMLElement).querySelector(
+        '.accordion-wrapper',
+    ) as HTMLElement;
+    wrapper.style.height = 'auto';
+    wrapper.style.overflow = '';
+    wrapper.style.transition = '';
+}
+
+function onLeave(el: Element) {
+    const wrapper = (el as HTMLElement).querySelector(
+        '.accordion-wrapper',
+    ) as HTMLElement;
+    wrapper.style.height = wrapper.scrollHeight + 'px';
+    wrapper.style.overflow = 'hidden';
+    requestAnimationFrame(() => {
+        wrapper.style.transition = 'height 0.3s ease';
+        wrapper.style.height = '0';
+    });
+}
 </script>
 
 <template>
@@ -210,92 +204,13 @@ const handleClickRegion = (
             <Table class="border-separate border-spacing-0">
                 <!-- ── HEADER ─────────────────────────────────────────────── -->
                 <TableHeader class="sticky top-0 z-20 bg-background">
-                    <!-- Row 1 – group labels -->
                     <TableRow class="border-b-0">
                         <TableHead
-                            rowspan="2"
                             class="sticky left-0 z-30 border-r border-b bg-background text-center font-semibold tracking-wider uppercase"
                         >
                             Wilayah
                         </TableHead>
 
-                        <!-- RLQH / ALQH group -->
-                        <TableHead
-                            colspan="4"
-                            class="border-r border-b border-border bg-emerald-50/80 text-center"
-                        >
-                            <div
-                                class="flex items-center justify-center gap-1.5"
-                            >
-                                <span
-                                    class="inline-block h-2 w-2 rounded-full bg-emerald-500"
-                                ></span>
-                                <span
-                                    class="font-bold tracking-widest uppercase"
-                                >
-                                    RLQH / ALQH
-                                </span>
-                            </div>
-                        </TableHead>
-
-                        <!-- CLQH group -->
-                        <TableHead
-                            colspan="4"
-                            class="border-r border-b border-border bg-sky-50/80 text-center"
-                        >
-                            <div
-                                class="flex items-center justify-center gap-1.5"
-                            >
-                                <span
-                                    class="inline-block h-2 w-2 rounded-full bg-sky-500"
-                                ></span>
-                                <span
-                                    class="font-bold tracking-widest uppercase"
-                                >
-                                    CLQH
-                                </span>
-                            </div>
-                        </TableHead>
-
-                        <!-- STC group -->
-                        <TableHead
-                            colspan="4"
-                            class="border-r border-b border-border bg-violet-50/80 text-center"
-                        >
-                            <div
-                                class="flex items-center justify-center gap-1.5"
-                            >
-                                <span
-                                    class="inline-block h-2 w-2 rounded-full bg-violet-500"
-                                ></span>
-                                <span
-                                    class="font-bold tracking-widest uppercase"
-                                    >STC</span
-                                >
-                            </div>
-                        </TableHead>
-
-                        <!-- TL group -->
-                        <TableHead
-                            colspan="4"
-                            class="border-b border-border bg-amber-50/80 text-center"
-                        >
-                            <div
-                                class="flex items-center justify-center gap-1.5"
-                            >
-                                <span
-                                    class="inline-block h-2 w-2 rounded-full bg-amber-500"
-                                ></span>
-                                <span
-                                    class="font-bold tracking-widest uppercase"
-                                    >TL</span
-                                >
-                            </div>
-                        </TableHead>
-                    </TableRow>
-
-                    <!-- Row 2 – column sub-labels -->
-                    <TableRow class="bg-muted/20">
                         <!-- RLQH sub-cols -->
                         <TableHead class="border-r border-b text-center"
                             >Nama</TableHead
@@ -307,39 +222,6 @@ const handleClickRegion = (
                             >Kontak</TableHead
                         >
                         <TableHead class="w-10 border-r border-b"></TableHead>
-                        <!-- CLQH sub-cols -->
-                        <TableHead class="border-r border-b text-center"
-                            >Nama</TableHead
-                        >
-                        <TableHead class="border-r border-b text-center"
-                            >NIP</TableHead
-                        >
-                        <TableHead class="border-r border-b text-center"
-                            >Kontak</TableHead
-                        >
-                        <TableHead class="w-10 border-r border-b"></TableHead>
-                        <!-- STC sub-cols -->
-                        <TableHead class="border-r border-b text-center"
-                            >Nama</TableHead
-                        >
-                        <TableHead class="border-r border-b text-center"
-                            >Bucket</TableHead
-                        >
-                        <TableHead class="border-r border-b text-center"
-                            >Kontak</TableHead
-                        >
-                        <TableHead class="w-10 border-r border-b"></TableHead>
-                        <!-- TL sub-cols -->
-                        <TableHead class="border-r border-b text-center"
-                            >Nama</TableHead
-                        >
-                        <TableHead class="border-r border-b text-center"
-                            >Bucket</TableHead
-                        >
-                        <TableHead class="border-r border-b text-center"
-                            >Kontak</TableHead
-                        >
-                        <TableHead class="w-10 border-b"></TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -352,18 +234,6 @@ const handleClickRegion = (
                             <!-- Level label -->
                             <TableCell
                                 class="sticky left-0 z-10 border-r border-b border-border py-3 transition-colors"
-                                :class="[
-                                    isWilayahHighlighted(
-                                        regional.id,
-                                        'regional',
-                                    )
-                                        ? 'bg-muted'
-                                        : 'bg-background',
-                                ]"
-                                @mouseenter="
-                                    setHover(regional.id, 'regional', 'wilayah')
-                                "
-                                @mouseleave="setHover(null)"
                             >
                                 <div class="flex items-center gap-2.5">
                                     <div
@@ -380,9 +250,13 @@ const handleClickRegion = (
                                         </Badge>
                                         <p
                                             @click="
-                                                handleClickRegion(regional, null, null)
+                                                handleClickRegion(
+                                                    regional,
+                                                    null,
+                                                    null,
+                                                )
                                             "
-                                            class="text-sm leading-tight font-bold text-foreground hover:underline hover:cursor-pointer"
+                                            class="text-sm leading-tight font-bold text-foreground hover:cursor-pointer hover:underline"
                                         >
                                             {{ regional.name }}
                                         </p>
@@ -393,16 +267,6 @@ const handleClickRegion = (
                             <!-- RLQH – Regional -->
                             <TableCell
                                 class="border-r border-b border-border/40 py-3 text-center transition-colors"
-                                :class="{
-                                    'bg-muted': isDataHighlighted(
-                                        regional.id,
-                                        'regional',
-                                    ),
-                                }"
-                                @mouseenter="
-                                    setHover(regional.id, 'regional', 'rlqh')
-                                "
-                                @mouseleave="setHover(null)"
                             >
                                 <ContactNameCell
                                     :name="regional.contact_cluster?.name"
@@ -410,31 +274,11 @@ const handleClickRegion = (
                             </TableCell>
                             <TableCell
                                 class="border-r border-b border-border/40 py-3 text-center transition-colors"
-                                :class="{
-                                    'bg-muted': isDataHighlighted(
-                                        regional.id,
-                                        'regional',
-                                    ),
-                                }"
-                                @mouseenter="
-                                    setHover(regional.id, 'regional', 'rlqh')
-                                "
-                                @mouseleave="setHover(null)"
                             >
                                 <NipCell :nip="regional.contact_cluster?.nip" />
                             </TableCell>
                             <TableCell
                                 class="border-r border-b border-border/40 py-3 text-center transition-colors"
-                                :class="{
-                                    'bg-muted': isDataHighlighted(
-                                        regional.id,
-                                        'regional',
-                                    ),
-                                }"
-                                @mouseenter="
-                                    setHover(regional.id, 'regional', 'rlqh')
-                                "
-                                @mouseleave="setHover(null)"
                             >
                                 <PhoneCell
                                     :phone="regional.contact_cluster?.phone"
@@ -451,16 +295,6 @@ const handleClickRegion = (
                             </TableCell>
                             <TableCell
                                 class="border-r border-b border-border py-3 transition-colors"
-                                :class="{
-                                    'bg-muted': isDataHighlighted(
-                                        regional.id,
-                                        'regional',
-                                    ),
-                                }"
-                                @mouseenter="
-                                    setHover(regional.id, 'regional', 'rlqh')
-                                "
-                                @mouseleave="setHover(null)"
                             >
                                 <EditCell
                                     @edit="
@@ -471,23 +305,6 @@ const handleClickRegion = (
                                     "
                                 />
                             </TableCell>
-
-                            <!-- Empty cells -->
-                            <TableCell class="border-b" /><TableCell
-                                class="border-b"
-                            /><TableCell class="border-b" /><TableCell
-                                class="border-r border-b border-border"
-                            />
-                            <TableCell class="border-b" /><TableCell
-                                class="border-b"
-                            /><TableCell class="border-b" /><TableCell
-                                class="border-r border-b border-border"
-                            />
-                            <TableCell class="border-b" /><TableCell
-                                class="border-b"
-                            /><TableCell class="border-b" /><TableCell
-                                class="border-b"
-                            />
                         </TableRow>
 
                         <!-- ── AREA ROWS ─────────────────────────────────── -->
@@ -498,15 +315,6 @@ const handleClickRegion = (
                                 <!-- Area name -->
                                 <TableCell
                                     class="sticky left-0 z-10 border-r border-b border-border/40 py-2.5 transition-colors"
-                                    :class="[
-                                        isWilayahHighlighted(area.id, 'area')
-                                            ? 'bg-muted'
-                                            : 'bg-background',
-                                    ]"
-                                    @mouseenter="
-                                        setHover(area.id, 'area', 'wilayah')
-                                    "
-                                    @mouseleave="setHover(null)"
                                 >
                                     <div class="flex items-center gap-2 pl-4">
                                         <div
@@ -525,8 +333,15 @@ const handleClickRegion = (
                                                 Area
                                             </Badge>
                                             <p
-                                                @click="handleClickRegion(regional, area, null)"
-                                                class="text-sm font-semibold hover:underline hover:cursor-pointer">
+                                                @click="
+                                                    handleClickRegion(
+                                                        regional,
+                                                        area,
+                                                        null,
+                                                    )
+                                                "
+                                                class="text-sm font-semibold hover:cursor-pointer hover:underline"
+                                            >
                                                 {{ area.name }}
                                             </p>
                                         </div>
@@ -536,17 +351,6 @@ const handleClickRegion = (
                                 <!-- RLQH – Area (rowspan) -->
                                 <TableCell
                                     class="border-r border-b border-border/40 py-2.5 text-center align-middle transition-colors"
-                                    :rowspan="areaRowspan(area)"
-                                    :class="{
-                                        'bg-muted': isDataHighlighted(
-                                            area.id,
-                                            'area',
-                                        ),
-                                    }"
-                                    @mouseenter="
-                                        setHover(area.id, 'area', 'rlqh')
-                                    "
-                                    @mouseleave="setHover(null)"
                                 >
                                     <ContactNameCell
                                         :name="area.contact_cluster?.name"
@@ -554,33 +358,11 @@ const handleClickRegion = (
                                 </TableCell>
                                 <TableCell
                                     class="border-r border-b border-border/40 py-2.5 text-center align-middle transition-colors"
-                                    :rowspan="areaRowspan(area)"
-                                    :class="{
-                                        'bg-muted': isDataHighlighted(
-                                            area.id,
-                                            'area',
-                                        ),
-                                    }"
-                                    @mouseenter="
-                                        setHover(area.id, 'area', 'rlqh')
-                                    "
-                                    @mouseleave="setHover(null)"
                                 >
                                     <NipCell :nip="area.contact_cluster?.nip" />
                                 </TableCell>
                                 <TableCell
                                     class="border-r border-b border-border/40 py-2.5 text-center align-middle transition-colors"
-                                    :rowspan="areaRowspan(area)"
-                                    :class="{
-                                        'bg-muted': isDataHighlighted(
-                                            area.id,
-                                            'area',
-                                        ),
-                                    }"
-                                    @mouseenter="
-                                        setHover(area.id, 'area', 'rlqh')
-                                    "
-                                    @mouseleave="setHover(null)"
                                 >
                                     <PhoneCell
                                         :phone="area.contact_cluster?.phone"
@@ -597,17 +379,6 @@ const handleClickRegion = (
                                 </TableCell>
                                 <TableCell
                                     class="border-r border-b border-border py-2.5 align-middle transition-colors"
-                                    :rowspan="areaRowspan(area)"
-                                    :class="{
-                                        'bg-muted': isDataHighlighted(
-                                            area.id,
-                                            'area',
-                                        ),
-                                    }"
-                                    @mouseenter="
-                                        setHover(area.id, 'area', 'rlqh')
-                                    "
-                                    @mouseleave="setHover(null)"
                                 >
                                     <EditCell
                                         @edit="
@@ -618,23 +389,6 @@ const handleClickRegion = (
                                         "
                                     />
                                 </TableCell>
-
-                                <!-- Empty cells -->
-                                <TableCell class="border-b" /><TableCell
-                                    class="border-b"
-                                /><TableCell class="border-b" /><TableCell
-                                    class="border-r border-b border-border"
-                                />
-                                <TableCell class="border-b" /><TableCell
-                                    class="border-b"
-                                /><TableCell class="border-b" /><TableCell
-                                    class="border-r border-b border-border"
-                                />
-                                <TableCell class="border-b" /><TableCell
-                                    class="border-b"
-                                /><TableCell class="border-b" /><TableCell
-                                    class="border-b"
-                                />
                             </TableRow>
 
                             <!-- Branch rows inside Area -->
@@ -642,645 +396,19 @@ const handleClickRegion = (
                                 v-for="branch in area.branches"
                                 :key="branch.id"
                             >
-                                <template
-                                    v-for="(_, rowIdx) in Array(
-                                        branchRowspan(branch),
-                                    ).fill(null)"
-                                    :key="rowIdx"
-                                >
-                                    <TableRow
-                                        class="group border-t border-dashed border-border/40 transition-colors"
-                                    >
-                                        <!-- Branch name (Wilayah) -->
-                                        <TableCell
-                                            v-if="rowIdx === 0"
-                                            class="sticky left-0 z-10 border-r border-b border-border/40 py-2 align-middle transition-colors"
-                                            :rowspan="branchRowspan(branch)"
-                                            :class="[
-                                                isWilayahHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                    area.id,
-                                                )
-                                                    ? 'bg-muted'
-                                                    : 'bg-background',
-                                            ]"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'wilayah',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        >
-                                            <div
-                                                class="flex items-center gap-2 pl-10"
-                                            >
-                                                <div
-                                                    class="h-full w-0.5 shrink-0 self-stretch rounded-full bg-border/50"
-                                                ></div>
-                                                <div
-                                                    class="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground"
-                                                >
-                                                    <Building2
-                                                        class="h-2.5 w-2.5"
-                                                    />
-                                                </div>
-                                                <p
-                                                    @click="handleClickRegion(regional, area, branch)"
-                                                    class="text-sm text-foreground/90 hover:underline hover:cursor-pointer"
-                                                >
-                                                    {{ branch.name }}
-                                                </p>
-                                            </div>
-                                        </TableCell>
-
-                                        <!-- CLQH Branch (Data) -->
-                                        <TableCell
-                                            v-if="rowIdx === 0"
-                                            class="border-r border-b border-border/40 py-2 text-center align-middle transition-colors"
-                                            :rowspan="branchRowspan(branch)"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'clqh',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        >
-                                            <ContactNameCell
-                                                :name="
-                                                    branch.contact_cluster?.name
-                                                "
-                                            />
-                                        </TableCell>
-                                        <TableCell
-                                            v-if="rowIdx === 0"
-                                            class="border-r border-b border-border/40 py-2 text-center align-middle transition-colors"
-                                            :rowspan="branchRowspan(branch)"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'clqh',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        >
-                                            <NipCell
-                                                :nip="
-                                                    branch.contact_cluster?.nip
-                                                "
-                                            />
-                                        </TableCell>
-                                        <TableCell
-                                            v-if="rowIdx === 0"
-                                            class="border-r border-b border-border/40 py-2 text-center align-middle transition-colors"
-                                            :rowspan="branchRowspan(branch)"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'clqh',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        >
-                                            <PhoneCell
-                                                :phone="
-                                                    branch.contact_cluster
-                                                        ?.phone
-                                                "
-                                                :wa-link="
-                                                    createWhatsappLink(
-                                                        branch.contact_cluster
-                                                            ?.phone || null,
-                                                    )
-                                                "
-                                                :entity-id="branch.id"
-                                                :copied-id="copiedId"
-                                                @copy="copyPhone"
-                                            />
-                                        </TableCell>
-                                        <TableCell
-                                            v-if="rowIdx === 0"
-                                            class="border-r border-b border-border py-2 align-middle transition-colors"
-                                            :rowspan="branchRowspan(branch)"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'clqh',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        >
-                                            <EditCell
-                                                @edit="
-                                                    editBranchContact(
-                                                        branch,
-                                                        branch.contact_cluster,
-                                                    )
-                                                "
-                                            />
-                                        </TableCell>
-
-                                        <!-- STC Contacts (Data) -->
-                                        <template
-                                            v-if="
-                                                getStcContacts(branch)[rowIdx]
-                                            "
-                                        >
-                                            <TableCell
-                                                class="border-r border-b border-border/40 py-2 text-center transition-colors"
-                                                :class="{
-                                                    'bg-muted':
-                                                        isDataHighlighted(
-                                                            branch.id,
-                                                            'branch',
-                                                        ),
-                                                }"
-                                                @mouseenter="
-                                                    setHover(
-                                                        branch.id,
-                                                        'branch',
-                                                        'stc_tl',
-                                                    )
-                                                "
-                                                @mouseleave="setHover(null)"
-                                            >
-                                                <ContactNameCell
-                                                    :name="
-                                                        getStcContacts(branch)[
-                                                            rowIdx
-                                                        ].name
-                                                    "
-                                                />
-                                            </TableCell>
-                                            <TableCell
-                                                class="border-r border-b border-border/40 py-2 transition-colors"
-                                                :class="{
-                                                    'bg-muted':
-                                                        isDataHighlighted(
-                                                            branch.id,
-                                                            'branch',
-                                                        ),
-                                                }"
-                                                @mouseenter="
-                                                    setHover(
-                                                        branch.id,
-                                                        'branch',
-                                                        'stc_tl',
-                                                    )
-                                                "
-                                                @mouseleave="setHover(null)"
-                                            >
-                                                <BucketCell
-                                                    :categories="getStcContacts(branch)[rowIdx].categories"
-                                                />
-                                            </TableCell>
-                                            <TableCell
-                                                class="border-r border-b border-border/40 py-2 text-center transition-colors"
-                                                :class="{
-                                                    'bg-muted':
-                                                        isDataHighlighted(
-                                                            branch.id,
-                                                            'branch',
-                                                        ),
-                                                }"
-                                                @mouseenter="
-                                                    setHover(
-                                                        branch.id,
-                                                        'branch',
-                                                        'stc_tl',
-                                                    )
-                                                "
-                                                @mouseleave="setHover(null)"
-                                            >
-                                                <PhoneCell
-                                                    :phone="
-                                                        getStcContacts(branch)[
-                                                            rowIdx
-                                                        ].phone
-                                                    "
-                                                    :wa-link="
-                                                        createWhatsappLink(
-                                                            getStcContacts(
-                                                                branch,
-                                                            )[rowIdx].phone,
-                                                        )
-                                                    "
-                                                    :entity-id="
-                                                        getStcContacts(branch)[
-                                                            rowIdx
-                                                        ].id
-                                                    "
-                                                    :copied-id="copiedId"
-                                                    @copy="copyPhone"
-                                                />
-                                            </TableCell>
-                                            <TableCell
-                                                class="border-r border-b border-border py-2 text-center transition-colors"
-                                                :class="{
-                                                    'bg-muted':
-                                                        isDataHighlighted(
-                                                            branch.id,
-                                                            'branch',
-                                                        ),
-                                                }"
-                                                @mouseenter="
-                                                    setHover(
-                                                        branch.id,
-                                                        'branch',
-                                                        'stc_tl',
-                                                    )
-                                                "
-                                                @mouseleave="setHover(null)"
-                                            >
-                                                <div
-                                                    class="flex items-center justify-center gap-1"
-                                                >
-                                                    <EditCell
-                                                        @edit="
-                                                            handleEditStcTlContact(
-                                                                branch,
-                                                                'STC',
-                                                                getStcContacts(
-                                                                    branch,
-                                                                )[rowIdx],
-                                                            )
-                                                        "
-                                                    />
-                                                    <Button
-                                                        v-if="
-                                                            rowIdx ===
-                                                            getStcContacts(
-                                                                branch,
-                                                            ).length -
-                                                                1
-                                                        "
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        class="h-7 w-7 text-violet-500 hover:bg-violet-50"
-                                                        @click="
-                                                            handleAddStcTlContact(
-                                                                branch,
-                                                                'STC',
-                                                            )
-                                                        "
-                                                    >
-                                                        <UserPlus
-                                                            class="h-3.5 w-3.5"
-                                                        />
-                                                    </Button>
-                                                </div>
-                                            </TableCell>
-                                        </template>
-                                        <template v-else>
-                                            <TableCell
-                                                v-for="i in 3"
-                                                :key="i"
-                                                class="border-r border-b border-border/40 transition-colors"
-                                                :class="{
-                                                    'bg-muted':
-                                                        isDataHighlighted(
-                                                            branch.id,
-                                                            'branch',
-                                                        ),
-                                                }"
-                                                @mouseenter="
-                                                    setHover(
-                                                        branch.id,
-                                                        'branch',
-                                                        'stc_tl',
-                                                    )
-                                                "
-                                                @mouseleave="setHover(null)"
-                                            />
-                                            <TableCell
-                                                class="border-r border-b border-border py-2 text-center transition-colors"
-                                                :class="{
-                                                    'bg-muted':
-                                                        isDataHighlighted(
-                                                            branch.id,
-                                                            'branch',
-                                                        ),
-                                                }"
-                                                @mouseenter="
-                                                    setHover(
-                                                        branch.id,
-                                                        'branch',
-                                                        'stc_tl',
-                                                    )
-                                                "
-                                                @mouseleave="setHover(null)"
-                                            >
-                                                <Button
-                                                    v-if="
-                                                        rowIdx === 0 &&
-                                                        getStcContacts(branch)
-                                                            .length === 0
-                                                    "
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    class="h-7 w-7 text-violet-400 hover:bg-violet-50"
-                                                    @click="
-                                                        handleAddStcTlContact(
-                                                            branch,
-                                                            'STC',
-                                                        )
-                                                    "
-                                                >
-                                                    <UserPlus
-                                                        class="h-3.5 w-3.5"
-                                                    />
-                                                </Button>
-                                            </TableCell>
-                                        </template>
-
-                                        <!-- TL Contacts (Data) -->
-                                        <template
-                                            v-if="getTlContacts(branch)[rowIdx]"
-                                        >
-                                            <TableCell
-                                                class="border-r border-b border-border/40 py-2 text-center transition-colors"
-                                                :class="{
-                                                    'bg-muted':
-                                                        isDataHighlighted(
-                                                            branch.id,
-                                                            'branch',
-                                                        ),
-                                                }"
-                                                @mouseenter="
-                                                    setHover(
-                                                        branch.id,
-                                                        'branch',
-                                                        'stc_tl',
-                                                    )
-                                                "
-                                                @mouseleave="setHover(null)"
-                                            >
-                                                <ContactNameCell
-                                                    :name="
-                                                        getTlContacts(branch)[
-                                                            rowIdx
-                                                        ].name
-                                                    "
-                                                />
-                                            </TableCell>
-                                            <TableCell
-                                                class="border-r border-b border-border/40 py-2 transition-colors"
-                                                :class="{
-                                                    'bg-muted':
-                                                        isDataHighlighted(
-                                                            branch.id,
-                                                            'branch',
-                                                        ),
-                                                }"
-                                                @mouseenter="
-                                                    setHover(
-                                                        branch.id,
-                                                        'branch',
-                                                        'stc_tl',
-                                                    )
-                                                "
-                                                @mouseleave="setHover(null)"
-                                            >
-                                                <BucketCell
-                                                    :categories="
-                                                        getTlContacts(branch)[
-                                                            rowIdx
-                                                        ].categories
-                                                    "
-                                                />
-                                            </TableCell>
-                                            <TableCell
-                                                class="border-r border-b border-border/40 py-2 text-center transition-colors"
-                                                :class="{
-                                                    'bg-muted':
-                                                        isDataHighlighted(
-                                                            branch.id,
-                                                            'branch',
-                                                        ),
-                                                }"
-                                                @mouseenter="
-                                                    setHover(
-                                                        branch.id,
-                                                        'branch',
-                                                        'stc_tl',
-                                                    )
-                                                "
-                                                @mouseleave="setHover(null)"
-                                            >
-                                                <PhoneCell
-                                                    :phone="
-                                                        getTlContacts(branch)[
-                                                            rowIdx
-                                                        ].phone
-                                                    "
-                                                    :wa-link="
-                                                        createWhatsappLink(
-                                                            getTlContacts(
-                                                                branch,
-                                                            )[rowIdx].phone,
-                                                        )
-                                                    "
-                                                    :entity-id="
-                                                        getTlContacts(branch)[
-                                                            rowIdx
-                                                        ].id
-                                                    "
-                                                    :copied-id="copiedId"
-                                                    @copy="copyPhone"
-                                                />
-                                            </TableCell>
-                                            <TableCell
-                                                class="border-b py-2 text-center transition-colors"
-                                                :class="{
-                                                    'bg-muted':
-                                                        isDataHighlighted(
-                                                            branch.id,
-                                                            'branch',
-                                                        ),
-                                                }"
-                                                @mouseenter="
-                                                    setHover(
-                                                        branch.id,
-                                                        'branch',
-                                                        'stc_tl',
-                                                    )
-                                                "
-                                                @mouseleave="setHover(null)"
-                                            >
-                                                <div
-                                                    class="flex items-center justify-center gap-1"
-                                                >
-                                                    <EditCell
-                                                        @edit="
-                                                            handleEditStcTlContact(
-                                                                branch,
-                                                                'TL',
-                                                                getTlContacts(
-                                                                    branch,
-                                                                )[rowIdx],
-                                                            )
-                                                        "
-                                                    />
-                                                    <Button
-                                                        v-if="
-                                                            rowIdx ===
-                                                            getTlContacts(
-                                                                branch,
-                                                            ).length -
-                                                                1
-                                                        "
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        class="h-7 w-7 text-amber-500 hover:bg-amber-50"
-                                                        @click="
-                                                            handleAddStcTlContact(
-                                                                branch,
-                                                                'TL',
-                                                            )
-                                                        "
-                                                    >
-                                                        <UserPlus
-                                                            class="h-3.5 w-3.5"
-                                                        />
-                                                    </Button>
-                                                </div>
-                                            </TableCell>
-                                        </template>
-                                        <template v-else>
-                                            <TableCell
-                                                v-for="i in 3"
-                                                :key="i"
-                                                class="border-r border-b border-border/40 transition-colors"
-                                                :class="{
-                                                    'bg-muted':
-                                                        isDataHighlighted(
-                                                            branch.id,
-                                                            'branch',
-                                                        ),
-                                                }"
-                                                @mouseenter="
-                                                    setHover(
-                                                        branch.id,
-                                                        'branch',
-                                                        'stc_tl',
-                                                    )
-                                                "
-                                                @mouseleave="setHover(null)"
-                                            />
-                                            <TableCell
-                                                class="border-b py-2 text-center transition-colors"
-                                                :class="{
-                                                    'bg-muted':
-                                                        isDataHighlighted(
-                                                            branch.id,
-                                                            'branch',
-                                                        ),
-                                                }"
-                                                @mouseenter="
-                                                    setHover(
-                                                        branch.id,
-                                                        'branch',
-                                                        'stc_tl',
-                                                    )
-                                                "
-                                                @mouseleave="setHover(null)"
-                                            >
-                                                <Button
-                                                    v-if="
-                                                        rowIdx === 0 &&
-                                                        getTlContacts(branch)
-                                                            .length === 0
-                                                    "
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    class="h-7 w-7 text-amber-400 hover:bg-amber-50"
-                                                    @click="
-                                                        handleAddStcTlContact(
-                                                            branch,
-                                                            'TL',
-                                                        )
-                                                    "
-                                                >
-                                                    <UserPlus
-                                                        class="h-3.5 w-3.5"
-                                                    />
-                                                </Button>
-                                            </TableCell>
-                                        </template>
-                                    </TableRow>
-                                </template>
-                            </template>
-                        </template>
-
-                        <!-- ── BRANCH DIRECT TO REGIONAL ────────────────── -->
-                        <template
-                            v-for="branch in regional.branches"
-                            :key="branch.id"
-                        >
-                            <template
-                                v-for="(_, rowIdx) in Array(
-                                    branchRowspan(branch),
-                                ).fill(null)"
-                                :key="rowIdx"
-                            >
                                 <TableRow
                                     class="group border-t border-dashed border-border/40 transition-colors"
                                 >
+                                    <!-- Branch name (Wilayah) -->
                                     <TableCell
-                                        v-if="rowIdx === 0"
                                         class="sticky left-0 z-10 border-r border-b border-border/40 py-2 align-middle transition-colors"
-                                        :rowspan="branchRowspan(branch)"
-                                        :class="[
-                                            isWilayahHighlighted(
-                                                branch.id,
-                                                'branch',
-                                            )
-                                                ? 'bg-muted'
-                                                : 'bg-background',
-                                        ]"
-                                        @mouseenter="
-                                            setHover(
-                                                branch.id,
-                                                'branch',
-                                                'wilayah',
-                                            )
-                                        "
-                                        @mouseleave="setHover(null)"
                                     >
                                         <div
-                                            class="flex items-center gap-2 pl-4"
+                                            class="flex items-center gap-2 pl-10"
                                         >
+                                            <div
+                                                class="h-full w-0.5 shrink-0 self-stretch rounded-full bg-border/50"
+                                            ></div>
                                             <div
                                                 class="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground"
                                             >
@@ -1289,97 +417,33 @@ const handleClickRegion = (
                                                 />
                                             </div>
                                             <p
-                                                class="text-sm text-foreground/90"
+                                                @click="
+                                                    handleClickBranch(branch.id)
+                                                "
+                                                class="text-sm text-foreground/90 hover:cursor-pointer hover:underline"
                                             >
                                                 {{ branch.name }}
                                             </p>
                                         </div>
                                     </TableCell>
 
-                                    <!-- Empty cells for RLQH -->
+                                    <!-- CLQH Branch (Data) -->
                                     <TableCell
-                                        v-if="rowIdx === 0"
-                                        class="border-b"
-                                        :rowspan="branchRowspan(branch)"
-                                    /><TableCell
-                                        v-if="rowIdx === 0"
-                                        class="border-b"
-                                        :rowspan="branchRowspan(branch)"
-                                    /><TableCell
-                                        v-if="rowIdx === 0"
-                                        class="border-b"
-                                        :rowspan="branchRowspan(branch)"
-                                    /><TableCell
-                                        v-if="rowIdx === 0"
-                                        class="border-r border-b border-border"
-                                        :rowspan="branchRowspan(branch)"
-                                    />
-
-                                    <!-- CLQH Cells -->
-                                    <TableCell
-                                        v-if="rowIdx === 0"
                                         class="border-r border-b border-border/40 py-2 text-center align-middle transition-colors"
-                                        :rowspan="branchRowspan(branch)"
-                                        :class="{
-                                            'bg-muted': isDataHighlighted(
-                                                branch.id,
-                                                'branch',
-                                            ),
-                                        }"
-                                        @mouseenter="
-                                            setHover(
-                                                branch.id,
-                                                'branch',
-                                                'clqh',
-                                            )
-                                        "
-                                        @mouseleave="setHover(null)"
                                     >
                                         <ContactNameCell
                                             :name="branch.contact_cluster?.name"
                                         />
                                     </TableCell>
                                     <TableCell
-                                        v-if="rowIdx === 0"
                                         class="border-r border-b border-border/40 py-2 text-center align-middle transition-colors"
-                                        :rowspan="branchRowspan(branch)"
-                                        :class="{
-                                            'bg-muted': isDataHighlighted(
-                                                branch.id,
-                                                'branch',
-                                            ),
-                                        }"
-                                        @mouseenter="
-                                            setHover(
-                                                branch.id,
-                                                'branch',
-                                                'clqh',
-                                            )
-                                        "
-                                        @mouseleave="setHover(null)"
                                     >
                                         <NipCell
                                             :nip="branch.contact_cluster?.nip"
                                         />
                                     </TableCell>
                                     <TableCell
-                                        v-if="rowIdx === 0"
                                         class="border-r border-b border-border/40 py-2 text-center align-middle transition-colors"
-                                        :rowspan="branchRowspan(branch)"
-                                        :class="{
-                                            'bg-muted': isDataHighlighted(
-                                                branch.id,
-                                                'branch',
-                                            ),
-                                        }"
-                                        @mouseenter="
-                                            setHover(
-                                                branch.id,
-                                                'branch',
-                                                'clqh',
-                                            )
-                                        "
-                                        @mouseleave="setHover(null)"
                                     >
                                         <PhoneCell
                                             :phone="
@@ -1388,7 +452,7 @@ const handleClickRegion = (
                                             :wa-link="
                                                 createWhatsappLink(
                                                     branch.contact_cluster
-                                                        ?.phone || '',
+                                                        ?.phone || null,
                                                 )
                                             "
                                             :entity-id="branch.id"
@@ -1397,23 +461,7 @@ const handleClickRegion = (
                                         />
                                     </TableCell>
                                     <TableCell
-                                        v-if="rowIdx === 0"
                                         class="border-r border-b border-border py-2 align-middle transition-colors"
-                                        :rowspan="branchRowspan(branch)"
-                                        :class="{
-                                            'bg-muted': isDataHighlighted(
-                                                branch.id,
-                                                'branch',
-                                            ),
-                                        }"
-                                        @mouseenter="
-                                            setHover(
-                                                branch.id,
-                                                'branch',
-                                                'clqh',
-                                            )
-                                        "
-                                        @mouseleave="setHover(null)"
                                     >
                                         <EditCell
                                             @edit="
@@ -1424,400 +472,518 @@ const handleClickRegion = (
                                             "
                                         />
                                     </TableCell>
-
-                                    <!-- STC & TL (Data) -->
-                                    <template
-                                        v-if="getStcContacts(branch)[rowIdx]"
-                                    >
-                                        <TableCell
-                                            class="border-r border-b border-border/40 py-2 text-center transition-colors"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'stc_tl',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        >
-                                            <ContactNameCell
-                                                :name="
-                                                    getStcContacts(branch)[
-                                                        rowIdx
-                                                    ].name
-                                                "
-                                            />
-                                        </TableCell>
-                                        <TableCell
-                                            class="border-r border-b border-border/40 py-2 text-center transition-colors"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'stc_tl',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        >
-                                            <BucketCell
-                                                    :categories="getStcContacts(branch)[rowIdx].categories"
-                                                />
-                                        </TableCell>
-                                        <TableCell
-                                            class="border-r border-b border-border/40 py-2 text-center transition-colors"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'stc_tl',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        >
-                                            <PhoneCell
-                                                :phone="
-                                                    getStcContacts(branch)[
-                                                        rowIdx
-                                                    ].phone
-                                                "
-                                                :wa-link="
-                                                    createWhatsappLink(
-                                                        getStcContacts(branch)[
-                                                            rowIdx
-                                                        ].phone,
-                                                    )
-                                                "
-                                                :entity-id="
-                                                    getStcContacts(branch)[
-                                                        rowIdx
-                                                    ].id
-                                                "
-                                                :copied-id="copiedId"
-                                                @copy="copyPhone"
-                                            />
-                                        </TableCell>
-                                        <TableCell
-                                            class="border-r border-b border-border py-2 text-center transition-colors"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'stc_tl',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        >
-                                            <div
-                                                class="flex items-center justify-center gap-1"
-                                            >
-                                                <EditCell
-                                                    @edit="
-                                                        handleEditStcTlContact(
-                                                            branch,
-                                                            'STC',
-                                                            getStcContacts(
-                                                                branch,
-                                                            )[rowIdx],
-                                                        )
-                                                    "
-                                                /><Button
-                                                    v-if="
-                                                        rowIdx ===
-                                                        getStcContacts(branch)
-                                                            .length -
-                                                            1
-                                                    "
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    class="h-7 w-7 text-violet-500 hover:bg-violet-50"
-                                                    @click="
-                                                        handleAddStcTlContact(
-                                                            branch,
-                                                            'STC',
-                                                        )
-                                                    "
-                                                    ><UserPlus
-                                                        class="h-3.5 w-3.5"
-                                                /></Button>
-                                            </div>
-                                        </TableCell>
-                                    </template>
-                                    <template v-else>
-                                        <TableCell
-                                            v-for="i in 3"
-                                            :key="i"
-                                            class="border-r border-b border-border/40 transition-colors"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'stc_tl',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        /><TableCell
-                                            class="border-r border-b border-border py-2 text-center transition-colors"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'stc_tl',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                            ><Button
-                                                v-if="
-                                                    rowIdx === 0 &&
-                                                    getStcContacts(branch)
-                                                        .length === 0
-                                                "
-                                                variant="ghost"
-                                                size="icon"
-                                                class="h-7 w-7 text-violet-400 hover:bg-violet-50"
-                                                @click="
-                                                    handleAddStcTlContact(
-                                                        branch,
-                                                        'STC',
-                                                    )
-                                                "
-                                                ><UserPlus
-                                                    class="h-3.5 w-3.5" /></Button
-                                        ></TableCell>
-                                    </template>
-
-                                    <!-- TL Contacts (Data) -->
-                                    <template
-                                        v-if="getTlContacts(branch)[rowIdx]"
-                                    >
-                                        <TableCell
-                                            class="border-r border-b border-border/40 py-2 text-center transition-colors"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'stc_tl',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        >
-                                            <ContactNameCell
-                                                :name="
-                                                    getTlContacts(branch)[
-                                                        rowIdx
-                                                    ].name
-                                                "
-                                            />
-                                        </TableCell>
-                                        <TableCell
-                                            class="border-r border-b border-border/40 py-2 text-center transition-colors"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'stc_tl',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        >
-                                            <BucketCell
-                                                    :categories="getTlContacts(branch)[rowIdx].categories"
-                                                />
-                                        </TableCell>
-                                        <TableCell
-                                            class="border-r border-b border-border/40 py-2 text-center transition-colors"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'stc_tl',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        >
-                                            <PhoneCell
-                                                :phone="
-                                                    getTlContacts(branch)[
-                                                        rowIdx
-                                                    ].phone
-                                                "
-                                                :wa-link="
-                                                    createWhatsappLink(
-                                                        getTlContacts(branch)[
-                                                            rowIdx
-                                                        ].phone,
-                                                    )
-                                                "
-                                                :entity-id="
-                                                    getTlContacts(branch)[
-                                                        rowIdx
-                                                    ].id
-                                                "
-                                                :copied-id="copiedId"
-                                                @copy="copyPhone"
-                                            />
-                                        </TableCell>
-                                        <TableCell
-                                            class="border-b py-2 text-center transition-colors"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'stc_tl',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        >
-                                            <div
-                                                class="flex items-center justify-center gap-1"
-                                            >
-                                                <EditCell
-                                                    @edit="
-                                                        handleEditStcTlContact(
-                                                            branch,
-                                                            'TL',
-                                                            getTlContacts(
-                                                                branch,
-                                                            )[rowIdx],
-                                                        )
-                                                    "
-                                                /><Button
-                                                    v-if="
-                                                        rowIdx ===
-                                                        getTlContacts(branch)
-                                                            .length -
-                                                            1
-                                                    "
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    class="h-7 w-7 text-amber-500 hover:bg-amber-50"
-                                                    @click="
-                                                        handleAddStcTlContact(
-                                                            branch,
-                                                            'TL',
-                                                        )
-                                                    "
-                                                    ><UserPlus
-                                                        class="h-3.5 w-3.5"
-                                                /></Button>
-                                            </div>
-                                        </TableCell>
-                                    </template>
-                                    <template v-else>
-                                        <TableCell
-                                            v-for="i in 3"
-                                            :key="i"
-                                            class="border-r border-b border-border/40 transition-colors"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'stc_tl',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                        /><TableCell
-                                            class="border-b py-2 text-center transition-colors"
-                                            :class="{
-                                                'bg-muted': isDataHighlighted(
-                                                    branch.id,
-                                                    'branch',
-                                                ),
-                                            }"
-                                            @mouseenter="
-                                                setHover(
-                                                    branch.id,
-                                                    'branch',
-                                                    'stc_tl',
-                                                )
-                                            "
-                                            @mouseleave="setHover(null)"
-                                            ><Button
-                                                v-if="
-                                                    rowIdx === 0 &&
-                                                    getTlContacts(branch)
-                                                        .length === 0
-                                                "
-                                                variant="ghost"
-                                                size="icon"
-                                                class="h-7 w-7 text-amber-400 hover:bg-amber-50"
-                                                @click="
-                                                    handleAddStcTlContact(
-                                                        branch,
-                                                        'TL',
-                                                    )
-                                                "
-                                                ><UserPlus
-                                                    class="h-3.5 w-3.5" /></Button
-                                        ></TableCell>
-                                    </template>
                                 </TableRow>
+                                <!-- EXPANDABLE ROW -->
+                                <Transition
+                                    name="accordion"
+                                    @enter="onEnter"
+                                    @after-enter="onAfterEnter"
+                                    @leave="onLeave"
+                                >
+                                    <TableRow
+                                        v-if="openedBranches.has(branch.id)"
+                                    >
+                                        <TableCell
+                                            colspan="5"
+                                            class="border-b p-0"
+                                        >
+                                            <div class="accordion-wrapper">
+                                                <div
+                                                    class="flex flex-row gap-4 p-4"
+                                                >
+                                                    <!-- STC SECTION -->
+                                                    <div class="w-1/2">
+                                                        <div
+                                                            class="mb-1.5 flex items-center justify-between"
+                                                        >
+                                                            <h4
+                                                                class="font-semibold"
+                                                            >
+                                                                STC
+                                                                {{
+                                                                    branch.name
+                                                                }}
+                                                            </h4>
+                                                            <button
+                                                                @click="
+                                                                    handleAddStcTlContact(
+                                                                        branch,
+                                                                        'STC',
+                                                                    )
+                                                                "
+                                                                class="rounded bg-primary px-3 py-1 text-xs text-white"
+                                                            >
+                                                                + Tambah STC
+                                                            </button>
+                                                        </div>
+
+                                                        <div
+                                                            class="space-y-1.5"
+                                                        >
+                                                            <div
+                                                                v-for="stc in getStcContacts(
+                                                                    branch,
+                                                                )"
+                                                                :key="stc.id"
+                                                                class="relative rounded border bg-background p-2"
+                                                            >
+                                                                <!-- tombol edit -->
+                                                                <button
+                                                                    @click="
+                                                                        handleEditStcTlContact(
+                                                                            branch,
+                                                                            'STC',
+                                                                            stc,
+                                                                        )
+                                                                    "
+                                                                    class="absolute top-2 right-2 rounded bg-muted px-2 py-1 text-xs transition-all group-hover:visible hover:bg-primary/10 hover:text-primary active:scale-95"
+                                                                >
+                                                                    <svg
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        fill="none"
+                                                                        viewBox="0 0 24 24"
+                                                                        stroke-width="2"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round"
+                                                                        stroke="currentColor"
+                                                                        class="h-3.5 w-3.5"
+                                                                    >
+                                                                        <path
+                                                                            d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
+                                                                        />
+                                                                        <path
+                                                                            d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
+                                                                        />
+                                                                    </svg>
+                                                                </button>
+
+                                                                <div
+                                                                    class="pr-8 font-medium"
+                                                                >
+                                                                    {{
+                                                                        stc.name
+                                                                    }}
+                                                                </div>
+
+                                                                <PhoneCell
+                                                                    class="block"
+                                                                    :phone="
+                                                                        stc.phone
+                                                                    "
+                                                                    :wa-link="
+                                                                        createWhatsappLink(
+                                                                            stc.phone ||
+                                                                                null,
+                                                                        )
+                                                                    "
+                                                                    :entity-id="
+                                                                        stc.id
+                                                                    "
+                                                                    :copied-id="
+                                                                        copiedId
+                                                                    "
+                                                                    @copy="
+                                                                        copyPhone
+                                                                    "
+                                                                />
+
+                                                                <BucketCell
+                                                                    :categories="
+                                                                        stc.categories
+                                                                    "
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- TL SECTION -->
+                                                    <div class="w-1/2">
+                                                        <div
+                                                            class="mb-1.5 flex items-center justify-between"
+                                                        >
+                                                            <h4
+                                                                class="font-semibold"
+                                                            >
+                                                                TL
+                                                                {{
+                                                                    branch.name
+                                                                }}
+                                                            </h4>
+                                                            <button
+                                                                @click="
+                                                                    handleAddStcTlContact(
+                                                                        branch,
+                                                                        'TL',
+                                                                    )
+                                                                "
+                                                                class="rounded bg-primary px-3 py-1 text-xs text-white"
+                                                            >
+                                                                + Tambah TL
+                                                            </button>
+                                                        </div>
+
+                                                        <div
+                                                            class="space-y-1.5"
+                                                        >
+                                                            <div
+                                                                v-for="tl in getTlContacts(
+                                                                    branch,
+                                                                )"
+                                                                :key="tl.id"
+                                                                class="relative rounded border bg-background p-2"
+                                                            >
+                                                                <button
+                                                                    @click="
+                                                                        handleEditStcTlContact(
+                                                                            branch,
+                                                                            'TL',
+                                                                            tl,
+                                                                        )
+                                                                    "
+                                                                    class="absolute top-2 right-2 rounded bg-muted px-2 py-1 text-xs transition-all group-hover:visible hover:bg-primary/10 hover:text-primary active:scale-95"
+                                                                >
+                                                                    <svg
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        fill="none"
+                                                                        viewBox="0 0 24 24"
+                                                                        stroke-width="2"
+                                                                        stroke-linecap="round"
+                                                                        stroke-linejoin="round"
+                                                                        stroke="currentColor"
+                                                                        class="h-3.5 w-3.5"
+                                                                    >
+                                                                        <path
+                                                                            d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
+                                                                        />
+                                                                        <path
+                                                                            d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
+                                                                        />
+                                                                    </svg>
+                                                                </button>
+                                                                <div
+                                                                    class="pr-8 font-medium"
+                                                                >
+                                                                    {{
+                                                                        tl.name
+                                                                    }}
+                                                                </div>
+                                                                <PhoneCell
+                                                                    :phone="
+                                                                        tl.phone
+                                                                    "
+                                                                    :wa-link="
+                                                                        createWhatsappLink(
+                                                                            tl.phone ||
+                                                                                null,
+                                                                        )
+                                                                    "
+                                                                    :entity-id="
+                                                                        tl.id
+                                                                    "
+                                                                    :copied-id="
+                                                                        copiedId
+                                                                    "
+                                                                    @copy="
+                                                                        copyPhone
+                                                                    "
+                                                                />
+                                                                <BucketCell
+                                                                    :categories="
+                                                                        tl.categories
+                                                                    "
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                </Transition>
                             </template>
+                        </template>
+
+                        <!-- ── BRANCH DIRECT TO REGIONAL ────────────────── -->
+                        <template
+                            v-for="branch in regional.branches"
+                            :key="branch.id"
+                        >
+                            <TableRow
+                                class="group border-t border-dashed border-border/40 transition-colors"
+                            >
+                                <TableCell
+                                    class="sticky left-0 z-10 border-r border-b border-border/40 py-2 align-middle transition-colors"
+                                >
+                                    <div class="flex items-center gap-2 pl-4">
+                                        <div
+                                            class="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground"
+                                        >
+                                            <Building2 class="h-2.5 w-2.5" />
+                                        </div>
+                                        <p
+                                            @click="
+                                                handleClickBranch(branch.id)
+                                            "
+                                            class="text-sm text-foreground/90 hover:cursor-pointer hover:underline"
+                                        >
+                                            {{ branch.name }}
+                                        </p>
+                                    </div>
+                                </TableCell>
+
+                                <!-- CLQH Cells -->
+                                <TableCell
+                                    class="border-r border-b border-border/40 py-2 text-center align-middle transition-colors"
+                                >
+                                    <ContactNameCell
+                                        :name="branch.contact_cluster?.name"
+                                    />
+                                </TableCell>
+                                <TableCell
+                                    class="border-r border-b border-border/40 py-2 text-center align-middle transition-colors"
+                                >
+                                    <NipCell
+                                        :nip="branch.contact_cluster?.nip"
+                                    />
+                                </TableCell>
+                                <TableCell
+                                    class="border-r border-b border-border/40 py-2 text-center align-middle transition-colors"
+                                >
+                                    <PhoneCell
+                                        :phone="branch.contact_cluster?.phone"
+                                        :wa-link="
+                                            createWhatsappLink(
+                                                branch.contact_cluster?.phone ||
+                                                    '',
+                                            )
+                                        "
+                                        :entity-id="branch.id"
+                                        :copied-id="copiedId"
+                                        @copy="copyPhone"
+                                    />
+                                </TableCell>
+                                <TableCell
+                                    class="border-r border-b border-border py-2 align-middle transition-colors"
+                                >
+                                    <EditCell
+                                        @edit="
+                                            editBranchContact(
+                                                branch,
+                                                branch.contact_cluster,
+                                            )
+                                        "
+                                    />
+                                </TableCell>
+                            </TableRow>
+                            <!-- EXPANDABLE ROW -->
+                            <Transition
+                                name="accordion"
+                                @enter="onEnter"
+                                @after-enter="onAfterEnter"
+                                @leave="onLeave"
+                            >
+                                <TableRow v-if="openedBranches.has(branch.id)">
+                                    <TableCell colspan="5" class="border-b p-0">
+                                        <div class="accordion-wrapper">
+                                            <div
+                                                class="flex flex-row gap-4 p-4"
+                                            >
+                                                <!-- STC SECTION -->
+                                                <div class="w-1/2">
+                                                    <div
+                                                        class="mb-1.5 flex items-center justify-between"
+                                                    >
+                                                        <h4
+                                                            class="font-semibold"
+                                                        >
+                                                            STC
+                                                            {{ branch.name }}
+                                                        </h4>
+                                                        <button
+                                                            @click="
+                                                                handleAddStcTlContact(
+                                                                    branch,
+                                                                    'STC',
+                                                                )
+                                                            "
+                                                            class="rounded bg-primary px-3 py-1 text-xs text-white"
+                                                        >
+                                                            + Tambah STC
+                                                        </button>
+                                                    </div>
+
+                                                    <div class="space-y-1.5">
+                                                        <div
+                                                            v-for="stc in getStcContacts(
+                                                                branch,
+                                                            )"
+                                                            :key="stc.id"
+                                                            class="relative rounded border bg-background p-2"
+                                                        >
+                                                            <!-- tombol edit -->
+                                                            <button
+                                                                @click="
+                                                                    handleEditStcTlContact(
+                                                                        branch,
+                                                                        'STC',
+                                                                        stc,
+                                                                    )
+                                                                "
+                                                                class="absolute top-2 right-2 rounded bg-muted px-2 py-1 text-xs transition-all group-hover:visible hover:bg-primary/10 hover:text-primary active:scale-95"
+                                                            >
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    fill="none"
+                                                                    viewBox="0 0 24 24"
+                                                                    stroke-width="2"
+                                                                    stroke-linecap="round"
+                                                                    stroke-linejoin="round"
+                                                                    stroke="currentColor"
+                                                                    class="h-3.5 w-3.5"
+                                                                >
+                                                                    <path
+                                                                        d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
+                                                                    />
+                                                                    <path
+                                                                        d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+
+                                                            <div
+                                                                class="pr-8 font-medium"
+                                                            >
+                                                                {{ stc.name }}
+                                                            </div>
+
+                                                            <PhoneCell
+                                                                class="block"
+                                                                :phone="
+                                                                    stc.phone
+                                                                "
+                                                                :wa-link="
+                                                                    createWhatsappLink(
+                                                                        stc.phone ||
+                                                                            null,
+                                                                    )
+                                                                "
+                                                                :entity-id="
+                                                                    stc.id
+                                                                "
+                                                                :copied-id="
+                                                                    copiedId
+                                                                "
+                                                                @copy="
+                                                                    copyPhone
+                                                                "
+                                                            />
+
+                                                            <BucketCell
+                                                                :categories="
+                                                                    stc.categories
+                                                                "
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- TL SECTION -->
+                                                <div class="w-1/2">
+                                                    <div
+                                                        class="mb-1.5 flex items-center justify-between"
+                                                    >
+                                                        <h4
+                                                            class="font-semibold"
+                                                        >
+                                                            TL {{ branch.name }}
+                                                        </h4>
+                                                        <button
+                                                            @click="
+                                                                handleAddStcTlContact(
+                                                                    branch,
+                                                                    'TL',
+                                                                )
+                                                            "
+                                                            class="rounded bg-primary px-3 py-1 text-xs text-white"
+                                                        >
+                                                            + Tambah TL
+                                                        </button>
+                                                    </div>
+
+                                                    <div class="space-y-1.5">
+                                                        <div
+                                                            v-for="tl in getTlContacts(
+                                                                branch,
+                                                            )"
+                                                            :key="tl.id"
+                                                            class="relative rounded border bg-background p-2"
+                                                        >
+                                                            <button
+                                                                @click="
+                                                                    handleEditStcTlContact(
+                                                                        branch,
+                                                                        'TL',
+                                                                        tl,
+                                                                    )
+                                                                "
+                                                                class="absolute top-2 right-2 rounded bg-muted px-2 py-1 text-xs transition-all group-hover:visible hover:bg-primary/10 hover:text-primary active:scale-95"
+                                                            >
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    fill="none"
+                                                                    viewBox="0 0 24 24"
+                                                                    stroke-width="2"
+                                                                    stroke-linecap="round"
+                                                                    stroke-linejoin="round"
+                                                                    stroke="currentColor"
+                                                                    class="h-3.5 w-3.5"
+                                                                >
+                                                                    <path
+                                                                        d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
+                                                                    />
+                                                                    <path
+                                                                        d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                            <div
+                                                                class="pr-8 font-medium text-sm"
+                                                            >
+                                                                {{ tl.name }}
+                                                            </div>
+                                                            <PhoneCell
+                                                                :phone="
+                                                                    tl.phone
+                                                                "
+                                                                :wa-link="
+                                                                    createWhatsappLink(
+                                                                        tl.phone ||
+                                                                            null,
+                                                                    )
+                                                                "
+                                                                :entity-id="
+                                                                    tl.id
+                                                                "
+                                                                :copied-id="
+                                                                    copiedId
+                                                                "
+                                                                @copy="
+                                                                    copyPhone
+                                                                "
+                                                            />
+                                                            <BucketCell
+                                                                :categories="
+                                                                    tl.categories
+                                                                "
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            </Transition>
                         </template>
                     </template>
                 </TableBody>
@@ -1854,5 +1020,15 @@ const handleClickRegion = (
 :deep(th),
 :deep(td) {
     display: table-cell;
+}
+
+.accordion-enter-active,
+.accordion-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.accordion-enter-from,
+.accordion-leave-to {
+    opacity: 0;
 }
 </style>
