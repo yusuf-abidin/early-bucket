@@ -28,7 +28,7 @@ const copyPhone = () => {
         <a v-if="waLink"
            :href="waLink"
            target="_blank"
-           class="group/wa flex items-center gap-1 text-foreground/90 hover:text-emerald-600 transition-colors"
+           class="group/wa flex items-center gap-1 text-foreground/90 text-sm hover:text-emerald-600 transition-colors"
        >
             <svg
                 xmlns="http://www.w3.org/2000/svg"

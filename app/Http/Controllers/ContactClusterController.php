@@ -48,7 +48,7 @@ class ContactClusterController extends Controller
             ->orderBy('name')
             ->get();
 
-        return Inertia::render('contact_cluster/Index', [
+        return Inertia::render('contact_cluster/Index2', [
             'regionals' => $regionals,
             'categories' => $categories,
         ]);
