@@ -38,6 +38,7 @@ class EditContactRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'nip' => ['nullable', 'numeric'],
             'phone' => ['nullable', 'string', 'regex:/^628\d{7,12}$/'],
+            'avatar' => ['nullable', 'image', 'max:1024', 'mimes:jpg,jpeg,png'],
         ];
     }
 
@@ -56,6 +57,9 @@ class EditContactRequest extends FormRequest
             'nip.numeric' => 'NIP tidak valid',
             'phone.string' => 'Nomor telepon tidak valid',
             'phone.regex' => 'Nomor telepon tidak valid',
+            'avatar.image' => 'File harus berupa gambar',
+            'avatar.max' => 'Ukuran file maksimal 1 MB',
+            'avatar.mimes' => 'File harus berupa jpg, jpeg, atau png',
         ];
     }
 }

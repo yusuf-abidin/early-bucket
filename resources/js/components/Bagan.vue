@@ -58,14 +58,14 @@ const initChart = () => {
             const node = d.data as OrgNode;
             const contact = (node.raw as any)?.contact_cluster;
             const nip = contact?.nip ?? '-';
-            const photo = `https://i.pravatar.cc/80?img=${node.raw.id ?? 1}`;
+            const photo = (contact?.avatar && `/storage/${contact.avatar}`) ?? 'user.png';
             const phone = contact?.phone;
             const waLink = phone
                 ? `https://wa.me/${phone.replace(/\D/g, '')}`
                 : null;
 
             const avatarHtml = contact
-                ? `<img src="${photo}" class="w-14 h-14 rounded-full object-cover shrink-0 border border-slate-200" />`
+                ? `<img src="${photo}" class="w-16 h-16 rounded-full object-cover shrink-0 border border-slate-200" />`
                 : `<div class="w-14 h-14 rounded-full shrink-0 bg-slate-100 flex items-center justify-center text-xl text-slate-400">&#128100;</div>`;
 
             const phoneHtml = phone
@@ -120,7 +120,7 @@ const initChart = () => {
         </div>
     `;
         })
-        .scaleExtent([0.55, 1])
+        .scaleExtent([0.55, 1.2])
         .compactMarginPair(() => 40)
         .neighbourMargin(() => 20)
         .childrenMargin(() => 40)

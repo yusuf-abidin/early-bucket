@@ -10,6 +10,7 @@ use App\Models\Regional;
 use App\Models\StcTlContact;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Storage;
 
 class ContactClusterController extends Controller
 {
@@ -69,6 +70,19 @@ class ContactClusterController extends Controller
         };
 
         $fillable = array_diff_key($validated, $uniqueKey);
+        $existing =  ContactCluster::where($uniqueKey)->first();
+        if($request->hasFile('avatar')) {
+            if ($existing && $existing->avatar) {
+                Storage::disk('public')->delete($existing->avatar);
+            }
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $fillable['avatar'] = $path;
+        } elseif ($request->input('remove_avatar') == 1) {
+            if ($existing && $existing->avatar) {
+                Storage::disk('public')->delete($existing->avatar);
+            }
+            $fillable['avatar'] = null;
+        }
         ContactCluster::updateOrCreate($uniqueKey, $fillable);
 
         return back()->with('success', 'Kontak berhasil diperbarui.');
@@ -80,6 +94,19 @@ class ContactClusterController extends Controller
     public function update(EditContactRequest $request, ContactCluster $contactCluster)
     {
         $validated = $request->validated();
+        if ($request->hasFile('avatar')) {
+            if ($contactCluster->avatar && Storage::disk('public')->exists($contactCluster->avatar)){
+                Storage::disk('public')->delete($contactCluster->avatar);
+            }
+
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar'] = $path;
+        } elseif ($request->input('remove_avatar') == 1) {
+            if ($contactCluster->avatar) {
+                Storage::disk('public')->delete($contactCluster->avatar);
+            }
+            $validated['avatar'] = null;
+        }
         $contactCluster->update($validated);
 
         return back()->with('success', 'Kontak berhasil diperbarui.');
@@ -91,6 +118,9 @@ class ContactClusterController extends Controller
     public function destroy(ContactCluster $contactCluster)
     {
         try {
+            if ($contactCluster->avatar && Storage::disk('public')->exists($contactCluster->avatar)){
+                Storage::disk('public')->delete($contactCluster->avatar);
+            }
             $contactCluster->delete();
             return back()->with('success', 'Kontak berhasil dihapus.');
         }catch (\Exception $exception){
