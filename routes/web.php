@@ -73,8 +73,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('tasks')->name('tasks.')->group(function () {
         Route::get('', [\App\Http\Controllers\TaskController::class, 'index'])->name('index');
-        Route::get('create', [\App\Http\Controllers\TaskController::class, 'create'])->name('create');
-        Route::get('{task}/edit', [\App\Http\Controllers\TaskController::class, 'edit'])->name('edit');
         Route::post('', [\App\Http\Controllers\TaskController::class, 'store'])->name('store');
         Route::patch('{task}', [\App\Http\Controllers\TaskController::class, 'update'])->name('update');
         Route::get('history', [\App\Http\Controllers\TaskController::class, 'taskHistory'])->name('history');
