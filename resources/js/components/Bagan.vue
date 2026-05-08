@@ -67,7 +67,7 @@ const initChart = () => {
                 : null;
 
             const avatarHtml = contact
-                ? `<img src="${photo}" class="w-16 h-16 rounded-full object-cover shrink-0 border border-slate-200" />`
+                ? `<img src="${photo}" alt="${contact.name}" class="w-16 h-16 rounded-full object-cover shrink-0 border border-slate-200" />`
                 : `<div class="w-14 h-14 rounded-full shrink-0 bg-slate-100 flex items-center justify-center text-xl text-slate-400">&#128100;</div>`;
 
             const phoneHtml = phone
