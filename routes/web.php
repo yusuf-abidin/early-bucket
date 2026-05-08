@@ -120,8 +120,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('upsert', [\App\Http\Controllers\PerformanceLogController::class, 'upsert'])->name('upsert');
     });
 
-    Route::get('dashboard-crsd', [\App\Http\Controllers\PerformanceLogController::class, 'dashboardCrsd'])->name('dashboard-crsd');
-
     Route::prefix('performance-period')->name('performance-period.')->group(function () {
         Route::post('upsert', [\App\Http\Controllers\PerformancePeriodController::class, 'upsert'])->name('upsert');
         Route::post('delete-date/{period}', [\App\Http\Controllers\PerformancePeriodController::class, 'deleteDate'])->name('delete-date');

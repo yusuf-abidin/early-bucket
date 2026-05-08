@@ -11,7 +11,7 @@ import {
     SidebarProps,
     SidebarRail,
 } from '@/components/ui/sidebar';
-import { dashboard, dashboardCrsd } from '@/routes';
+import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { AppWindow, ShieldIcon } from 'lucide-vue-next';
 import NavUser from '@/components/NavUser.vue';
@@ -61,10 +61,6 @@ const mainNavItems: NavItem[] = [
                 title: 'Rekapitulasi',
                 href: `${performanceLog.index().url}?year=${new Date().getFullYear()}`,
             },
-            {
-                title: 'Dashboard CRSD',
-                href: dashboardCrsd().url
-            }
         ],
     },
     // {
