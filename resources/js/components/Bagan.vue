@@ -2,7 +2,7 @@
 import { Branch, Regional } from '@/types';
 import { OrgNode, transformToOrgNodes } from '@/lib/orgChartTransform';
 import { OrgChart } from 'd3-org-chart';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 const props = defineProps<{
     regional: Regional;
@@ -19,6 +19,7 @@ const emit = defineEmits<{
 
 const chartContainer = ref<HTMLElement | null>(null);
 let chart: OrgChart<OrgNode> | null = null;
+let resizeObserver: ResizeObserver | null = null;
 
 // UI Constants moved outside for better structure
 const accentClass: Record<string, string> = {
@@ -58,7 +59,8 @@ const initChart = () => {
             const node = d.data as OrgNode;
             const contact = (node.raw as any)?.contact_cluster;
             const nip = contact?.nip ?? '-';
-            const photo = (contact?.avatar && `/storage/${contact.avatar}`) ?? 'user.png';
+            const photo =
+                (contact?.avatar && `/storage/${contact.avatar}`) ?? 'user.png';
             const phone = contact?.phone;
             const waLink = phone
                 ? `https://wa.me/${phone.replace(/\D/g, '')}`
@@ -138,6 +140,15 @@ onMounted(() => {
     initChart();
     updateChart();
 
+    if (chartContainer.value) {
+        resizeObserver = new ResizeObserver(() => {
+            if (chart) {
+                chart.render().fit();
+            }
+        });
+        resizeObserver.observe(chartContainer.value);
+    }
+
     chartContainer.value?.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
 
@@ -193,6 +204,12 @@ onMounted(() => {
     });
 });
 
+onUnmounted(() => {
+    if (resizeObserver && chartContainer.value) {
+        resizeObserver.unobserve(chartContainer.value);
+    }
+});
+
 watch(() => props.regional, updateChart, { deep: true });
 watch(() => props.activeBranchId, updateChart, { deep: true });
 </script>
@@ -200,7 +217,7 @@ watch(() => props.activeBranchId, updateChart, { deep: true });
 <template>
     <div
         ref="chartContainer"
-        class="chart-container max-h-[calc(100vh-6rem)]"
+        class="chart-container max-h-[calc(100vh-6rem)] w-full overflow-hidden"
     />
 </template>
 
@@ -208,5 +225,9 @@ watch(() => props.activeBranchId, updateChart, { deep: true });
 .chart-container {
     width: 100%;
     background-color: #f9f9f9;
+}
+
+:deep(svg.svg-chart-container) {
+    width: 100% !important;
 }
 </style>
