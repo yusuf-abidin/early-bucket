@@ -178,6 +178,7 @@ export interface ContactCluster {
     nip: string;
     phone: string;
     position: string;
+    avatar: string | null;
 }
 
 export interface StcTlContact {

@@ -14,7 +14,8 @@ class ContactCluster extends Model
         'name',
         'nip',
         'phone',
-        'position'
+        'position',
+        'avatar',
     ];
 
     public function area(): BelongsTo
