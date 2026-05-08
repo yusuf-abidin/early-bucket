@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -50,6 +51,19 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
                 'message' => $request->session()->get('message'),
             ],
+            'task_near_overdue' => Inertia::optional(fn () =>
+                $request->user() ?
+                    [
+                        'today' => $request->user()
+                            ->tasks()
+                            ->with('category')
+                            ->whereDate('due_date', now())->get(),
+                        'tomorrow' => $request->user()
+                            ->tasks()
+                            ->with('category')
+                            ->whereDate('due_date', now()->addDay())->get(),
+                    ] : null
+            ),
             'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

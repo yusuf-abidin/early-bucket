@@ -29,6 +29,10 @@ export type AppPageProps<
     auth: Auth;
     flash: FlashMessage;
     sidebarOpen: boolean;
+    task_near_overdue: {
+        today: Task[],
+        tomorrow: Task[],
+    }
 };
 
 export interface User {
