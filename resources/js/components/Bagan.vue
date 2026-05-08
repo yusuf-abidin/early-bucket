@@ -120,9 +120,11 @@ const initChart = () => {
         </div>
     `;
         })
+        .scaleExtent([0.55, 1])
+        .compactMarginPair(() => 40)
         .neighbourMargin(() => 20)
         .childrenMargin(() => 40)
-        .siblingsMargin(() => 15)
+        .siblingsMargin(() => 15);
 };
 
 const updateChart = () => {
