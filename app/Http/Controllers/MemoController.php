@@ -19,7 +19,9 @@ class MemoController extends Controller
      */
     public function index(Request $request)
     {
-        $users = User::select('id', 'name')->get();
+        $users = User::select('id', 'name')
+            ->whereIn('role', ['admin', 'user'])
+            ->get();
         $categories = Category::select(['id', 'name', 'type'])->where('categories.type', 'sifat_memo')->with('color')->get();
         $totalArchive= Memo::archived()->count();
 
@@ -34,7 +36,8 @@ class MemoController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        $usersSummary = User::select('id', 'name', 'avatar', 'position')->orderBy('name')
+        $usersSummary = User::select('id', 'name', 'avatar', 'position')
+            ->whereIn('role', ['admin', 'user'])->orderBy('name')
             ->withCount([
                 'memos as pending_count' => function (Builder $query) {
                     $query->whereNull('completed_at')
@@ -109,7 +112,9 @@ class MemoController extends Controller
     }
 
     public function archive(Request $request) {
-        $users = User::select('id', 'name')->get();
+        $users = User::select('id', 'name')
+            ->whereIn('role', ['admin', 'user']
+            )->get();
 
         $sortBy = $request->sort_by ?? 'received_at';
         $sortDir = strtolower($request->sort_dir ?? 'desc') === 'asc' ? 'asc' : 'desc';

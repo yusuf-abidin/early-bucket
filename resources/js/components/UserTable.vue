@@ -40,6 +40,7 @@ import { Badge } from '@/components/ui/badge';
 
 const props = defineProps<{
     users: User[];
+    scope: string;
 }>();
 
 const dialogDelete = ref(false);
@@ -81,7 +82,11 @@ const filteredUsers = computed(() => {
 
 // Functions untuk actions
 const handleEdit = (user: User) => {
-    router.visit(admin.users.edit(user).url);
+    if (props.scope === 'central') {
+        router.visit(admin.users.edit(user).url);
+    }else if (props.scope === 'rlqh') {
+        router.visit(admin.rlqh.users.edit(user).url);
+    }
 };
 
 const handleDelete = (user: User) => {
@@ -94,7 +99,11 @@ const resetColumns = () => {
 };
 
 const handleCreateUser = () => {
-    router.visit(admin.users.create().url);
+    if (props.scope === 'central') {
+        router.visit(admin.users.create().url);
+    } else if (props.scope === 'rlqh') {
+        router.visit(admin.rlqh.users.create().url);
+    }
 };
 </script>
 

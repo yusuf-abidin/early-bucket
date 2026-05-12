@@ -3,17 +3,16 @@ import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileCo
 import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
 import { Head, Link, usePage, useForm } from '@inertiajs/vue3';
-
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { ref, watch, computed } from 'vue';
+import RlqhLayout from '@/layouts/RlqhLayout.vue';
 
 interface Props {
     mustVerifyEmail: boolean;
@@ -132,7 +131,7 @@ const cancelAvatarUpload = () => {
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbItems">
+    <RlqhLayout :breadcrumbs="breadcrumbItems">
         <Head title="Pengaturan profil" />
 
         <SettingsLayout>
@@ -333,5 +332,5 @@ const cancelAvatarUpload = () => {
                 </form>
             </div>
         </SettingsLayout>
-    </AppLayout>
+    </RlqhLayout>
 </template>

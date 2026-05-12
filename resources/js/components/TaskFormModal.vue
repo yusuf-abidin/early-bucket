@@ -59,6 +59,7 @@ const props = withDefaults(
     defineProps<{
         usersData: User[];
         categories: Category[];
+        scope?: string;
         mode?: 'pending_matter' | 'debtor_savings';
     }>(),
     {
@@ -72,6 +73,7 @@ const form = useForm({
     users: [] as number[],
     due_date: '',
     notes: '',
+    scope: props.scope,
 });
 
 // State untuk calendar
@@ -187,6 +189,7 @@ watch(
     (newTask) => {
         if (newTask) {
             const normalizedTask = {
+                scope: newTask.scope ?? '',
                 task_description: newTask.task_description ?? '',
                 category_id: newTask.category_id
                     ? String(newTask.category_id)
@@ -219,6 +222,7 @@ watch(
                 users: [],
                 due_date: '',
                 notes: '',
+                scope: props.scope,
             });
             form.reset();
             usersRef.value = [];

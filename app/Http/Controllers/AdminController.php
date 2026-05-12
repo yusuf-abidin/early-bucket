@@ -14,10 +14,12 @@ class AdminController extends Controller
 {
     public function users()
     {
-        $users = User::orderBy('name', 'asc')->get();
+        $users = User::orderBy('name', 'asc')
+            ->whereIn('role', ['admin', 'user'])->get();
 
         return Inertia::render('admin/users/Index', [
-            'users' => $users
+            'users' => $users,
+            'scope' => 'central'
         ]);
     }
 
@@ -25,7 +27,8 @@ class AdminController extends Controller
     {
         $colors = Color::select(['id', 'name', 'class'])->get();
         return Inertia::render('admin/users/Create', [
-            'colors' => $colors
+            'colors' => $colors,
+            'scope' => 'central',
         ]);
     }
 
@@ -47,7 +50,10 @@ class AdminController extends Controller
             $userData['avatar'] = $path;
         }
 
-        User::create($userData);
+        $user =User::create($userData);
+        if ($user->role === 'rlqh') {
+            return to_route('admin.rlqh.users.index')->with('success', 'Pengguna berhasil dibuat');
+        }
         return to_route('admin.users.index')->with('success', 'Pengguna berhasil dibuat');
     }
 
@@ -57,7 +63,8 @@ class AdminController extends Controller
         $colors = Color::select(['id', 'name', 'class'])->get();
         return Inertia::render('admin/users/Edit', [
             'user' => $user,
-            'colors' => $colors
+            'colors' => $colors,
+            'scope' => 'central',
         ]);
     }
 
@@ -85,6 +92,10 @@ class AdminController extends Controller
         }
 
         $user->save();
+
+        if ($user->role === 'rlqh') {
+            return redirect()->route('admin.rlqh.users.index')->with('success', 'Pengguna berhasil diperbarui');
+        }
 
         return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil diperbarui');
     }

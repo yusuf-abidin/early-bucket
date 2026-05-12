@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
-import AppLayout from '@/layouts/AppLayout.vue';
-import type { BreadcrumbItem, Color } from '@/types';
-import admin from '@/routes/admin';
 import FormUser from '@/components/FormUser.vue';
+import admin from '@/routes/admin';
+import type { BreadcrumbItem, Color } from '@/types';
+import { Head } from '@inertiajs/vue3';
+import RlqhLayout from '@/layouts/RlqhLayout.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Admin',
-        href: admin.users.index().url,
+        href: admin.rlqh.users.index().url,
     },
     {
         title: 'Users',
-        href: admin.users.index().url,
+        href: admin.rlqh.users.index().url,
     },
     {
         title: 'Create',
-        href: admin.users.index().url,
+        href: admin.rlqh.users.index().url,
     },
 ];
 
@@ -29,13 +29,13 @@ defineProps<{
 <template>
     <Head title="Users" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
+    <RlqhLayout :breadcrumbs="breadcrumbs">
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
-            <FormUser :colors="colors" mode="create" :scope="scope"/>
+            <FormUser :colors="colors" mode="create" :scope="scope" />
         </div>
-    </AppLayout>
+    </RlqhLayout>
 </template>
 
 <style scoped></style>

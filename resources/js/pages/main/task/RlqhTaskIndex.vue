@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import CompleteTaskDialog from '@/components/CompleteTaskDialog.vue';
+import DialogDeleteTask from '@/components/DialogDeleteTask.vue';
 import HorizontalImageList from '@/components/HorizontalImageList.vue';
+import TaskFormModal from '@/components/TaskFormModal.vue';
 import TaskTable from '@/components/TaskTable.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import type {
     BreadcrumbItem,
     Category,
@@ -10,11 +12,9 @@ import type {
     UserSummary,
 } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import tasksRoute from '@/routes/tasks';
 import { ref } from 'vue';
-import DialogDeleteTask from '@/components/DialogDeleteTask.vue';
-import CompleteTaskDialog from '@/components/CompleteTaskDialog.vue';
-import TaskFormModal from '@/components/TaskFormModal.vue';
+import RlqhLayout from '@/layouts/RlqhLayout.vue';
+import rlqh from '@/routes/rlqh';
 
 const props = defineProps<{
     tasks: Task[];
@@ -26,22 +26,21 @@ const props = defineProps<{
 
 const dialogDeleteTaskIsOpen = ref<boolean>(false);
 const dialogResolveTaskIsOpen = ref<boolean>(false);
-const selectedData = ref<Task | null>(null)
-const formIsOpen = ref<boolean>(false)
+const selectedData = ref<Task | null>(null);
+const formIsOpen = ref<boolean>(false);
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Pending Matter',
-        href: tasksRoute.index().url
+        href: rlqh.tasks.index().url,
     },
 ];
-
 </script>
 
 <template>
     <Head title="Pending Matter" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
+    <RlqhLayout :breadcrumbs="breadcrumbs">
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
@@ -75,7 +74,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 :scope="props.scope"
             />
         </div>
-    </AppLayout>
+    </RlqhLayout>
 </template>
 
 <style scoped></style>

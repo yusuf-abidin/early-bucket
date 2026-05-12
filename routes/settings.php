@@ -22,7 +22,11 @@ Route::middleware('auth')->group(function () {
         ->name('user-password.update');
 
     Route::get('settings/appearance', function () {
-        return Inertia::render('settings/Appearance');
+        if (auth()->user()->role === 'admin' || auth()->user()->role === 'user') {
+            return Inertia::render('settings/Appearance');
+        }else {
+            return Inertia::render('settings/RlqhAppearance');
+        }
     })->name('appearance.edit');
 
     Route::get('settings/two-factor', [TwoFactorAuthenticationController::class, 'show'])

@@ -7,12 +7,18 @@ use Laravel\Fortify\Features;
 
 Route::get('/', function () {
     if(Auth::check()) {
+        if (Auth::user()->role === 'admin' || Auth::user()->role === 'user') {
+            return redirect()->route('dashboard');
+        }
+
+        if (Auth::user()->role === 'rlqh')
+            return redirect()->route('rlqh.tasks.index');
         return redirect()->route('dashboard');
     }
     return redirect()->route('login');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'role:admin,user'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 });
@@ -36,6 +42,12 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::post('users', [\App\Http\Controllers\AdminController::class, 'store'])->name('users.store');
         Route::patch('users/{user}', [\App\Http\Controllers\AdminController::class, 'update'])->name('users.update');
         Route::delete('users/{user}', [\App\Http\Controllers\AdminController::class, 'destroy'])->name('users.destroy');
+
+        Route::prefix('rlqh')->name('rlqh.')->group(function () {
+           Route::get('users', [\App\Http\Controllers\AdminRlqhController::class, 'users'])->name('users.index');
+           Route::get('users/create', [\App\Http\Controllers\AdminRlqhController::class, 'create'])->name('users.create');
+           Route::get('users/{user}/edit', [\App\Http\Controllers\AdminRlqhController::class, 'edit'])->name('users.edit');
+        });
 
 //        MANAJEMEN KATEGORI
         Route::get('categories', [\App\Http\Controllers\CategoryController::class, 'index'])->name('categories.index');
@@ -69,15 +81,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 | PENDING MATTER ROUTES
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'role:admin,user'])->group(function () {
 
     Route::prefix('tasks')->name('tasks.')->group(function () {
         Route::get('', [\App\Http\Controllers\TaskController::class, 'index'])->name('index');
-        Route::post('', [\App\Http\Controllers\TaskController::class, 'store'])->name('store');
-        Route::patch('{task}', [\App\Http\Controllers\TaskController::class, 'update'])->name('update');
         Route::get('history', [\App\Http\Controllers\TaskController::class, 'taskHistory'])->name('history');
-        Route::delete('{task}', [\App\Http\Controllers\TaskController::class, 'destroy'])->name('destroy');
-
     });
 
     Route::prefix('memos')->name('memos.')->group(function () {
@@ -122,6 +130,23 @@ Route::middleware(['auth'])->group(function () {
         Route::post('upsert', [\App\Http\Controllers\PerformancePeriodController::class, 'upsert'])->name('upsert');
         Route::post('delete-date/{period}', [\App\Http\Controllers\PerformancePeriodController::class, 'deleteDate'])->name('delete-date');
         Route::post('bulk-update', [\App\Http\Controllers\PerformancePeriodController::class, 'bulkUpdate'])->name('bulk-update');
+    });
+});
+
+Route::middleware(['auth', 'role:rlqh,admin'])->group(function () {
+    Route::prefix('rlqh')->name('rlqh.')->group(function () {
+        Route::prefix('tasks')->name('tasks.')->group(function () {
+            Route::get('', [\App\Http\Controllers\RlqhTaskController::class, 'index'])->name('index');
+            Route::get('history', [\App\Http\Controllers\RlqhTaskController::class, 'taskHistory'])->name('history');
+        });
+    });
+});
+
+Route::middleware(['auth', 'role:admin,user,rlqh'])->group(function () {
+    Route::prefix('tasks')->name('tasks.')->group(function () {
+        Route::post('', [\App\Http\Controllers\TaskController::class, 'store'])->name('store');
+        Route::patch('{task}', [\App\Http\Controllers\TaskController::class, 'update'])->name('update');
+        Route::delete('{task}', [\App\Http\Controllers\TaskController::class, 'destroy'])->name('destroy');
     });
 });
 

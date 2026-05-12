@@ -5,8 +5,9 @@ import type { BreadcrumbItem, User } from '@/types';
 import admin from '@/routes/admin';
 import UserTable from "@/components/UserTable.vue";
 
-const {users} = defineProps<{
-    users: User[]
+const {users, scope} = defineProps<{
+    users: User[];
+    scope: string;
 }>();
 
 
@@ -27,7 +28,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-            <UserTable :users="users"/>
+            <UserTable :users="users" :scope="scope"/>
         </div>
     </AppLayout>
 </template>

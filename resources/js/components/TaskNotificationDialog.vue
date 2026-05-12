@@ -14,6 +14,7 @@ import Tasks from '@/routes/tasks';
 import { CalendarClock, CalendarCheck2, CheckCircle2, AlertCircle, Clock } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { Task } from '@/types';
+import rlqh from '@/routes/rlqh';
 
 interface Props {
     open: boolean;
@@ -45,7 +46,11 @@ const handleClose = (val: boolean) => {
 
 const goToTasks = () => {
     emit('update:open', false);
-    router.visit(Tasks.index().url);
+    if (page.props.auth.user.role === "rlqh") {
+        router.visit(rlqh.tasks.index().url);
+    }else {
+        router.visit(Tasks.index().url);
+    }
 };
 </script>
 

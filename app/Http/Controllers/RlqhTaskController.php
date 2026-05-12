@@ -1,34 +1,26 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreTaskRequest;
-use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Category;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 
-class TaskController extends Controller
+class RlqhTaskController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $queryTask = Task::with([
             'category',
             'users' => function ($q) {
-                $q->whereIn('role', ['admin', 'user']);
+                $q->whereIn('role', ['rlqh']);
             }
         ])
-        ->where(function ($query) {
-            $query->whereIn('scope', [Task::SCOPE_CENTRAL])
-                ->orWhereNull('scope');
-        })
-        ->where('type', [Task::TYPE_PENDING])
+        ->where('scope', Task::SCOPE_RLQH)
+        ->where('type', Task::TYPE_PENDING)
         ->whereNull('completed_at')
         ->orderBy('due_date');
 
@@ -52,23 +44,21 @@ class TaskController extends Controller
         }
 
         $tasks = $queryTask->get();
+
         $users = User::select('id', 'name', 'avatar', 'position')
-            ->whereIn('role', ['admin', 'user'])
+            ->whereIn('role', ['rlqh'])
             ->orderBy('name')
             ->get();
         $categories = Category::where('type', 'pending_matter')->get();
 
-        $usersSummary = User::select('id', 'name', 'avatar', 'position')
-            ->whereIn('role', ['admin', 'user'])
+        $userSummary = User::select('id', 'name', 'avatar', 'position')
+            ->whereIn('role', ['rlqh'])
             ->orderBy('name')
             ->withCount([
                 // 1. Benar-benar Pending (Belum lewat deadline & bukan mendekati deadline)
                 'tasks as pending_count' => function (Builder $query) {
                     $query->where('type', Task::TYPE_PENDING)
-                        ->where(function ($query) {
-                            $query->whereIn('scope', [Task::SCOPE_CENTRAL])
-                                ->orWhereNull('scope');
-                        })
+                        ->where('scope', Task::SCOPE_RLQH)
                         ->whereNull('completed_at')
                         ->whereDate('due_date', '>', today()->addDays(3));
                 },
@@ -76,10 +66,7 @@ class TaskController extends Controller
                 // 2. Sudah Lewat Deadline (Overdue)
                 'tasks as overdue_count' => function (Builder $query) {
                     $query->where('type', Task::TYPE_PENDING)
-                        ->where(function ($query) {
-                            $query->whereIn('scope', [Task::SCOPE_CENTRAL])
-                                ->orWhereNull('scope');
-                        })
+                        ->where('scope', Task::SCOPE_RLQH)
                         ->whereNull('completed_at')
                         ->where('due_date', '<', now());
                 },
@@ -87,83 +74,21 @@ class TaskController extends Controller
                 // 3. Mendekati Deadline (H-0 sampai H+3)
                 'tasks as near_overdue_count' => function (Builder $query) {
                     $query->where('type', Task::TYPE_PENDING)
+                        ->where('scope', Task::SCOPE_RLQH)
                         ->whereNull('completed_at')
-                        ->where(function ($query) {
-                            $query->whereIn('scope', [Task::SCOPE_CENTRAL])
-                                ->orWhereNull('scope');
-                        })
                         ->whereDate('due_date', '>=', today())
                         ->whereDate('due_date', '<=', today()->addDays(3));
                 }
             ])
             ->get();
 
-        return Inertia::render('main/task/Index', [
+        return Inertia::render('main/task/RlqhTaskIndex', [
             'tasks' => $tasks,
             'users' => $users,
             'categories' => $categories,
-            'users_summary' => $usersSummary,
-            'scope' => Task::SCOPE_CENTRAL
+            'users_summary' => $userSummary,
+            'scope' => Task::SCOPE_RLQH
         ]);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreTaskRequest $request)
-    {
-        $validated = array_merge($request->validated(), [
-            'type' => Task::TYPE_PENDING
-        ]);
-
-        $task = Task::create($validated);
-        if ($request->has('users')) {
-            $task->users()->sync($request->users);
-        }
-        return redirect()->back()->with('success', 'Pending matter berhasil dibuat.');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateTaskRequest $request, Task $task)
-    {
-        if ($task->type !== Task::TYPE_PENDING) {
-            return back()->withErrors(['message' => 'Tidak dapat menghapus karena bukan pending matter.']);
-        }
-
-        $validated = $request->validated();
-
-        if ($request->has('completed_at')) {
-            $validated['completed_at'] = $request->completed_at ? now() : null;
-        }
-
-        $task->update(Arr::except($validated, ['users']));
-
-        if($request->has('users')) {
-            $task->users()->sync($validated['users'] ?? []);
-        }
-
-        return redirect()->back()->with('success', 'Pending matter berhasil diupdate.');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Task $task)
-    {
-        if ($task->type !== Task::TYPE_PENDING) {
-            return back()->withErrors(['message' => 'Tidak dapat menghapus karena bukan pending matter.']);
-        }
-
-        try {
-            $task->users()->detach();
-            $task->delete();
-
-            return back()->with('success', 'Pending matter berhasil dihapus.');
-        }catch (\Exception $exception){
-            return back()->withErrors(['message' => 'Gagal menghapus pending matter: ' . $exception->getMessage()]);
-        }
     }
 
     public function taskHistory(Request $request)
@@ -176,17 +101,16 @@ class TaskController extends Controller
         $targetColumn = in_array($dateBy, $allowedDateColumns) ? $dateBy : 'created_at';
 
         $usersSummary = User::select('id', 'name', 'avatar', 'position')
-            ->whereIn('role', ['admin', 'user'])
+            ->whereIn('role', ['rlqh'])
             ->orderBy('name')
             ->withCount([
                 // 1. Benar-benar Pending (Belum lewat deadline & bukan mendekati deadline)
                 'tasks as completed_this_week_count' => function (Builder $query) {
 
                     $query->whereNotNull('completed_at')
-                    ->where(function ($query) {
-                        $query->whereIn('scope', [Task::SCOPE_CENTRAL])
-                            ->orWhereNull('scope');
-                    });
+                        ->where(function ($query) {
+                            $query->where('scope', Task::SCOPE_RLQH);
+                        });
                 },
             ])
             ->get();
@@ -195,13 +119,12 @@ class TaskController extends Controller
             ->where('tasks.type', Task::TYPE_PENDING)
             ->whereNotNull('completed_at')
             ->where(function ($query) {
-                $query->whereIn('scope', [Task::SCOPE_CENTRAL])
-                    ->orWhereNull('scope');
+                $query->where('scope', Task::SCOPE_RLQH);
             })
             ->with(['category' => function ($query) {
                 $query->withTrashed();
             }, 'users' => function ($query) {
-                $query->whereIn('role', ['admin', 'user']);
+                $query->whereIn('role', ['rlqh']);
             }]);
 
         $tasksQuery
@@ -246,10 +169,10 @@ class TaskController extends Controller
             ->withQueryString();
 
         $users = User::select('id', 'name')
-            ->wherein('role', ['admin', 'user'])
+            ->wherein('role', ['rlqh'])
             ->orderBy('name')->get();
 
-        return Inertia::render('main/task/History', [
+        return Inertia::render('main/task/RlqhTaskHistory', [
             'tasks_history' => $tasks,
             'users_summary' => $usersSummary,
             'users' => $users

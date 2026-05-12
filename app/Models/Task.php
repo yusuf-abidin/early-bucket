@@ -10,7 +10,11 @@ class Task extends Model
 {
     const TYPE_PENDING = 'pending_matter';
     const TYPE_DEBITUR = 'debitur_menabung';
+
+    const SCOPE_RLQH = 'rlqh';
+    const SCOPE_CENTRAL = 'central';
     protected $fillable = [
+        'scope',
         'type',
         'task_description',
         'category_id',

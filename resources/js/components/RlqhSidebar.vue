@@ -13,15 +13,11 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
-import { AppWindow, ShieldIcon, MapPin } from 'lucide-vue-next';
+import { AppWindow, LayoutDashboard, ShieldIcon } from 'lucide-vue-next';
 import NavUser from '@/components/NavUser.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import admin from '@/routes/admin';
-import tasks from '@/routes/tasks';
-import memos from '@/routes/memos';
-import { LayoutDashboard } from 'lucide-vue-next';
-import contactCluster from '@/routes/contact-cluster';
-import performanceLog from '@/routes/performance-log';
+import rlqh from '@/routes/rlqh';
 
 const props = withDefaults(defineProps<SidebarProps>(), {
     collapsible: 'icon',
@@ -39,58 +35,14 @@ const mainNavItems: NavItem[] = [
         items: [
             {
                 title: 'Pending Matter',
-                href: tasks.index(),
+                href: rlqh.tasks.index().url,
             },
             {
                 title: 'History Pekerjaan',
-                href: tasks.history(),
-            },
-            {
-                title: 'Pending Memo',
-                href: memos.index().url,
-            },
-            {
-                title: 'Arsip Memo',
-                href: memos.archive().url,
-            },
-            {
-                title: 'Kontak Cluster',
-                href: contactCluster.index().url,
-            },
-            {
-                title: 'Rekapitulasi',
-                href: `${performanceLog.index().url}?year=${new Date().getFullYear()}`,
+                href: rlqh.tasks.history().url,
             },
         ],
     },
-    // {
-    //     title: 'Performance',
-    //     href: '#',
-    //     icon: Rocket,
-    //     isActive: true,
-    //     items: [
-    //         {
-    //             title: 'ETAPE',
-    //             href: etape.index().url,
-    //         },
-    //         {
-    //             title: 'EOM',
-    //             href: eom.index().url,
-    //         },
-    //     ],
-    // },
-    // {
-    //     title: 'Project',
-    //     href: '#',
-    //     icon: FolderKanban,
-    //     isActive: true,
-    //     items: [
-    //         {
-    //             title: 'Debitur Menabung',
-    //             href: debtorSavings.index().url,
-    //         },
-    //     ],
-    // },
 ];
 
 const adminNavItem: NavItem[] = [
@@ -102,15 +54,7 @@ const adminNavItem: NavItem[] = [
         items: [
             {
                 title: 'Pengguna',
-                href: admin.users.index().url,
-            },
-            {
-                title: 'Area/Cabang',
-                href: admin.areas.index().url,
-            },
-            {
-                title: 'Manajemen kategori',
-                href: admin.categories.index().url,
+                href: admin.rlqh.users.index().url,
             },
         ],
     },
@@ -123,7 +67,7 @@ const adminNavItem: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link href="/dashboard">
+                        <Link href="#">
                             <div
                                 class="flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground"
                             >
@@ -147,30 +91,16 @@ const adminNavItem: NavItem[] = [
             </SidebarMenu>
         </SidebarHeader>
         <SidebarContent>
-            <SidebarMenu>
-                <SidebarMenuItem class="mx-2">
-                    <SidebarMenuButton
-                        as-child
-                        :is-active="$page.url === '/dashboard'"
-                        tooltip="Dashboard"
-                    >
-                        <Link href="/dashboard">
-                            <LayoutDashboard class="size-5" />
-                            <span>Dashboard</span>
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
             <SidebarMenu v-if="user.role === 'admin'">
                 <SidebarMenuItem class="mx-2">
                     <SidebarMenuButton
                         as-child
-                        :is-active="$page.url === '/rlqh/tasks'"
-                        tooltip="Aplikasi RLQH"
+                        :is-active="$page.url === '/dashboard'"
+                        tooltip="Early Bucket"
                     >
-                        <Link href="/rlqh/tasks">
-                            <MapPin class="size-5" />
-                            <span>Aplikasi RLQH</span>
+                        <Link href="/dashboard">
+                            <LayoutDashboard class="size-5" />
+                            <span>Early Bucket</span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>

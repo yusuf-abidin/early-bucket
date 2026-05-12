@@ -26,7 +26,7 @@ class AdminStoreUserRequest extends FormRequest
             'position' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'string', 'in:admin,user'],
+            'role' => ['required', 'string', 'in:admin,user,rlqh'],
             'color_id' => ['nullable', 'exists:colors,id'],
             'avatar' => ['nullable', 'image', 'max:1024', 'mimes:jpg,jpeg,png']
         ];

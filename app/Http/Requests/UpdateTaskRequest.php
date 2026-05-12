@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Task;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateTaskRequest extends FormRequest
 {
@@ -14,6 +16,7 @@ class UpdateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'scope' => [Rule::in([Task::SCOPE_CENTRAL, Task::SCOPE_RLQH])],
             'task_description' => ['sometimes', 'required', 'max:255'],
             'category_id' => ['sometimes', 'required', 'exists:categories,id'],
             'users' => ['nullable', 'array'],

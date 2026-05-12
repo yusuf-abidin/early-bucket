@@ -43,7 +43,7 @@ export interface User {
     position?: string;
     color_id?: number;
     color?: Color;
-    role: 'admin' | 'user';
+    role: 'admin' | 'user' | 'rlqh';
     tasks: Task[] | null;
     email_verified_at: string | null;
     deleted_at: string | null;
@@ -79,6 +79,7 @@ export interface Color {
 
 export interface Task {
     id: number;
+    scope: string;
     type: string;
     task_description: string;
     category_id: number;

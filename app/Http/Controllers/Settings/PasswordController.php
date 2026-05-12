@@ -14,9 +14,13 @@ class PasswordController extends Controller
     /**
      * Show the user's password settings page.
      */
-    public function edit(): Response
+    public function edit(Request $request): Response
     {
-        return Inertia::render('settings/Password');
+        if ($request->user()->role === 'admin' || $request->user()->role === 'user') {
+            return Inertia::render('settings/Password');
+        }else {
+            return Inertia::render('settings/RlqhPassword');
+        }
     }
 
     /**

@@ -28,10 +28,12 @@ import type { User, Color } from '@/types';
 interface Props {
     user?: User;
     colors: Color[];
+    scope: string;
     mode?: 'create' | 'edit';
 }
 
 const props = withDefaults(defineProps<Props>(), {
+    scope: 'central',
     mode: 'create',
 });
 
@@ -106,6 +108,9 @@ const closeDropdown = () => {
 
 const submit = () => {
     if (isEditMode.value && props.user) {
+        if (props.scope === 'rlqh') {
+            form.role = 'rlqh';
+        }
         const route = AdminController.update.form(props.user.id);
         form.submit(route.method, route.action, {
             onFinish: () => {
@@ -115,6 +120,9 @@ const submit = () => {
             preserveScroll: true,
         });
     } else {
+        if (props.scope === 'rlqh') {
+            form.role = 'rlqh';
+        }
         const route = AdminController.store.form();
         form.submit(route.method, route.action, {
             onFinish: () => {
@@ -129,7 +137,11 @@ const submit = () => {
 
 const handleCancel = () => {
     if (isEditMode.value) {
-        router.visit(admin.users.index().url);
+        if (props.scope === 'central') {
+            router.visit(admin.users.index().url);
+        } else if (props.scope === 'rlqh') {
+            router.visit(admin.rlqh.users.index().url);
+        }
     } else {
         form.reset();
         avatarPreview.value = null;
@@ -364,7 +376,7 @@ const cancelButtonText = computed(() => (isEditMode.value ? 'Batal' : 'Reset'));
                     </div>
 
                     <!-- Role -->
-                    <div class="space-y-1.5">
+                    <div class="space-y-1.5" v-if="scope === 'central'">
                         <Label
                             for="role"
                             :class="{ 'text-destructive': form.errors.role }"

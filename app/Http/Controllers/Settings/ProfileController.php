@@ -20,10 +20,17 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
-        return Inertia::render('settings/Profile', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => $request->session()->get('status'),
-        ]);
+        if ($request->user()->role === 'admin' || $request->user()->role === 'user') {
+            return Inertia::render('settings/Profile', [
+                'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+                'status' => $request->session()->get('status'),
+            ]);
+        } else {
+            return Inertia::render('settings/RlqhProfile', [
+                'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+                'status' => $request->session()->get('status'),
+            ]);
+        }
     }
 
     /**

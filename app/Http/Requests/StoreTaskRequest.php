@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Task;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreTaskRequest extends FormRequest
 {
@@ -22,6 +24,7 @@ class StoreTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'scope' => [Rule::in([Task::SCOPE_CENTRAL, Task::SCOPE_RLQH])],
             'task_description' => ['required', 'max:255'],
             'users' => ['nullable', 'array'],
             'users.*' => ['exists:users,id'],
@@ -34,6 +37,7 @@ class StoreTaskRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'scope.in' => 'Scope tidak valid',
             'task_description.required' => 'Agenda tidak boleh kosong',
             'task_description.max' => 'Maksimal 255 karakter',
             'users.*.exists' => 'Pengguna tidak ditemukan',
