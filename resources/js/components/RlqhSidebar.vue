@@ -34,6 +34,13 @@ const mainNavItems: NavItem[] = [
         isActive: true,
         items: [
             {
+                title: 'News',
+                href:
+                    user.role === 'admin'
+                        ? rlqh.news.authorIndex().url
+                        : rlqh.news.index().url,
+            },
+            {
                 title: 'Pending Matter',
                 href: rlqh.tasks.index().url,
             },
@@ -41,6 +48,7 @@ const mainNavItems: NavItem[] = [
                 title: 'History Pekerjaan',
                 href: rlqh.tasks.history().url,
             },
+
         ],
     },
 ];
@@ -63,7 +71,7 @@ const adminNavItem: NavItem[] = [
 
 <template>
     <Sidebar v-bind="props">
-        <SidebarHeader>
+        <SidebarHeader class="bg-emerald-600">
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
@@ -90,7 +98,7 @@ const adminNavItem: NavItem[] = [
                 </SidebarMenuItem>
             </SidebarMenu>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent class="bg-emerald-600">
             <SidebarMenu v-if="user.role === 'admin'">
                 <SidebarMenuItem class="mx-2">
                     <SidebarMenuButton
@@ -113,7 +121,7 @@ const adminNavItem: NavItem[] = [
             />
         </SidebarContent>
 
-        <SidebarFooter>
+        <SidebarFooter class="bg-emerald-600">
             <NavUser />
         </SidebarFooter>
         <SidebarRail />

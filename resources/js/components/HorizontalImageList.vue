@@ -7,15 +7,18 @@ import tasks from '@/routes/tasks';
 import { Pie } from 'vue-chartjs';
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import debtorSavings from '@/routes/debtor-savings';
+import rlqh from '@/routes/rlqh';
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
 const props = defineProps<{
     users_summary: UserSummary[];
     mode?: 'pending' | 'history' | 'debtor_saving';
+    scope?: string;
 }>();
 
 const mode = props.mode ?? 'pending';
+const scope = props.scope ?? 'central';
 
 // Helper untuk pending mode
 const hasTasks = (user: UserSummary) => {
@@ -134,9 +137,17 @@ const handleFilter = (userId: number) => {
 
     let url = null;
     if (mode === 'pending') {
-        url = tasks.index().url;
+        if (scope === 'rlqh'){
+            url = rlqh.tasks.index().url;
+        }else {
+            url = tasks.index().url;
+        }
     } else if (mode === 'history') {
-        url = tasks.history().url;
+        if (scope === 'rlqh'){
+            url = rlqh.tasks.history().url;
+        }else {
+            url = tasks.history().url;
+        }
     } else if (mode === 'debtor_saving') {
         url = debtorSavings.index().url;
     }

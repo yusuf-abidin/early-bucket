@@ -213,4 +213,13 @@ export interface PerformancePeriod  {
     order: number;
 }
 
+export interface Article {
+    id: number;
+    title: string;
+    image: string;
+    content: string;
+    status: 'draft' | 'published';
+    published_at: string | null;
+}
+
 export type BreadcrumbItemType = BreadcrumbItem;

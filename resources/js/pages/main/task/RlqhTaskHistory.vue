@@ -73,6 +73,7 @@ const selectedTask = ref<Task | null>(null);
             <HorizontalImageList
                 :users_summary="props.users_summary"
                 :mode="'history'"
+                :scope="'rlqh'"
             />
             <TaskHistoryFilter :users="props.users" />
             <TaskHistoryTable

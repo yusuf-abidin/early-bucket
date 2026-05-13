@@ -18,11 +18,6 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::middleware(['auth', 'role:admin,user'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('dashboard');
-});
-
 /*
 |--------------------------------------------------------------------------
 | ADMIN ROUTES
@@ -74,6 +69,15 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::patch('branches/{branch}', [\App\Http\Controllers\BranchController::class, 'update'])->name('branches.update');
         Route::delete('branches/{branch}', [\App\Http\Controllers\BranchController::class, 'destroy'])->name('branches.destroy');
     });
+
+    Route::prefix('rlqh')->name('rlqh.')->group(function () {
+        Route::get('all-news', [\App\Http\Controllers\ArticleController::class, 'authorIndex'])->name('news.authorIndex');
+        Route::get('news/create', [\App\Http\Controllers\ArticleController::class, 'create'])->name('news.create');
+        Route::get('news/{article}/edit', [\App\Http\Controllers\ArticleController::class, 'edit'])->name('news.edit');
+        Route::post('news', [\App\Http\Controllers\ArticleController::class, 'store'])->name('news.store');
+        Route::patch('news/{article}', [\App\Http\Controllers\ArticleController::class, 'update'])->name('news.update');
+        Route::delete('news/{article}', [\App\Http\Controllers\ArticleController::class, 'destroy'])->name('news.destroy');
+    });
 });
 
 /*
@@ -82,6 +86,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:admin,user'])->group(function () {
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
     Route::prefix('tasks')->name('tasks.')->group(function () {
         Route::get('', [\App\Http\Controllers\TaskController::class, 'index'])->name('index');
@@ -138,6 +145,11 @@ Route::middleware(['auth', 'role:rlqh,admin'])->group(function () {
         Route::prefix('tasks')->name('tasks.')->group(function () {
             Route::get('', [\App\Http\Controllers\RlqhTaskController::class, 'index'])->name('index');
             Route::get('history', [\App\Http\Controllers\RlqhTaskController::class, 'taskHistory'])->name('history');
+        });
+
+        Route::prefix('news')->name('news.')->group(function () {
+           Route::get('', [\App\Http\Controllers\ArticleController::class, 'index'])->name('index');
+           Route::get('show/{article}', [\App\Http\Controllers\ArticleController::class, 'show'])->name('show');
         });
     });
 });

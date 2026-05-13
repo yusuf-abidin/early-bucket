@@ -44,7 +44,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
-            <HorizontalImageList :users_summary="props.users_summary" />
+            <HorizontalImageList :users_summary="props.users_summary" :scope="props.scope ?? 'rlqh'"/>
 
             <TaskTable
                 :tasksData="props.tasks"
