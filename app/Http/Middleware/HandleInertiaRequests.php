@@ -57,10 +57,12 @@ class HandleInertiaRequests extends Middleware
                         'today' => $request->user()
                             ->tasks()
                             ->with('category')
+                            ->whereNull('completed_at')
                             ->whereDate('due_date', now())->get(),
                         'tomorrow' => $request->user()
                             ->tasks()
                             ->with('category')
+                            ->whereNull('completed_at')
                             ->whereDate('due_date', now()->addDay())->get(),
                     ] : null
             ),
