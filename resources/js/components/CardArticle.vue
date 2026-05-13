@@ -61,32 +61,37 @@ onUpdated(checkTitleClamped);
 <template>
     <div
         ref="cardRef"
-        class="relative flex flex-col overflow-hidden rounded-xl border border-border bg-white p-4 shadow-md cursor-pointer"
+        class="relative flex flex-col overflow-hidden rounded-xl border border-border bg-white dark:bg-slate-800 dark:border-slate-700 p-4 shadow-md cursor-pointer transition-colors"
         @click="handleCardClick"
     >
         <div class="relative">
             <img
                 :src="props.article.image ? `/storage/${props.article.image}` : fallbackImage"
                 :alt="props.article.title"
-                class="h-48 w-full bg-slate-100 object-cover"
+                class="h-48 w-full bg-slate-100 dark:bg-slate-700 object-cover"
                 @error="onImgError"
             />
+
             <div
                 v-if="props.isAdmin"
                 class="absolute top-2 left-2 z-10 flex items-center gap-2"
             >
                 <span
                     class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
-                    :class="props.article.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'"
+                    :class="props.article.status === 'published'
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/80 dark:text-green-400'
+                        : 'bg-gray-200 text-gray-700 dark:bg-slate-600 dark:text-slate-300'"
                 >
                     {{ statusLabel }}
                 </span>
             </div>
+
+            <!-- Action menu (admin only) -->
             <div v-if="props.isAdmin" class="absolute top-2 right-2 z-10">
                 <div class="group relative">
                     <button
                         @click.stop="showMenu = !showMenu"
-                        class="rounded p-1 hover:bg-slate-100 card-action-btn"
+                        class="rounded p-1 hover:bg-slate-100 dark:hover:bg-slate-600 card-action-btn text-slate-700 dark:text-slate-300 transition-colors"
                     >
                         <svg
                             width="20"
@@ -103,17 +108,17 @@ onUpdated(checkTitleClamped);
                     </button>
                     <div
                         v-if="showMenu"
-                        class="absolute right-0 z-10 mt-2 w-28 rounded border bg-white shadow"
+                        class="absolute right-0 z-10 mt-2 w-28 rounded border bg-white dark:bg-slate-800 dark:border-slate-600 shadow"
                     >
                         <button
                             @click.stop="$emit('edit', props.article)"
-                            class="block w-full cursor-pointer px-4 py-2 text-left hover:bg-slate-100 card-action-btn"
+                            class="block w-full cursor-pointer px-4 py-2 text-left text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 card-action-btn transition-colors"
                         >
                             Edit
                         </button>
                         <button
                             @click.stop="$emit('delete', props.article)"
-                            class="block w-full cursor-pointer px-4 py-2 text-left text-red-600 hover:bg-red-50 card-action-btn"
+                            class="block w-full cursor-pointer px-4 py-2 text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 card-action-btn transition-colors"
                         >
                             Hapus
                         </button>
@@ -121,20 +126,21 @@ onUpdated(checkTitleClamped);
                 </div>
             </div>
         </div>
+
         <div class="mt-3 flex flex-1 flex-col">
-            <div class="mb-1 text-xs text-slate-500">
+            <div class="mb-1 text-xs text-slate-500 dark:text-slate-400">
                 Dipublikasikan: {{ publishedAtText }}
             </div>
             <h2
-                class="mb-1 line-clamp-2 text-lg font-semibold"
+                class="mb-1 line-clamp-2 text-lg font-semibold text-slate-900 dark:text-slate-100"
                 :title="isTitleClamped ? props.article.title : ''"
             >
                 {{ props.article.title }}
             </h2>
-            <Separator />
+            <Separator class="dark:border-slate-600" />
             <div
                 v-html="cleanedContent"
-                class="prose mt-2 line-clamp-3 text-sm text-slate-700"
+                class="prose dark:prose-invert mt-2 line-clamp-3 text-sm text-slate-700 dark:text-slate-300"
             ></div>
         </div>
     </div>
