@@ -22,6 +22,7 @@ import memos from '@/routes/memos';
 import { LayoutDashboard } from 'lucide-vue-next';
 import contactCluster from '@/routes/contact-cluster';
 import performanceLog from '@/routes/performance-log';
+import consumerRecap from '@/routes/consumer-recap';
 
 const props = withDefaults(defineProps<SidebarProps>(), {
     collapsible: 'icon',
@@ -58,9 +59,13 @@ const mainNavItems: NavItem[] = [
                 href: contactCluster.index().url,
             },
             {
-                title: 'Rekapitulasi',
+                title: 'Pencapaian',
                 href: `${performanceLog.index().url}?year=${new Date().getFullYear()}`,
             },
+            {
+                title: 'Rekapitulasi Konsumer',
+                href: `${consumerRecap.index().url}?year=${new Date().getFullYear()}`,
+            }
         ],
     },
     // {

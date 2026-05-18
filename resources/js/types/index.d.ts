@@ -222,4 +222,13 @@ export interface Article {
     published_at: string | null;
 }
 
+export interface ConsumerRecap {
+    id: number;
+    date: number;
+    month: number;
+    year: number;
+    consumer: number | null;
+    percent: number | null;
+}
+
 export type BreadcrumbItemType = BreadcrumbItem;

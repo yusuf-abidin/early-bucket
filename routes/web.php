@@ -138,6 +138,11 @@ Route::middleware(['auth', 'role:admin,user'])->group(function () {
         Route::post('delete-date/{period}', [\App\Http\Controllers\PerformancePeriodController::class, 'deleteDate'])->name('delete-date');
         Route::post('bulk-update', [\App\Http\Controllers\PerformancePeriodController::class, 'bulkUpdate'])->name('bulk-update');
     });
+
+    Route::prefix('consumer-recap')->name('consumer-recap.')->group(function () {
+        Route::get('', [\App\Http\Controllers\ConsumerRecapController::class, 'index'])->name('index');
+        Route::patch('upsert', [\App\Http\Controllers\ConsumerRecapController::class, 'upsert'])->name('upsert');
+    });
 });
 
 Route::middleware(['auth', 'role:rlqh,admin'])->group(function () {

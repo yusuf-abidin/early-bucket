@@ -65,3 +65,33 @@ export const createWhatsappLink = (
     if (!message) return baseUrl;
     return `${baseUrl}?text=${encodeURIComponent(message)}`;
 };
+
+export const monthList = [
+    { value: 1, label: 'Januari' },
+    { value: 2, label: 'Februari' },
+    { value: 3, label: 'Maret' },
+    { value: 4, label: 'April' },
+    { value: 5, label: 'Mei' },
+    { value: 6, label: 'Juni' },
+    { value: 7, label: 'Juli' },
+    { value: 8, label: 'Agustus' },
+    { value: 9, label: 'September' },
+    { value: 10, label: 'Oktober' },
+    { value: 11, label: 'November' },
+    { value: 12, label: 'Desember' },
+];
+
+export const monthGradients: Record<number, string> = {
+    1:  'bg-linear-to-r from-slate-700 to-slate-800',
+    2:  'bg-linear-to-r from-indigo-900 to-slate-800',
+    3:  'bg-linear-to-r from-blue-800 to-indigo-700',
+    4:  'bg-linear-to-r from-cyan-800 to-blue-800',
+    5:  'bg-linear-to-r from-teal-800 to-cyan-700',
+    6:  'bg-linear-to-r from-emerald-800 to-teal-700',
+    7:  'bg-linear-to-r from-green-800 to-emerald-800',
+    8:  'bg-linear-to-r from-amber-700 to-orange-700',
+    9:  'bg-linear-to-r from-orange-800 to-red-800',
+    10: 'bg-linear-to-r from-violet-800 to-indigo-900',
+    11: 'bg-linear-to-r from-zinc-700 to-slate-700',
+    12: 'bg-linear-to-r from-sky-900 to-slate-900',
+};

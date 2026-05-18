@@ -59,7 +59,7 @@ const props = defineProps<{
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Rekapitulasi',
+        title: 'Pencapaian',
         href: performanceLog.index().url,
     },
 ];
