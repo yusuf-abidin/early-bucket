@@ -14,7 +14,7 @@ class ArticleController extends Controller
     public function index()
     {
         $articles = Article::where('status', 'published')
-            ->latest()
+            ->latest('published_at')
             ->paginate(12)
             ->withQueryString();
 
@@ -29,7 +29,7 @@ class ArticleController extends Controller
             ->when($request->input('status'), function ($query, $status) {
                 return $query->where('status', $status);
             })
-            ->latest()
+            ->latest('published_at')
             ->paginate(12)
             ->withQueryString();
 
