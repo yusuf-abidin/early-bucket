@@ -82,7 +82,7 @@ const handleExport = () => {
             :aria-describedby="undefined"
             class="max-h-[calc(100vh-4rem)] max-w-xl overflow-hidden p-0 sm:max-w-2xl lg:max-w-xl"
         >
-            <DialogHeader class="px-6 pt-6 pb-4">
+            <DialogHeader class="px-6 pt-5 pb-2">
                 <DialogTitle>Simpan Gambar</DialogTitle>
             </DialogHeader>
 
@@ -122,7 +122,7 @@ const handleExport = () => {
                 </div>
             </div>
 
-            <DialogFooter class="px-6 pt-6 pb-4">
+            <DialogFooter class="px-6 pt-2 pb-4">
                 <DialogClose as-child>
                     <Button
                         type="button"
