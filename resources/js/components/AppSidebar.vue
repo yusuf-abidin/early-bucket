@@ -13,7 +13,13 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
-import { AppWindow, ShieldIcon, MapPin } from 'lucide-vue-next';
+import {
+    ShieldIcon,
+    MapPin,
+    ChartNoAxesCombined,
+    Users,
+    BriefcaseBusiness,
+} from 'lucide-vue-next';
 import NavUser from '@/components/NavUser.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import admin from '@/routes/admin';
@@ -33,9 +39,9 @@ const user = page.props.auth.user;
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'App',
+        title: 'Pekerjaan',
         href: dashboard(),
-        icon: AppWindow,
+        icon: BriefcaseBusiness,
         isActive: true,
         items: [
             {
@@ -54,10 +60,26 @@ const mainNavItems: NavItem[] = [
                 title: 'Arsip Memo',
                 href: memos.archive().url,
             },
+        ],
+    },
+    {
+        title: 'Kontak',
+        href: '#',
+        icon: Users,
+        isActive: false,
+        items: [
             {
                 title: 'Kontak Cluster',
                 href: contactCluster.index().url,
             },
+        ],
+    },
+    {
+        title: 'Rekap',
+        href: '#',
+        icon: ChartNoAxesCombined,
+        isActive: false,
+        items: [
             {
                 title: 'Pencapaian',
                 href: `${performanceLog.index().url}?year=${new Date().getFullYear()}`,
@@ -65,7 +87,7 @@ const mainNavItems: NavItem[] = [
             {
                 title: 'Rekapitulasi Konsumer',
                 href: `${consumerRecap.index().url}?year=${new Date().getFullYear()}`,
-            }
+            },
         ],
     },
     // {
