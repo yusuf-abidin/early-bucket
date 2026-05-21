@@ -67,8 +67,8 @@ const dateRange = ref<{
     end: parseSafeDate(props.initialFilters?.createdTo),
 });
 const selectedUsers = ref<number[]>(props.initialFilters?.userIds || []);
-const dateBy = ref<string>(props.initialFilters?.dateBy || 'created_at');
-const sortBy = ref(props.initialFilters?.sortBy || 'created_at');
+const dateBy = ref<string>(props.initialFilters?.dateBy || 'completed_at');
+const sortBy = ref(props.initialFilters?.sortBy || 'completed_at');
 const sortDir = ref<'asc' | 'desc'>(props.initialFilters?.sortDir || 'desc');
 
 const defaultColumns = {
