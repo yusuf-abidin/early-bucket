@@ -26,7 +26,7 @@ const selectedArticle = ref<Article | null>(null);
 const createArticle = () => {
     router.visit(rlqh.news.create().url);
 };
-const activeStatus = computed(() => props.status ?? null)
+const activeStatus = computed(() => props.status ?? null);
 
 const filterStatus = (status: string | null) => {
     if (status === null) {
@@ -114,7 +114,29 @@ const showArticle = (article: Article) => {
                     @open="showArticle(article)"
                 />
             </div>
+
+            <div
+                v-if="props.articles.data.length === 0"
+                class="flex h-full flex-col items-center justify-center text-center"
+            >
+                <h2 class="text-lg font-semibold text-gray-700">
+                    Belum ada News
+                </h2>
+                <p class="text-sm text-gray-500">
+                    Tidak ada news yang tersedia saat ini. Silakan buat
+                    news.
+                </p>
+                <Button
+                    size="sm"
+                    @click="createArticle"
+                    variant="default"
+                    class="mt-4"
+                >
+                    + Buat News
+                </Button>
+            </div>
             <TaskHistoryPagination
+                v-if="props.articles.data.length > 0"
                 :current_page="props.articles.current_page"
                 :last_page="props.articles.last_page"
                 :links="props.articles.links"

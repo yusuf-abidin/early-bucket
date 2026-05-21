@@ -41,7 +41,20 @@ const showArticle = (article: Article) => {
                 />
             </div>
 
+            <div
+                v-if="props.articles.data.length === 0"
+                class="flex h-full flex-col items-center justify-center text-center"
+            >
+                <h2 class="text-lg font-semibold text-gray-700">
+                    Belum ada News
+                </h2>
+                <p class="text-sm text-gray-500">
+                    Tidak ada news yang tersedia saat ini.
+                </p>
+            </div>
+
             <TaskHistoryPagination
+                v-if="props.articles.data.length > 0"
                 :current_page="props.articles.current_page"
                 :last_page="props.articles.last_page"
                 :links="props.articles.links"
