@@ -28,4 +28,9 @@ class Regional extends Model
     public function performanceLogs(): HasMany {
         return $this->hasMany(PerformanceLog::class);
     }
+
+    public function branchContacts(): HasMany
+    {
+        return $this->hasMany(BranchContact::class);
+    }
 }

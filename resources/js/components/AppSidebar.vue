@@ -29,6 +29,7 @@ import { LayoutDashboard } from 'lucide-vue-next';
 import contactCluster from '@/routes/contact-cluster';
 import performanceLog from '@/routes/performance-log';
 import consumerRecap from '@/routes/consumer-recap';
+import branchContact from '@/routes/branch-contact';
 
 const props = withDefaults(defineProps<SidebarProps>(), {
     collapsible: 'icon',
@@ -66,19 +67,23 @@ const mainNavItems: NavItem[] = [
         title: 'Kontak',
         href: '#',
         icon: Users,
-        isActive: false,
+        isActive: true,
         items: [
             {
                 title: 'Kontak Cluster',
                 href: contactCluster.index().url,
             },
+            {
+                title: 'Kontak BM',
+                href: branchContact.index().url,
+            }
         ],
     },
     {
         title: 'Rekap',
         href: '#',
         icon: ChartNoAxesCombined,
-        isActive: false,
+        isActive: true,
         items: [
             {
                 title: 'Pencapaian',

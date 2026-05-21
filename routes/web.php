@@ -122,6 +122,13 @@ Route::middleware(['auth', 'role:admin,user'])->group(function () {
         Route::delete('{contactCluster}', [\App\Http\Controllers\ContactClusterController::class, 'destroy'])->name('destroy');
     });
 
+    Route::prefix('branch-contact')->name('branch-contact.')->group(function () {
+        Route::get('', [\App\Http\Controllers\BranchContactController::class, 'index'])->name('index');
+        Route::post('', [\App\Http\Controllers\BranchContactController::class, 'store'])->name('store');
+        Route::patch('{branchContact}', [\App\Http\Controllers\BranchContactController::class, 'update'])->name('update');
+        Route::delete('{branchContact}', [\App\Http\Controllers\BranchContactController::class, 'destroy'])->name('destroy');
+    });
+
     Route::prefix('stc-tl-contact')->name('stc-tl-contact.')->group(function () {
         Route::post('', [\App\Http\Controllers\StcTlContactController::class, 'store'])->name('store');
         Route::patch('{stcTlContact}', [\App\Http\Controllers\StcTlContactController::class, 'update'])->name('update');

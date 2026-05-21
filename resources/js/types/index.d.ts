@@ -144,6 +144,7 @@ export interface Regional {
     areas: Area[];
     branches: Branch[];
     contact_cluster?: ContactCluster;
+    branch_contacts?: BranchContact[];
 }
 
 export interface Area {
@@ -229,6 +230,16 @@ export interface ConsumerRecap {
     year: number;
     consumer: number | null;
     percent: number | null;
+}
+
+export interface BranchContact {
+    id: number;
+    regional_id: number;
+    branch_name: string;
+    name: string;
+    nip: string;
+    phone: string;
+    avatar: string | null;
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;
