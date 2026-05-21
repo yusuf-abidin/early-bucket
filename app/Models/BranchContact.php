@@ -20,4 +20,9 @@ class BranchContact extends Model
     {
         return $this->belongsTo(Regional::class);
     }
+
+    public function dbmscContact()
+    {
+        return $this->hasOne(DbmscContact::class);
+    }
 }
