@@ -12,10 +12,24 @@ use Inertia\Inertia;
 class BranchContactController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $contacts = Regional::with('branchContacts')
-            ->orderBy('regionals.name')
+        $search = $request->input('search');
+        $contacts = Regional::with([
+            'branchContacts' => function ($query) use ($search) {
+                // Jika ada search, filter branchContacts berdasarkan nama BM atau nama DBMSC
+                $query->when($search, function ($q) use ($search) {
+                    $q->where(function ($subQ) use ($search) {
+                        $subQ->where('name', 'like', "%{$search}%")
+                            ->orWhere('branch_name', 'like', "%{$search}%")
+                        ->orWhereHas('dbmscContact', function ($dbmscQ) use ($search) {
+                            $dbmscQ->where('name', 'like', "%{$search}%"); // Cari berdasarkan nama di DbmscContact
+                        });
+                    });
+                })->with(['dbmscContact']);
+            }
+        ])
+            ->orderBy('name')
             ->get();
 
         return Inertia::render('contact_cluster/BranchContactIndex', [

@@ -2,7 +2,8 @@
 import {
     Dialog,
     DialogClose,
-    DialogContent, DialogDescription,
+    DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -11,23 +12,36 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
 import { ref, watch } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
-import { BranchContact, Regional } from '@/types';
+import {
+    BranchContact,
+    EditBranchContactPayload,
+    Regional,
+} from '@/types';
 import BranchContactController from '@/actions/App/Http/Controllers/BranchContactController';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import branchContact from '@/routes/branch-contact';
+import DbmscContactController from "@/actions/App/Http/Controllers/DbmscContactController";
+import dbmscContact from "@/routes/dbmsc-contact";
 
 const formBranchContactIsOpen = defineModel<boolean>('form-contact-is-open', {
     default: false,
 });
 
-const selectedContact = defineModel<BranchContact | null>('selected-contact', {
-    default: null,
-});
-
 const selectedRegional = defineModel<Regional | null>('selected-regional', {
     default: null,
 });
+
+const selectedBranchContact = defineModel<BranchContact | null>('selected-branch-contact', {
+    default: null,
+});
+
+const editBranchContactPayload = defineModel<EditBranchContactPayload | null>(
+    'edit-payload',
+    {
+        default: null,
+    },
+);
 
 const avatarInputRef = ref<HTMLInputElement | null>(null);
 const avatarPreview = ref<string | null>(null);
@@ -63,8 +77,9 @@ const removeAvatar = () => {
 };
 
 const closeModal = () => {
+    selectedBranchContact.value = null;
     formBranchContactIsOpen.value = false;
-    selectedContact.value = null;
+    editBranchContactPayload.value = null;
 
     if (avatarPreview.value && avatarPreview.value.startsWith('blob:')) {
         URL.revokeObjectURL(avatarPreview.value);
@@ -76,21 +91,31 @@ const closeModal = () => {
 };
 
 const form = useForm({
-    regional_id: null as number | null,
-    branch_name: '',
     name: '',
     nip: '',
     phone: '',
     avatar: null as File | null,
     remove_avatar: 0,
+
+    branch_name: '',
+    regional_id: null as number | null,
+
+    branch_contact_id: null as number | null,
 });
 
 const submit = () => {
-    const route = !selectedContact.value
+    let route = null;
+    if (editBranchContactPayload.value?.target_type == "BM") {
+        route = !editBranchContactPayload.value?.branch_contact
         ? BranchContactController.store.form()
-        : BranchContactController.update.form(selectedContact.value.id);
+        : BranchContactController.update.form(editBranchContactPayload.value?.branch_contact.id);
+    }else if(editBranchContactPayload.value?.target_type == "DBMSC") {
+        route = !editBranchContactPayload.value?.dbmsc_contact
+        ? DbmscContactController.store.form()
+        : DbmscContactController.update.form(editBranchContactPayload.value?.dbmsc_contact.id);
+    }
 
-    form.submit(route.method, route.action, {
+    form.submit(route!.method, route!.action, {
         preserveScroll: true,
         onSuccess: () => {
             closeModal();
@@ -112,24 +137,46 @@ const submit = () => {
 };
 
 watch(
-    () => selectedContact.value,
+    () => editBranchContactPayload.value,
     (data) => {
-        if (!data) return;
-        form.regional_id = selectedRegional.value?.id ?? null;
-        form.branch_name = data.branch_name ?? '';
-        form.name = data.name ?? '';
-        form.nip = data.nip ?? '';
-        form.phone = data.phone ?? '';
+        if (!data) {
+            form.reset();
+            return;
+        }
+
+        if (!data.dbmsc_contact || !data.branch_contact) {
+            form.reset();
+        }
+
+        if (data.target_type == 'BM') {
+            form.regional_id = selectedRegional.value?.id ?? null;
+            form.branch_name = data.branch_contact?.branch_name ?? '';
+
+            form.name = data.branch_contact?.name ?? '';
+            form.nip = data.branch_contact?.nip ?? '';
+            form.phone = data.branch_contact?.phone ?? '';
+        } else if (data.target_type == 'DBMSC') {
+            form.branch_contact_id = selectedBranchContact.value?.id ?? null;
+
+            form.name = data.dbmsc_contact?.name ?? '';
+            form.nip = data.dbmsc_contact?.nip ?? '';
+            form.phone = data.dbmsc_contact?.phone ?? '';
+        }
 
         if (avatarPreview.value && avatarPreview.value.startsWith('blob:')) {
             URL.revokeObjectURL(avatarPreview.value);
         }
 
+        const avatar = data.branch_contact ? data.branch_contact.avatar : data.dbmsc_contact?.avatar
+
         avatarPreview.value =
-            (data.avatar && `/storage/${data.avatar}`) ?? null;
+            (avatar && `/storage/${avatar}`) ?? null;
         form.remove_avatar = 0;
     },
-    { immediate: true },
+    {
+        immediate: true,
+        deep: true,
+    },
 );
 
 watch(
@@ -141,9 +188,19 @@ watch(
 );
 
 const deleteContact = () => {
-    if (!selectedContact.value) return;
+    let contact = null;
+    let route = null;
+    if (editBranchContactPayload.value?.target_type == "BM") {
+        contact = editBranchContactPayload.value?.branch_contact;
+        route = branchContact.destroy(contact!.id).url
+    } else {
+        contact = editBranchContactPayload.value?.dbmsc_contact;
+        route = dbmscContact.destroy(contact!.id).url
+    }
+    if (!contact) return;
 
-    router.delete(branchContact.destroy(selectedContact.value.id).url, {
+
+    router.delete(route, {
         preserveScroll: true,
         onSuccess: () => {
             closeModal();
@@ -174,10 +231,13 @@ const deleteContact = () => {
             <ScrollArea>
                 <DialogHeader class="px-6 pt-6">
                     <DialogTitle class="text-2xl font-semibold">
-                        {{ selectedContact ? 'Edit Kontak' : 'Buat Kontak' }}
+                        {{ editBranchContactPayload?.branch_contact || editBranchContactPayload?.dbmsc_contact ? 'Edit Kontak' : 'Buat Kontak' }}
                     </DialogTitle>
-                    <DialogDescription class="-mt-2">
+                    <DialogDescription v-if="editBranchContactPayload?.target_type == 'BM'" class="-mt-2">
                         {{ selectedRegional?.name }}
+                    </DialogDescription>
+                    <DialogDescription v-else class="-mt-2">
+                        {{ selectedBranchContact?.branch_name }}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -324,23 +384,25 @@ const deleteContact = () => {
                     </div>
 
                     <div class="space-y-2">
-                        <Label for="branch_name">
-                            Nama Cabang
-                            <span class="text-destructive">*</span>
-                        </Label>
-                        <Input
-                            :disabled="form.processing"
-                            v-model="form.branch_name"
-                            id="branch_name"
-                            type="text"
-                            name="branch_name"
-                        />
-                        <p
-                            v-if="form.errors.branch_name"
-                            class="text-xs text-destructive"
-                        >
-                            {{ form.errors.branch_name }}
-                        </p>
+                        <template v-if="editBranchContactPayload?.target_type == 'BM'">
+                            <Label for="branch_name">
+                                Nama Cabang
+                                <span class="text-destructive">*</span>
+                            </Label>
+                            <Input
+                                :disabled="form.processing"
+                                v-model="form.branch_name"
+                                id="branch_name"
+                                type="text"
+                                name="branch_name"
+                            />
+                            <p
+                                v-if="form.errors.branch_name"
+                                class="text-xs text-destructive"
+                            >
+                                {{ form.errors.branch_name }}
+                            </p>
+                        </template>
                     </div>
 
                     <div class="space-y-2">
@@ -408,7 +470,7 @@ const deleteContact = () => {
                     class="flex flex-col-reverse gap-3 px-6 pt-4 pb-6 sm:flex-row sm:items-center sm:justify-between"
                 >
                     <Button
-                        v-if="selectedContact"
+                        v-if="editBranchContactPayload?.dbmsc_contact || editBranchContactPayload?.branch_contact"
                         variant="destructive"
                         :disabled="form.processing"
                         class="w-full gap-1.5 sm:w-auto"

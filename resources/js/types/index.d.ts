@@ -240,6 +240,22 @@ export interface BranchContact {
     nip: string;
     phone: string;
     avatar: string | null;
+    dbmsc_contact?: DbmscContact;
+}
+
+export interface DbmscContact {
+    id: number;
+    branch_contact_id: number;
+    name: string;
+    nip: string;
+    phone: string;
+    avatar: string | null;
+}
+
+export interface EditBranchContactPayload {
+    target_type: 'BM' | 'DBMSC';
+    branch_contact?: BranchContact | null;
+    dbmsc_contact?: DbmscContact | null;
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;
