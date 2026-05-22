@@ -16,7 +16,7 @@ class UpdateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'scope' => [Rule::in([Task::SCOPE_CENTRAL, Task::SCOPE_RLQH])],
+            'scope' => ['nullable', Rule::in([Task::SCOPE_CENTRAL, Task::SCOPE_RLQH])],
             'task_description' => ['sometimes', 'required', 'max:255'],
             'category_id' => ['sometimes', 'required', 'exists:categories,id'],
             'users' => ['nullable', 'array'],
