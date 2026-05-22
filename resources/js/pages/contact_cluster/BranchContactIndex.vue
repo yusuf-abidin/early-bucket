@@ -39,7 +39,7 @@ const formBranchContactIsOpen = ref<boolean>(false);
 
 const editBranchContactPayload = ref<EditBranchContactPayload | null>(null);
 
-const handleAdd = (regional?: Regional) => {
+const handleAdd = (regional?: Regional | null) => {
     formBranchContactIsOpen.value = true;
     editBranchContactPayload.value = {
         target_type: 'BM',
@@ -191,7 +191,7 @@ debouncedWatch(
                             <Button
                                 v-if="selectedRegional"
                                 size="sm"
-                                @click="handleAdd"
+                                @click="handleAdd(null)"
                                 class="cursor-pointer gap-1.5 bg-blue-600 whitespace-nowrap hover:bg-blue-700"
                             >
                                 <PlusIcon class="h-4 w-4" />
@@ -220,7 +220,7 @@ debouncedWatch(
                         <Button
                             variant="outline"
                             size="sm"
-                            @click="handleAdd"
+                            @click="handleAdd(null)"
                             class="mt-1 gap-1.5"
                         >
                             <PlusIcon class="h-4 w-4" />
@@ -259,7 +259,7 @@ debouncedWatch(
                                 class="grid items-start gap-6 p-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
                             >
                                 <div
-                                    class="group/branch flex flex-col items-center rounded-2xl border border-slate-100 bg-slate-50/40 p-5 shadow-sm transition-all hover:bg-slate-50/80 hover:shadow-md"
+                                    class="group/branch flex flex-col items-center rounded-2xl border border-slate-300 bg-slate-50/40 p-5 shadow-sm transition-all hover:bg-slate-50/80 hover:shadow-md"
                                     v-for="contact in regional.branch_contacts"
                                     :key="contact.id"
                                 >
@@ -300,7 +300,7 @@ debouncedWatch(
                         class="grid items-start gap-6 p-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
                     >
                         <div
-                            class="group/branch flex flex-col items-center rounded-2xl border border-slate-100 bg-slate-50/40 p-5 shadow-sm transition-all hover:bg-slate-50/80 hover:shadow-md"
+                            class="group/branch flex flex-col items-center rounded-2xl border border-slate-300 bg-slate-50/40 p-5 shadow-sm transition-all hover:bg-slate-50/80 hover:shadow-md"
                             v-for="contact in showedContacts"
                             :key="contact.id"
                         >
