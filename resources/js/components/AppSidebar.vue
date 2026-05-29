@@ -19,6 +19,8 @@ import {
     ChartNoAxesCombined,
     Users,
     BriefcaseBusiness,
+    Rocket,
+    FolderKanban,
 } from 'lucide-vue-next';
 import NavUser from '@/components/NavUser.vue';
 import { Link, usePage } from '@inertiajs/vue3';
@@ -30,6 +32,9 @@ import contactCluster from '@/routes/contact-cluster';
 import performanceLog from '@/routes/performance-log';
 import consumerRecap from '@/routes/consumer-recap';
 import branchContact from '@/routes/branch-contact';
+import eom from '@/routes/eom';
+import etape from '@/routes/etape';
+import debtorSavings from '@/routes/debtor-savings';
 
 const props = withDefaults(defineProps<SidebarProps>(), {
     collapsible: 'icon',
@@ -76,7 +81,7 @@ const mainNavItems: NavItem[] = [
             {
                 title: 'Kontak BM',
                 href: branchContact.index().url,
-            }
+            },
         ],
     },
     {
@@ -95,34 +100,34 @@ const mainNavItems: NavItem[] = [
             },
         ],
     },
-    // {
-    //     title: 'Performance',
-    //     href: '#',
-    //     icon: Rocket,
-    //     isActive: true,
-    //     items: [
-    //         {
-    //             title: 'ETAPE',
-    //             href: etape.index().url,
-    //         },
-    //         {
-    //             title: 'EOM',
-    //             href: eom.index().url,
-    //         },
-    //     ],
-    // },
-    // {
-    //     title: 'Project',
-    //     href: '#',
-    //     icon: FolderKanban,
-    //     isActive: true,
-    //     items: [
-    //         {
-    //             title: 'Debitur Menabung',
-    //             href: debtorSavings.index().url,
-    //         },
-    //     ],
-    // },
+    {
+        title: 'Performance',
+        href: '#',
+        icon: Rocket,
+        isActive: true,
+        items: [
+            {
+                title: 'ETAPE',
+                href: etape.index().url,
+            },
+            {
+                title: 'EOM',
+                href: eom.index().url,
+            },
+        ],
+    },
+    {
+        title: 'Project',
+        href: '#',
+        icon: FolderKanban,
+        isActive: true,
+        items: [
+            {
+                title: 'Debitur Menabung',
+                href: debtorSavings.index().url,
+            },
+        ],
+    },
 ];
 
 const adminNavItem: NavItem[] = [

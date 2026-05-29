@@ -97,7 +97,8 @@ class DebtorSavingsController extends Controller
             'users' => $users,
             'categories' => $categories,
             'users_summary' => $usersSummary,
-            'task_stats' => $taskStats
+            'task_stats' => $taskStats,
+            'scope' => Task::SCOPE_CENTRAL
         ]);
     }
 

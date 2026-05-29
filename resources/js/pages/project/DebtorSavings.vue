@@ -16,6 +16,7 @@ const props = defineProps<{
     categories: Category[];
     users_summary: UserSummary[];
     task_stats: object;
+    scope?: string;
 }>();
 
 const dialogDeleteTaskIsOpen = ref<boolean>(false);
@@ -68,6 +69,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 :users-data="props.users"
                 :categories="props.categories"
                 :mode="'debtor_savings'"
+                :scope="props.scope"
             />
         </div>
     </AppLayout>
