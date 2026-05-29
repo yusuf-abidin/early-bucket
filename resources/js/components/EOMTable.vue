@@ -32,6 +32,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Check, X } from 'lucide-vue-next';
 import { getBadgeColor } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 const props = defineProps<{
     performance_etapes?: any;
@@ -108,7 +109,7 @@ const getAllBranchesOfRegional = (regional: any): any[] => {
     return [...fromAreas, ...direct];
 };
 
-const handleRegionalPIC = (regionalId: number, userId: number) => {
+const handleRegionalPIC = (regionalId: number, userId: number | null) => {
     const regional = props.performance_etapes?.find(
         (r: any) => r.id === regionalId,
     );
@@ -274,6 +275,11 @@ onUnmounted(() => {
                                         >
                                             {{ user.name }}
                                         </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                            class="text-muted-foreground"
+                                            @click="handleRegionalPIC(regional.id, null)"
+                                        >None</DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
@@ -358,6 +364,8 @@ onUnmounted(() => {
                                             >
                                                 {{ user.name }}
                                             </SelectItem>
+                                            <Separator />
+                                            <SelectItem :value="null" class="text-muted-foreground">None</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -406,6 +414,10 @@ onUnmounted(() => {
                                                 :value="komitmen.id"
                                             >
                                                 {{ komitmen.name }}
+                                            </SelectItem>
+                                            <Separator />
+                                            <SelectItem class="text-muted-foreground" :value="null">
+                                                None
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -456,6 +468,10 @@ onUnmounted(() => {
                                                 :value="komitmen.id"
                                             >
                                                 {{ komitmen.name }}
+                                            </SelectItem>
+                                            <Separator />
+                                            <SelectItem class="text-muted-foreground" :value="null">
+                                                None
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>

@@ -272,7 +272,7 @@ class PerformanceEtapeController extends Controller
 
         $totalPrognosaNasional = $performanceEtapes->sum('prognosa_akhir_bulan');
 
-        $users      = User::select('id', 'name')->get();
+        $users      = User::select('id', 'name')->orderBy('name')->get();
         $categories = [
             'komitmen_etape_bc' => Category::where('type', PerformanceEtape::TYPE_ETAPE_BC)
                 ->orderBy('order')

@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { getBadgeColor } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 const props = defineProps<{
     performance_etapes?: any[];
@@ -108,7 +109,7 @@ const getAllBranchesOfRegional = (regional: any): any[] => {
 /**
  * Set PIC untuk seluruh cabang di bawah satu regional.
  */
-const handleRegionalPIC = (regionalId: number, userId: number) => {
+const handleRegionalPIC = (regionalId: number, userId: number | null) => {
     const regional = props.performance_etapes?.find((r: any) => r.id === regionalId);
     if (!regional) return;
 
@@ -223,6 +224,11 @@ onUnmounted(() => window.removeEventListener('keydown', handleGlobalEsc));
                                         >
                                             {{ user.name }}
                                         </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                            class="text-muted-foreground"
+                                            @click="handleRegionalPIC(regional.id, null)"
+                                        >None</DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
@@ -251,7 +257,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleGlobalEsc));
 
                             <!-- PIC: tidak ditampilkan pada baris area -->
                             <TableCell>
-                                <span class="text-sm text-muted-foreground">—</span>
+                                <span class="text-sm text-muted-foreground">-</span>
                             </TableCell>
 
                             <TableCell class="text-sm text-muted-foreground">
@@ -298,6 +304,8 @@ onUnmounted(() => window.removeEventListener('keydown', handleGlobalEsc));
                                             >
                                                 {{ user.name }}
                                             </SelectItem>
+                                            <Separator />
+                                            <SelectItem :value="null" class="text-muted-foreground">None</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -327,6 +335,10 @@ onUnmounted(() => window.removeEventListener('keydown', handleGlobalEsc));
                                             >
                                                 {{ komitmen.name }}
                                             </SelectItem>
+                                            <Separator />
+                                            <SelectItem class="text-muted-foreground" :value="null">
+                                                None
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -355,6 +367,10 @@ onUnmounted(() => window.removeEventListener('keydown', handleGlobalEsc));
                                                 :value="komitmen.id"
                                             >
                                                 {{ komitmen.name }}
+                                            </SelectItem>
+                                            <Separator />
+                                            <SelectItem class="text-muted-foreground" :value="null">
+                                                None
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
